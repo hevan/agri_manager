@@ -21,17 +21,53 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends  State<SideMenu>{
 
   int selectedIndex = 0;
-  List<SysMenu> listMenu = [];
-  SysMenu? selectedMenu;
+  final List<Map<String, dynamic>> listMenu = [
+    {
+      'id': 1,
+      'name': '首页',
+      'path': '/home',
+      'iconUrl':'assets/icons/icon_home.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    },
+    {
+      'id': 2,
+      'name': '资讯',
+      'path': '/news',
+      'iconUrl':'assets/icons/icon_news.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    },
+    {
+      'id': 3,
+      'name': '市场',
+      'path': '/market',
+      'iconUrl':'assets/icons/icon_market.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    },
+    {
+      'id': 4,
+      'name': '设置',
+      'path': '/setting',
+      'iconUrl':'assets/icons/icon_setting.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    }
+  ];
+  Map<String, dynamic>? selectedMenu;
   bool isExpanded = false;
 
   @override
   void initState() {
     super.initState();
-
-    loadData();
   }
 
+  /*
   Future loadData() async{
     try {
       var params = {'corpId': HttpApi.corpId.toString()};
@@ -71,6 +107,7 @@ class _SideMenuState extends  State<SideMenu>{
       debugPrint(customAppException.getMessage());
     }
   }
+   */
 
   @override
   Widget build(BuildContext context) {
@@ -87,41 +124,27 @@ class _SideMenuState extends  State<SideMenu>{
             itemCount: listMenu.length,
             itemBuilder: (BuildContext context, int index) {
               //  if(index==0) return controlTile();
-              SysMenu mainMenu = listMenu[index];
-              bool selected = (null != selectedMenu && selectedMenu!.id  == mainMenu.id) ? true : false;
-              return ExpansionTile(
-                  onExpansionChanged:(z){
-                    setState(() {
-                      selectedIndex = z?index:-1;
-                    });
+              Map<String, dynamic> mainMenu = listMenu[index];
+              bool selected = (null != selectedMenu && selectedMenu!['id']  == mainMenu['id']) ? true : false;
+              return ListTile(
+                  onTap:(){
+                    Navigator.pushNamed(
+                      context,
+                      mainMenu['path'],
+                    );
                   },
-                  leading: Image.asset(mainMenu.iconUrl!,height: 32,width: 32,),
+                  leading: Image.asset(mainMenu['iconUrl']!,height: 32,width: 32,),
                   title: Text(
-                   '${mainMenu.name}',
+                   '${mainMenu['name']}',
                   ),
-                  trailing: mainMenu.children!.isEmpty? null :
+                  trailing: mainMenu['children']!.isEmpty? null :
                   Icon(selected?Icons.keyboard_arrow_up:Icons.keyboard_arrow_down,
                     color: Colors.blueAccent,
                   ),
-                  children:_buildSubMenu(mainMenu),
               );
             },
           ),
 
-          ),
-          ListTile(
-            onTap: toSettingPage,
-            horizontalTitleGap: 0.0,
-            leading: SvgPicture.asset(
-              "assets/icons/menu_setting.svg",
-              height: 16,
-              color: Colors.white,
-            ),
-            title: Text(
-              "设置",
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-            trailing: const Icon(Icons.keyboard_arrow_right),
           )
         ],
       ),

@@ -2,8 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:sp_util/sp_util.dart';
 import 'package:znny_manager/src/controller/menu_controller.dart';
-import 'package:znny_manager/src/model/manage/UserInfo.dart';
+import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/screens/responsive.dart';
 import 'package:znny_manager/src/shared_components/today_text.dart';
@@ -16,7 +17,7 @@ class Header extends StatelessWidget {
     required this.data
   }) : super(key: key);
 
-  final UserInfo data;
+  final LoginInfoToken data;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,7 @@ class ProfileCard extends StatelessWidget {
     Key? key,
     required this.data,
   }) : super(key: key);
-  final UserInfo data;
+  final LoginInfoToken data;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -79,14 +80,19 @@ class ProfileCard extends StatelessWidget {
                   Text("设置"),
                 ],),
                 value: 1,
-                onTap: _toSetting,
+                onTap: (){
+
+                },
               ),
               PopupMenuItem(
                 child: Row(children: [
                   const Icon(Icons.outbox),
                   Text("退出"),
                 ],),
-                onTap: _logout,
+                onTap: (){
+                  SpUtil.clear();
+
+                },
                 value: 2,
               )
             ],
@@ -98,7 +104,7 @@ class ProfileCard extends StatelessWidget {
     );
   }
 
-  _toSetting(){
+  _toSetting(BuildContext context){
 
   }
 

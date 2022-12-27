@@ -17,14 +17,12 @@ class DioUtils {
   Dio get dio => _dio!;
 
   DioUtils._() {
+
+    // 不使用http状态码判断状态，需要设置followRedirects， validateStatus
     var options = BaseOptions(
       connectTimeout: 5000,
       receiveTimeout: 5000,
       responseType: ResponseType.json,
-      validateStatus: (status) {
-        // 不使用http状态码判断状态，使用AdapterInterceptor来处理（适用于标准REST风格）
-        return status != null && status > 0;
-      },
       baseUrl: 'http://localhost:8080',
       contentType: 'application/x-www-form-urlencoded',
     );
@@ -65,7 +63,8 @@ class DioUtils {
         return response.data;
       }
     } on DioError catch(error){
-      rethrow;
+       log('请求接口： response.data${error.message}');
+       rethrow;
     }
   }
 

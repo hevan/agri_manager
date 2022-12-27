@@ -20,14 +20,14 @@ class DioSocketException extends SocketException {
 
 class CustomAppException{
   final String _message;
-  final int _code;
+  final int _status;
   CustomAppException(
-      this._code,
+      this._status,
       this._message,
       );
 
   String toString() {
-    return "$_code$_message";
+    return "$_status$_message";
   }
 
   String getMessage() {
@@ -55,7 +55,7 @@ class CustomAppException{
         err.error.message = "当前网络不可用，请检查您的网络";
      // }
     }
-    int  code=-1;
+    int  status=-1;
     String showError = "";
     switch (err.type) {
       case DioErrorType.cancel:
@@ -92,9 +92,9 @@ class CustomAppException{
 
             // String errMsg = error.response.statusMessage;
             // return ErrorEntity(code: errCode, message: errMsg);
-            code = errCode!;
+            status = errCode!;
 
-            print(errCode);
+            //print(errCode);
             switch (errCode) {
               case 400:
                 {
@@ -162,6 +162,6 @@ class CustomAppException{
           showError =  err.error.message;
         }
     }
-    return  CustomAppException(code, showError);
+    return  CustomAppException(status, showError);
   }
 }

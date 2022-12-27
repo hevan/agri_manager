@@ -1,9 +1,12 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:znny_manager/src/controller/LocaleProvider.dart';
 import 'package:znny_manager/src/controller/menu_controller.dart';
-import 'package:znny_manager/src/model/product/ProductMarket.dart';
 import 'package:znny_manager/src/screens/base/park_screen.dart';
 import 'package:znny_manager/src/screens/customer/contact_search_screen.dart';
 import 'package:znny_manager/src/screens/customer/customer_screen.dart';
@@ -19,11 +22,8 @@ import 'package:znny_manager/src/screens/product/product_market_screen.dart';
 import 'package:znny_manager/src/screens/product/product_screen.dart';
 import 'package:znny_manager/src/screens/project/batch_screen.dart';
 import 'package:znny_manager/src/screens/splash_screen.dart';
-import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:znny_manager/src/settings/settings_view.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -89,6 +89,7 @@ class MyApp extends StatelessWidget {
             '/role': (context) => const CorpRoleScreen(),
             '/depart': (context) => const CorpDepartScreen(),
             '/menu': (context) => const MenuScreen(),
+            '/setting': (context) => const SettingsView(),
           },
 
           // Provide the generated AppLocalizations to the MaterialApp. This

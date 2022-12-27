@@ -1,14 +1,11 @@
 
 
 import 'package:flutter/cupertino.dart';
-import 'package:znny_manager/src/model/manage/UserInfo.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/main/components/header.dart';
-import 'package:znny_manager/src/utils/constants.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:dio/dio.dart';
+import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:znny_manager/src/screens/main/components/header.dart';
+import 'package:znny_manager/src/utils/agri_util.dart';
+import 'package:znny_manager/src/utils/constants.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -21,17 +18,17 @@ class _DashboardScreenState extends State<DashboardScreen>{
 
 
 
-  UserInfo _userInfo =  UserInfo();
+  LoginInfoToken userInfo =  LoginInfoToken();
 
   @override
   void initState() {
     super.initState();
 
     setState((){
-      UserInfo? hisUserInfo = SpUtil.getObj(Constant.USER_INFO, (v) => UserInfo.fromJson(v));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
 
-      if(hisUserInfo != null){
-        _userInfo = hisUserInfo;
+      if(null != userInfo.expiration){
+        AgriUtil.checkToken(userInfo, context);
       }
     });
 
@@ -44,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen>{
         padding: const EdgeInsets.all(defaultPadding),
     child: Column(
     children:  [
-       Header(data:_userInfo),
+       Header(data:userInfo),
        const SizedBox(height: defaultPadding),
     ]),
     ),);

@@ -55,8 +55,7 @@ class _LoginState extends State<Login> {
       EasyLoading.show(status: 'loading...');
       var data = {
         'mobile': phoneController.text,
-        'password': passwordController.text,
-        'corpId': HttpApi.corpId.toString()
+        'password': passwordController.text
       };
 
       var retData = await DioUtils().request(
@@ -65,24 +64,23 @@ class _LoginState extends State<Login> {
       EasyLoading.dismiss();
 
       if (retData['token'] != null) {
+        int currentTime = DateTime.now().millisecondsSinceEpoch + 3600;
+
+        String valueTime = '${currentTime}';
+        debugPrint(valueTime);
+        debugPrint(json.encode(retData));
         SpUtil.putObject(Constant.accessToken, retData);
-        SpUtil.putInt(Constant.userId, retData['userId']);
         Navigator.of(context).popAndPushNamed("/home");
       }
-
-
     }on DioError catch (error) {
       EasyLoading.dismiss();
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
       Fluttertoast.showToast(msg: customAppException.getMessage(),
-          toastLength: Toast.LENGTH_SHORT,
+          toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1);
+          timeInSecForIosWeb: 6);
     }
-
-
-
   }
 
   @override

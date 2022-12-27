@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:znny_manager/src/controller/menu_controller.dart';
+import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
@@ -23,31 +24,13 @@ class MainScreen extends StatefulWidget {
 }
 class _MainScreenState extends State<MainScreen> {
 
-  int? _userId;
+
   @override
   void initState(){
     super.initState();
     initializeDateFormatting('zh_CN');
-    setState((){
-      _userId = SpUtil.getInt(Constant.userId);
-    });
 
-    loadData();
-  }
 
-  Future loadData() async{
-    if(_userId != null){
-      try {
-        var retData = await DioUtils().request('${HttpApi.user_find}$_userId', "GET");
-
-        if(retData != null) {
-          SpUtil.putObject(Constant.USER_INFO, retData);
-        }
-      } on DioError catch (error) {
-        CustomAppException customAppException = CustomAppException.create(error);
-        debugPrint(customAppException.getMessage());
-      }
-    }
   }
 
   @override

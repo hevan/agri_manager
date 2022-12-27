@@ -1,14 +1,13 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:sp_util/sp_util.dart';
 import 'package:znny_manager/src/model/manage/UserInfo.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/screens/login_signup/reset_password.dart';
 import 'package:znny_manager/src/screens/login_signup/user_profile_update.dart';
-import 'package:znny_manager/src/screens/responsive.dart';
 import 'package:znny_manager/src/shared_components/custom_list_title.dart';
-import 'package:znny_manager/src/utils/agro_util.dart';
+import 'package:znny_manager/src/utils/agri_util.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:sp_util/sp_util.dart';
 
 /// Displays the various settings that can be customized by the user.
 ///
@@ -62,7 +61,7 @@ class _SettingsViewState extends State<SettingsView> {
                        CustomListTitle(
                         leading: userInfo.headerUrl != null ? Image.network("${HttpApi.host_image}${userInfo.headerUrl}").image : const AssetImage('images/raster/avatar-3.png'),
                         title: '${userInfo.nickName}',
-                        subtitle: AgroUtil.hideMobile(userInfo.mobile),
+                        subtitle: AgriUtil.hideMobile(userInfo.mobile),
                         trailing: userInfo.nickName == null || userInfo.headerUrl == null ? '未设置':'',
                          onPressed: (){
                            Navigator.push(
