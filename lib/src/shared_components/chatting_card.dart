@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 import 'package:get/get.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 
 class ChattingCardData {
   final ImageProvider image;
@@ -29,37 +30,26 @@ class ChattingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = AdaptiveTheme.of(context).mode.isDark;
     return Column(
       children: [
         ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: kSpacing),
-          leading: Stack(
-            children: [
-              CircleAvatar(backgroundImage: data.image),
-              CircleAvatar(
-                backgroundColor: data.isOnline ? Colors.green : Colors.grey,
-                radius: 5,
-              ),
-            ],
-          ),
           title: Text(
             data.name,
             style: TextStyle(
               fontSize: 13,
-              color: kFontColorPallets[0],
             ),
           ),
           subtitle: Text(
             data.lastMessage,
-            style: TextStyle(
+            style:  TextStyle(
               fontSize: 11,
-              color: kFontColorPallets[2],
+              color: isDark ? Colors.white70 : Colors.black87,
             ),
           ),
           onTap: onPressed,
-          trailing: (!data.isRead && data.totalUnread > 1)
-              ? _notif(data.totalUnread)
-              : Icon(
+          trailing:Icon(
                   Icons.check,
                   color: data.isRead ? Colors.grey : Colors.green,
                 ),

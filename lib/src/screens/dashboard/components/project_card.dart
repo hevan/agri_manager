@@ -30,11 +30,11 @@ class ProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _ProgressIndicator(
           percent: data.percent,
-          center: _ProfilImage(image: data.projectImage),
+          center: _ProfileImage(image: data.projectImage),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -71,19 +71,19 @@ class _ProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CircularPercentIndicator(
-      radius: 55,
+      radius: 30,
       lineWidth: 2.0,
       percent: percent,
       center: center,
       circularStrokeCap: CircularStrokeCap.round,
       backgroundColor: Colors.blueGrey,
-      progressColor: Theme.of(Get.context!).primaryColor,
+      progressColor: Theme.of(context).primaryColor,
     );
   }
 }
 
-class _ProfilImage extends StatelessWidget {
-  const _ProfilImage({required this.image, Key? key}) : super(key: key);
+class _ProfileImage extends StatelessWidget {
+  const _ProfileImage({required this.image, Key? key}) : super(key: key);
 
   final ImageProvider image;
 
@@ -106,10 +106,7 @@ class _TitleText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       data.capitalize!,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: kFontColorPallets[0],
+      style: const TextStyle(
         letterSpacing: 0.8,
       ),
       maxLines: 1,

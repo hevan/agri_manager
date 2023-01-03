@@ -18,6 +18,12 @@ class HttpApi {
   static const String depart_find ='/secure/corpDepart';
   static const String depart_delete = '/secure/corpDepart/';
 
+  static const String corp_pageQuery ='/open/corp/pageQuery';
+  static const String corp_update = '/open/corp/';
+  static const String corp_add ='/open/corp/add';
+  static const String corp_find ='/open/corp/find/';
+  static const String corp_delete = '/open/corp/';
+
   static const String role_findAll ='/secure/corpRole/findAll';
   static const String role_update = '/secure/corpRole/';
   static const String role_add ='/secure/corpRole';

@@ -1,35 +1,25 @@
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:znny_manager/src/model/manage/CorpRoleMenu.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:znny_manager/src/model/sys/sys_menu.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/menu_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/menu/menu_edit_screen.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 
-class MenuDispatchScreen extends StatefulWidget {
-  final int roleId;
-  const MenuDispatchScreen({Key? key, required this.roleId}) : super(key: key);
+class MenuScreen extends StatefulWidget {
+  const MenuScreen({Key? key}) : super(key: key);
 
   @override
-  State<MenuDispatchScreen> createState() => _MenuDispatchScreenState();
+  State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuDispatchScreenState extends State<MenuDispatchScreen>{
+class _MenuScreenState extends State<MenuScreen>{
 
   List<SysMenu> listData = [];
-
-  List<SysMenu> listSelected = [];
-
-  List<CorpRoleMenu> listRoleMenu = [];
-
 
   @override
   void dispose() {
@@ -53,27 +43,6 @@ class _MenuDispatchScreenState extends State<MenuDispatchScreen>{
       if(retData != null) {
         setState(() {
           listData = (retData as List).map((e) => SysMenu.fromJson(e)).toList();
-        });
-      }
-    } on DioError catch(error) {
-      CustomAppException customAppException = CustomAppException.create(error);
-      debugPrint(customAppException.getMessage());
-    }
-    var paramsRole = {'roleId': widget.roleId };
-    try {
-      var retDataRole = await DioUtils().request(
-          HttpApi.role_menu_findAll, "GET", queryParameters: paramsRole);
-      if(retDataRole != null) {
-        setState(() {
-          listRoleMenu = (retDataRole as List).map((e) => CorpRoleMenu.fromJson(e)).toList();
-          for(int m=0; m<listRoleMenu.length;m++){
-            for(int n=0;n<listData.length;n++){
-              if(listRoleMenu[m].menuId == listData[n].id){
-                listSelected.add(listData[n]);
-              }
-            }
-          }
-
         });
       }
     } on DioError catch(error) {
@@ -118,12 +87,6 @@ class _MenuDispatchScreenState extends State<MenuDispatchScreen>{
                               style:  elevateButtonStyle,
                               onPressed:toAdd,
                               child: const Text('增加'),
-                            ),
-                            Container(width: 20,),
-                            ElevatedButton(
-                              style:  elevateButtonStyle,
-                              onPressed:toDispatch,
-                              child: const Text('确定分配'),
                             )
                           ],
                         ),
@@ -169,18 +132,7 @@ class _MenuDispatchScreenState extends State<MenuDispatchScreen>{
                                 ],
                                 rows: List<DataRow>.generate(
                                     listData.length,
-                                        (index) => DataRow(
-                                            selected: listSelected.contains(listData[index]),
-                                            onSelectChanged: (isSelected) {
-                                              setState(() {
-                                                final isAdding = isSelected != null && isSelected;
-
-                                                isAdding
-                                                    ? listSelected.add(listData[index])
-                                                    : listSelected.remove(listData[index]);
-                                              });
-                                            },
-                                            cells: [
+                                        (index) => DataRow(cells: [
                                       DataCell(Text('${listData[index].id}')),
 
                                       DataCell(
@@ -247,27 +199,6 @@ class _MenuDispatchScreenState extends State<MenuDispatchScreen>{
     } on DioError catch(error) {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
-    }
-  }
-
-  Future toDispatch() async{
-    List<CorpRoleMenu> listAdd = [];
-    for(int m=0; m<listSelected.length;m++){
-      CorpRoleMenu curTemp = CorpRoleMenu(roleId: widget.roleId, menuId: listSelected[m].id);
-      listAdd.add(curTemp);
-    }
-
-    if(listAdd.isNotEmpty){
-      try {
-        var retData = await DioUtils().request(
-            '${HttpApi.role_menu_add_all}/${widget.roleId}', "POST", data: json.encode(listAdd.map((v) => v.toJson()).toList()),isJson: true);
-        if(retData != null){
-          Fluttertoast.showToast(msg: '分配成功');
-        }
-      } on DioError catch(error) {
-        CustomAppException customAppException = CustomAppException.create(error);
-        debugPrint(customAppException.getMessage());
-      }
     }
   }
 }

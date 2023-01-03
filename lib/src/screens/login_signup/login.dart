@@ -64,10 +64,6 @@ class _LoginState extends State<Login> {
       EasyLoading.dismiss();
 
       if (retData['token'] != null) {
-        int currentTime = DateTime.now().millisecondsSinceEpoch + 3600;
-
-        String valueTime = '${currentTime}';
-        debugPrint(valueTime);
         debugPrint(json.encode(retData));
         SpUtil.putObject(Constant.accessToken, retData);
         Navigator.of(context).popAndPushNamed("/home");
@@ -201,7 +197,6 @@ class _LoginState extends State<Login> {
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
                               ),
-                              keyboardType: TextInputType.number,
                               decoration:  InputDecoration(
                                   contentPadding: const EdgeInsets.all(18.0),
                                   border: InputBorder.none,

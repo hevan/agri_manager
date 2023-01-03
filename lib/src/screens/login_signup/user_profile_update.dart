@@ -189,7 +189,6 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
        EasyLoading.dismiss();
 
        if(retData != null) {
-         SpUtil.putObject(Constant.USER_INFO, retData);
          Navigator.of(context).pop();
        }
 

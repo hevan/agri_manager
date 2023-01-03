@@ -1,5 +1,6 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
+
 import 'package:flutter/material.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,25 +8,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:znny_manager/src/controller/LocaleProvider.dart';
 import 'package:znny_manager/src/controller/menu_controller.dart';
-import 'package:znny_manager/src/screens/base/park_screen.dart';
-import 'package:znny_manager/src/screens/customer/contact_search_screen.dart';
-import 'package:znny_manager/src/screens/customer/customer_screen.dart';
 import 'package:znny_manager/src/screens/login_signup/login.dart';
-import 'package:znny_manager/src/screens/main/main_screen.dart';
-import 'package:znny_manager/src/screens/manage/corp_depart_screen.dart';
-import 'package:znny_manager/src/screens/manage/corp_role_screen.dart';
-import 'package:znny_manager/src/screens/manage/manager_screen.dart';
-import 'package:znny_manager/src/screens/manage/menu_screen.dart';
-import 'package:znny_manager/src/screens/product/category_screen.dart';
-import 'package:znny_manager/src/screens/product/market_screen.dart';
-import 'package:znny_manager/src/screens/product/product_market_screen.dart';
-import 'package:znny_manager/src/screens/product/product_screen.dart';
-import 'package:znny_manager/src/screens/project/batch_screen.dart';
+import 'package:znny_manager/src/screens/dashboard/dashboard_screen.dart';
+import 'package:znny_manager/src/screens/manage/depart/corp_depart_screen.dart';
+import 'package:znny_manager/src/screens/manage/corp/corp_query_screen.dart';
+import 'package:znny_manager/src/screens/manage/manager/manager_screen.dart';
+import 'package:znny_manager/src/screens/manage/menu/menu_screen.dart';
+import 'package:znny_manager/src/screens/manage/role/corp_role_screen.dart';
 import 'package:znny_manager/src/screens/splash_screen.dart';
 import 'package:znny_manager/src/settings/settings_view.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 
-/// The Widget that configures your application.
+/// The Widget that configures your application
+/// StatefulWidget.
 class MyApp extends StatelessWidget {
   const MyApp({
     Key? key,
@@ -41,7 +36,7 @@ class MyApp extends StatelessWidget {
       light: ThemeData.light().copyWith(
         scaffoldBackgroundColor: creamColor,
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
-            .apply(bodyColor: Colors.black),
+            .apply(bodyColor: Colors.black, fontSizeFactor: 1.1),
         canvasColor: snowColor,
           tabBarTheme:  TabBarTheme(
               labelColor: Colors.pink[800],
@@ -52,7 +47,7 @@ class MyApp extends StatelessWidget {
       dark: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: bgColor,
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
-            .apply(bodyColor: Colors.white),
+            .apply(bodyColor: Colors.white, fontSizeFactor: 1.1),
         canvasColor: secondaryColor,
       ),
       initial: AdaptiveThemeMode.light,
@@ -75,21 +70,14 @@ class MyApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => const SplashScreen(),
-            '/home': (context) => const MainScreen(),
+            '/home': (context) => const DashboardScreen(),
             '/login': (context) => const Login(),
-            '/category': (context) => const CategoryScreen(),
-            '/product': (context) => const ProductScreen(),
-            '/market': (context) => const MarketScreen(),
-            '/productMarket': (context) => const ProductMarketScreen(),
-            '/customer': (context) => const CustomerScreen(),
-            '/contractSearch': (context) => const ContractSearchScreen(),
-            '/park': (context) => const ParkScreen(),
-            '/project': (context) => const ProductBatchScreen(),
             '/manager': (context) => const ManagerScreen(),
             '/role': (context) => const CorpRoleScreen(),
             '/depart': (context) => const CorpDepartScreen(),
             '/menu': (context) => const MenuScreen(),
             '/setting': (context) => const SettingsView(),
+            '/corpQuery': (context) => const CorpQueryScreen(),
           },
 
           // Provide the generated AppLocalizations to the MaterialApp. This

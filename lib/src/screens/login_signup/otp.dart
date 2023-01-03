@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:znny_manager/src/screens/main/main_screen.dart';
+import 'package:znny_manager/src/screens/dashboard/dashboard_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({Key? key}):super(key:key);
@@ -65,7 +65,7 @@ class _OTPScreenState extends State<OTPScreen> {
           const Duration(seconds: 3),
           () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const MainScreen()),
+                MaterialPageRoute(builder: (context) => const DashboardScreen()),
               ));
     }
 
@@ -293,7 +293,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       borderRadius: BorderRadius.circular(30.0),
                       onTap: () {
 
-                        Navigator.push(context, MaterialPageRoute(builder: (context)  => const MainScreen()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)  => const DashboardScreen()));
                       },
                       child: Container(
                         height: 50.0,

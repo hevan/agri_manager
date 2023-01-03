@@ -1,7 +1,4 @@
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/ConstType.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+part of dashboard;
 
 class _OverviewHeader extends StatelessWidget {
   const _OverviewHeader({
@@ -14,50 +11,47 @@ class _OverviewHeader extends StatelessWidget {
   final Axis axis;
   @override
   Widget build(BuildContext context) {
-    final Rx<TaskType?> task = Rx(null);
-
-    return Obx(
-      () => (axis == Axis.horizontal)
-          ? Row(
-              children: [
-                const Text(
-                  "Task Overview",
-                  style: TextStyle(fontWeight: FontWeight.w600),
+    return Row(
+        children: [
+          const Text(
+            "Task Overview",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child:  ElevatedButton(
+              onPressed: (){},
+              child: Text(
+                'all',
+              ),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                const Spacer(),
-                ..._listButton(
-                  task: task.value,
-                  onSelected: (value) {
-                    task.value = value;
-                    onSelected(value);
-                  },
-                )
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Task Overview",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    children: _listButton(
-                      task: task.value,
-                      onSelected: (value) {
-                        task.value = value;
-                        onSelected(value);
-                      },
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-    );
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child:  ElevatedButton(
+              onPressed: (){},
+              child: Text(
+                'all',
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Theme.of(context).primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+
   }
 
   List<Widget> _listButton({

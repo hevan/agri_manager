@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+part of dashboard;
 
 class _RecentMessages extends StatelessWidget {
   const _RecentMessages({
@@ -11,13 +10,13 @@ class _RecentMessages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+   bool isDark = AdaptiveTheme.of(context).mode.isDark;
     return Row(
       children: [
-        Icon(EvaIcons.messageCircle, color: Theme.of(context).primaryColor),
+        Icon(EvaIcons.messageCircle, color: isDark ? Colors.white70 : Theme.of(context).primaryColor),
         const SizedBox(width: 10),
         Text(
-          "Recent Messages",
-          style: TextStyle(color: Theme.of(context).primaryColor),
+          "Recent Messages"
         ),
         const Spacer(),
         IconButton(

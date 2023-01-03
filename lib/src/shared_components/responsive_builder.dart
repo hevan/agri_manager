@@ -9,26 +9,26 @@ class ResponsiveBuilder extends StatelessWidget {
   }) : super(key: key);
 
   final Widget Function(
-    BuildContext context,
-    BoxConstraints constraints,
-  ) mobileBuilder;
+      BuildContext context,
+      BoxConstraints constraints,
+      ) mobileBuilder;
 
   final Widget Function(
-    BuildContext context,
-    BoxConstraints constraints,
-  ) tabletBuilder;
+      BuildContext context,
+      BoxConstraints constraints,
+      ) tabletBuilder;
 
   final Widget Function(
-    BuildContext context,
-    BoxConstraints constraints,
-  ) desktopBuilder;
+      BuildContext context,
+      BoxConstraints constraints,
+      ) desktopBuilder;
 
   static bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < 650;
 
   static bool isTablet(BuildContext context) =>
       MediaQuery.of(context).size.width < 1250 &&
-      MediaQuery.of(context).size.width >= 650;
+          MediaQuery.of(context).size.width >= 650;
 
   static bool isDesktop(BuildContext context) =>
       MediaQuery.of(context).size.width >= 1250;
@@ -48,3 +48,4 @@ class ResponsiveBuilder extends StatelessWidget {
     );
   }
 }
+

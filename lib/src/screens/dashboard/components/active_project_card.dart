@@ -1,7 +1,4 @@
-
-
-import 'package:flutter/material.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+part of dashboard;
 
 class _ActiveProjectCard extends StatelessWidget {
   const _ActiveProjectCard({

@@ -1,13 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:znny_manager/src/model/sys/sys_menu.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/settings/settings_view.dart';
+import 'package:znny_manager/src/utils/constants.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({
@@ -15,7 +9,7 @@ class SideMenu extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SideMenuState createState() => _SideMenuState();
+  State<SideMenu> createState() => _SideMenuState();
 }
 
 class _SideMenuState extends  State<SideMenu>{
@@ -53,6 +47,15 @@ class _SideMenuState extends  State<SideMenu>{
       'id': 4,
       'name': '设置',
       'path': '/setting',
+      'iconUrl':'assets/icons/icon_setting.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    },
+    {
+      'id': 5,
+      'name': '企业管理',
+      'path': '/corpQuery',
       'iconUrl':'assets/icons/icon_setting.png',
       'parentId': null,
       'corpId': 1,
@@ -113,15 +116,19 @@ class _SideMenuState extends  State<SideMenu>{
   Widget build(BuildContext context) {
 
     ThemeData theme = Theme.of(context);
-    return Drawer(
-      child:
-      Column(
+    return
+      Container(
+    child: SingleChildScrollView(
+    child: Column(
         children: [
-          DrawerHeader(
+          Padding(
+            padding: const EdgeInsets.all(kSpacing),
             child: Image.asset("assets/images/flutter_logo.png"),
           ),
-          Expanded( child: ListView.builder(
-            itemCount: listMenu.length,
+          const Divider(thickness: 1),
+           ListView.builder(
+            itemCount: 5,
+            shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
               //  if(index==0) return controlTile();
               Map<String, dynamic> mainMenu = listMenu[index];
@@ -136,19 +143,12 @@ class _SideMenuState extends  State<SideMenu>{
                   leading: Image.asset(mainMenu['iconUrl']!,height: 32,width: 32,),
                   title: Text(
                    '${mainMenu['name']}',
-                  ),
-                  trailing: mainMenu['children']!.isEmpty? null :
-                  Icon(selected?Icons.keyboard_arrow_up:Icons.keyboard_arrow_down,
-                    color: Colors.blueAccent,
-                  ),
+                  )
               );
             },
           ),
-
-          )
         ],
-      ),
-    );
+    )));
   }
 
   toSettingPage(){

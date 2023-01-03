@@ -3,23 +3,26 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:znny_manager/src/model/manage/CorpRole.dart';
 import 'package:znny_manager/src/model/manage/UserInfo.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/manager_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/role/corp_role_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/manager/manager_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/menu/menu_dispatch_screen.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 
-class ManagerScreen extends StatefulWidget {
-  const ManagerScreen({Key? key}) : super(key: key);
+class CorpRoleScreen extends StatefulWidget {
+  const CorpRoleScreen({Key? key}) : super(key: key);
 
   @override
-  State<ManagerScreen> createState() => _ManagerScreenState();
+  State<CorpRoleScreen> createState() => _CorpRoleScreenState();
 }
 
-class _ManagerScreenState extends State<ManagerScreen>{
+class _CorpRoleScreenState extends State<CorpRoleScreen>{
 
-  List<UserInfo> listData = [];
+  List<CorpRole> listData = [];
 
   @override
   void dispose() {
@@ -39,10 +42,10 @@ class _ManagerScreenState extends State<ManagerScreen>{
 
     try {
       var retData = await DioUtils().request(
-          HttpApi.user_findAll, "GET", queryParameters: params);
+          HttpApi.role_findAll, "GET", queryParameters: params);
       if(retData != null) {
         setState(() {
-          listData = (retData as List).map((e) => UserInfo.fromJson(e)).toList();
+          listData = (retData as List).map((e) => CorpRole.fromJson(e)).toList();
         });
       }
     } on DioError catch(error) {
@@ -56,7 +59,7 @@ class _ManagerScreenState extends State<ManagerScreen>{
 
     return  Scaffold(
         appBar: AppBar(
-          title: const Text('人员管理'),
+          title: const Text('角色管理'),
         ),
       body: LayoutBuilder(builder:
           (BuildContext context, BoxConstraints viewportConstraints) {
@@ -111,23 +114,7 @@ class _ManagerScreenState extends State<ManagerScreen>{
                                   ),
 
                                   DataColumn2(
-                                    label: Text('姓名'),
-                                  ),
-                                  DataColumn2(
-                                    size: ColumnSize.S,
-                                    label: Text('手机号码'),
-                                  ),
-                                  DataColumn2(
-                                    size: ColumnSize.S,
-                                    label: Text('部门'),
-                                  ),
-                                  DataColumn2(
-                                    size: ColumnSize.S,
-                                    label: Text('角色'),
-                                  ),
-                                  DataColumn2(
-                                    size: ColumnSize.S,
-                                    label: Text('状态'),
+                                    label: Text('名称'),
                                   ),
                                   DataColumn2(
                                     size: ColumnSize.L,
@@ -140,15 +127,7 @@ class _ManagerScreenState extends State<ManagerScreen>{
                                       DataCell(Text('${listData[index].id}')),
 
                                       DataCell(
-                                          Text('${listData[index].nickName}')),
-                                      DataCell(
-                                          Text('${listData[index].mobile}')),
-                                          DataCell(
-                                              Text('${listData[index].depart}')),
-                                          DataCell(
-                                              Text('${listData[index].roleDesc}')),
-                                          DataCell(
-                                              Text('${listData[index].enabled}')),
+                                          Text('${listData[index].name}')),
                                       DataCell(
                                           Row(children: [
                                             ElevatedButton(
@@ -156,7 +135,7 @@ class _ManagerScreenState extends State<ManagerScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  ManagerEditScreen(id: listData[index].id)),
+                                                  MaterialPageRoute(builder: (context) =>  CorpRoleEditScreen(id: listData[index].id)),
                                                 );
                                               },
                                               child: const Text('编辑'),
@@ -176,10 +155,10 @@ class _ManagerScreenState extends State<ManagerScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  ManagerEditScreen(id: listData[index].id)),
+                                                  MaterialPageRoute(builder: (context) =>  MenuDispatchScreen(roleId: listData[index].id!)),
                                                 );
                                               },
-                                              child: const Text('查看'),
+                                              child: const Text('权限分配'),
                                             ),
                                           ],))
                                     ]))),

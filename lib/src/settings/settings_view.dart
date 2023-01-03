@@ -35,13 +35,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Future loadData() async{
-    setState((){
-      UserInfo? hisUserInfo = SpUtil.getObj(Constant.USER_INFO, (v) => UserInfo.fromJson(v));
 
-      if(hisUserInfo != null){
-        userInfo = hisUserInfo;
-      }
-    });
   }
 
   @override

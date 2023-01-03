@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+import 'package:znny_manager/src/shared_components/chart_percent_indicator.dart';
+
 import 'package:znny_manager/src/utils/constants.dart';
 
 class ProgressReportCardData {
@@ -29,13 +30,13 @@ class ProgressReportCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(kSpacing),
-      height: 200,
+      padding: const EdgeInsets.all(kSpacing/2),
+      height: 100,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color.fromRGBO(111, 88, 255, 1),
-            Color.fromRGBO(157, 86, 248, 1),
+            Color.fromRGBO(251, 37, 118, 1),
+            Color.fromRGBO(251, 37, 118, 1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -43,26 +44,26 @@ class ProgressReportCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 data.title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.white),
               ),
-              const SizedBox(height: 15),
-              _RichText(value1: "${data.task} ", value2: "Task"),
+              const SizedBox(height: kSpacing/2),
+              _RichText(value1: "${data.task} ", value2: "进行中"),
               const SizedBox(height: 3),
-              _RichText(value1: "${data.doneTask} ", value2: "Done Task"),
+              _RichText(value1: "${data.doneTask} ", value2: "完成数"),
               const SizedBox(height: 3),
-              _RichText(value1: "${data.undoneTask} ", value2: "Undone Task"),
+              _RichText(value1: "${data.undoneTask} ", value2: "待开始"),
             ],
           ),
           const Spacer(),
-          _Indicator(percent: data.percent),
+          ChartPercentIndicator(percent: data.percent),
         ],
       ),
     );
@@ -103,33 +104,3 @@ class _RichText extends StatelessWidget {
   }
 }
 
-class _Indicator extends StatelessWidget {
-  const _Indicator({required this.percent, Key? key}) : super(key: key);
-
-  final double percent;
-
-  @override
-  Widget build(BuildContext context) {
-    return CircularPercentIndicator(
-      radius: 140,
-      lineWidth: 15,
-      percent: percent,
-      circularStrokeCap: CircularStrokeCap.round,
-      center: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            (percent * 100).toString() + " %",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const Text(
-            "Completed",
-            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
-          ),
-        ],
-      ),
-      progressColor: Colors.white,
-      backgroundColor: Colors.white.withOpacity(.3),
-    );
-  }
-}

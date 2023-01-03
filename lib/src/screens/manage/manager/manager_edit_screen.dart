@@ -1,50 +1,52 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:html';
 
 import 'package:flutter/widgets.dart';
 
 import 'package:flutter/material.dart';
+import 'package:znny_manager/src/model/ConstType.dart';
 import 'package:znny_manager/src/model/manage/CorpDepart.dart';
 import 'package:znny_manager/src/model/manage/CorpRole.dart';
+import 'package:znny_manager/src/model/product/ProductCycle.dart';
 import 'package:znny_manager/src/model/manage/UserInfo.dart';
-import 'package:znny_manager/src/model/sys/sys_menu.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/corp_role_select.dart';
+import 'package:znny_manager/src/screens/manage/role/corp_role_select.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 
-class MenuEditScreen extends StatefulWidget {
+class ManagerEditScreen extends StatefulWidget {
   final int? id;
 
-  const MenuEditScreen({
+  const ManagerEditScreen({
     Key? key,
     this.id,
   }) : super(key: key);
 
   @override
-  State<MenuEditScreen> createState() => _MenuEditScreenState();
+  State<ManagerEditScreen> createState() => _ManagerEditScreenState();
 }
 
-class _MenuEditScreenState extends State<MenuEditScreen> {
+class _ManagerEditScreenState extends State<ManagerEditScreen> {
   final _textName = TextEditingController();
-  final _textIcon = TextEditingController();
-  final _textPath = TextEditingController();
+  final _textMobile = TextEditingController();
+  final _textRoleDesc = TextEditingController();
 
   List<int> errorFlag = [0, 0, 0, 0, 0, 0, 0];
 
-  List<SysMenu> listMenu = [];
+  List<CorpDepart> listDepart = [];
   List<CorpRole> listSelectRole = [];
 
-  SysMenu _sysMenu = SysMenu();
+  UserInfo _userInfo = UserInfo(enabled: false);
 
   @override
   void dispose() {
     _textName.dispose();
-    _textIcon.dispose();
-    _textPath.dispose();
+    _textMobile.dispose();
+    _textRoleDesc.dispose();
     super.dispose();
   }
 
@@ -60,17 +62,27 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
 
     try {
       var retData =
-          await DioUtils().request('${HttpApi.sys_menu_find}${widget.id}', "GET", isJson: true);
+          await DioUtils().request('${HttpApi.user_find}${widget.id}', "GET", isJson: true);
 
       if (retData != null) {
         setState(() {
-          _sysMenu = SysMenu.fromJson(retData);
-          if(_sysMenu.iconUrl != null) {
-            _textIcon.text = _sysMenu.iconUrl!;
-          }
-          _textName.text = _sysMenu.name!;
-          _textPath.text = _sysMenu.path!;
+          _userInfo = UserInfo.fromJson(retData);
+          _textMobile.text = _userInfo.mobile!;
+          _textName.text = _userInfo.nickName!;
 
+          if(_userInfo.roleDesc != null) {
+            var retJson = jsonDecode(_userInfo.roleDesc!);
+
+            listSelectRole =
+                (retJson as List).map((e) => CorpRole.fromJson(e)).toList();
+
+            String strRoles = '';
+            for (int i = 0; i < listSelectRole.length; i++) {
+              strRoles = '$strRoles${listSelectRole[i].name},';
+            }
+
+            _textRoleDesc.text = strRoles;
+          }
         });
       }
     } on DioError catch (error) {
@@ -79,13 +91,13 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
     }
 
     try {
-      var retMenuData = await DioUtils()
-          .request(HttpApi.sys_menu_findAll, "GET", queryParameters: params);
+      var retDepartData = await DioUtils()
+          .request(HttpApi.depart_findAll, "GET", queryParameters: params);
 
-      if (retMenuData != null) {
+      if (retDepartData != null) {
         setState(() {
-          listMenu = (retMenuData as List)
-              .map((e) => SysMenu.fromJson(e))
+          listDepart = (retDepartData as List)
+              .map((e) => CorpDepart.fromJson(e))
               .toList();
         });
       }
@@ -103,8 +115,12 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
       checkError = true;
     }
 
+    if (_textMobile.text == '') {
+      errorFlag[1] = 1;
+      checkError = true;
+    }
 
-    if (_textPath.text == '') {
+    if (_textRoleDesc.text == '') {
       errorFlag[3] = 1;
       checkError = true;
     }
@@ -113,15 +129,14 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
       return;
     }
 
-    _sysMenu.name = _textName.text;
-    _sysMenu.iconUrl = _textIcon.text;
-    _sysMenu.path = _textPath.text;
-    _sysMenu.corpId = HttpApi.corpId;
+    _userInfo.nickName = _textName.text;
+    _userInfo.mobile = _textMobile.text;
+    _userInfo.corpId = HttpApi.corpId;
 
     if(widget.id == null) {
       try {
-        var retData = await DioUtils().request(HttpApi.sys_menu_add, "POST",
-            data: json.encode(_sysMenu), isJson: true);
+        var retData = await DioUtils().request(HttpApi.user_add, "POST",
+            data: json.encode(_userInfo), isJson: true);
         Navigator.of(context).pop();
       } on DioError catch (error) {
         CustomAppException customAppException = CustomAppException.create(
@@ -130,8 +145,8 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
       }
     }else{
       try {
-        var retData = await DioUtils().request('${HttpApi.sys_menu_update}${widget.id}', "PUT",
-            data: json.encode(_sysMenu), isJson: true);
+        var retData = await DioUtils().request('${HttpApi.user_update}${widget.id}', "PUT",
+            data: json.encode(_userInfo), isJson: true);
         Navigator.of(context).pop();
       } on DioError catch (error) {
         CustomAppException customAppException = CustomAppException.create(
@@ -145,7 +160,7 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('菜单编辑'),
+        title: const Text('人员编辑'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -170,24 +185,12 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
                   height: defaultPadding,
                 ),
                 TextField(
-                  controller: _textIcon,
+                  controller: _textMobile,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: '图标路径',
-                    hintText: '输入图标路径',
-                    errorText: errorFlag[1] == 1 ? '图标路径不能为空' : null,
-                  ),
-                ),
-                Container(
-                  height: defaultPadding,
-                ),
-                TextField(
-                  controller: _textPath,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: '路径',
-                    hintText: '输入路径',
-                    errorText: errorFlag[1] == 1 ? '路径不能为空' : null,
+                    labelText: '手机号码',
+                    hintText: '输入手机号码',
+                    errorText: errorFlag[1] == 1 ? '手机号码不能为空' : null,
                   ),
                 ),
                 Container(
@@ -196,33 +199,86 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
                 InputDecorator(
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    hintText: '上级',
+                    hintText: '部门',
                     labelText:
-                    _sysMenu.parentId == null ? '选择上级' : '上级',
+                    _userInfo.depart == null ? '选择部门' : '部门',
                   ),
-                  child: DropdownButton<int>(
+                  child: DropdownButton<String>(
                     // Step 3.
-                    value: _sysMenu.parentId,
+                    value: _userInfo.depart,
                     underline: Container(),
                     isExpanded: true,
                     // Step 4.
-                    items: listMenu
-                        .map<DropdownMenuItem<int>>((item) {
-                      return DropdownMenuItem<int>(
-                        value: item.id,
+                    items:  listDepart
+                        .map<DropdownMenuItem<String>>((item) {
+                      return DropdownMenuItem<String>(
+                        value: item.name,
                         child: Text(
                             '${item.name}'
                         ),
                       );
                     }).toList(),
                     // Step 5.
-                    onChanged: (int? newValue) {
+                    onChanged: (String? newValue) {
                       setState(() {
-                        //print(newValue);
-                        _sysMenu.parentId = newValue;
+                        _userInfo.depart = newValue;
                       });
                     },
                   ),),
+                Container(
+                  height: defaultPadding,
+                ),
+                TextField(
+                  controller: _textRoleDesc,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '角色',
+                    hintText: '角色',
+                    errorText: errorFlag[5] == 1?'请选择角色':'',
+                    suffixIcon: IconButton(
+                      onPressed: () async {
+                        String retRoles = await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>  CorpRoleSelect(userRoles: listSelectRole),
+                                fullscreenDialog: true)
+                        );
+                        if(retRoles != null)
+                          // ignore: curly_braces_in_flow_control_structures
+                          setState(() {
+                              var retJson = jsonDecode(retRoles);
+
+                              listSelectRole =
+                                  (retJson as List).map((e) => CorpRole.fromJson(e)).toList();
+
+                              String strRoles = '';
+                              for(int i=0;i<listSelectRole.length;i++){
+                                strRoles = '$strRoles${listSelectRole[i].name},';
+                              }
+                              _userInfo.roleDesc = retRoles;
+
+                              _textRoleDesc.text = strRoles;
+
+                          });
+                      },
+                      icon: const Icon(Icons.search_sharp),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: defaultPadding,
+                ),
+                Container(
+                  child:CheckboxListTile(
+                    value: _userInfo.enabled,
+                    title: const Text('用户有效状态'),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    onChanged: (isChecked) {
+                      setState(() {
+                        _userInfo.enabled = isChecked;
+                      });
+                    },
+                  )
+                ),
                 Container(
                   height: defaultPadding,
                 ),

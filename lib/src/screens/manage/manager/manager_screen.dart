@@ -4,23 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:znny_manager/src/model/manage/UserInfo.dart';
-import 'package:znny_manager/src/model/sys/sys_menu.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/menu_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/manager/manager_edit_screen.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 
-class MenuScreen extends StatefulWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+class ManagerScreen extends StatefulWidget {
+  const ManagerScreen({Key? key}) : super(key: key);
 
   @override
-  State<MenuScreen> createState() => _MenuScreenState();
+  State<ManagerScreen> createState() => _ManagerScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen>{
+class _ManagerScreenState extends State<ManagerScreen>{
 
-  List<SysMenu> listData = [];
+  List<UserInfo> listData = [];
 
   @override
   void dispose() {
@@ -40,10 +39,10 @@ class _MenuScreenState extends State<MenuScreen>{
 
     try {
       var retData = await DioUtils().request(
-          HttpApi.sys_menu_findAll, "GET", queryParameters: params);
+          HttpApi.user_findAll, "GET", queryParameters: params);
       if(retData != null) {
         setState(() {
-          listData = (retData as List).map((e) => SysMenu.fromJson(e)).toList();
+          listData = (retData as List).map((e) => UserInfo.fromJson(e)).toList();
         });
       }
     } on DioError catch(error) {
@@ -57,7 +56,7 @@ class _MenuScreenState extends State<MenuScreen>{
 
     return  Scaffold(
         appBar: AppBar(
-          title: const Text('功能菜单管理'),
+          title: const Text('人员管理'),
         ),
       body: LayoutBuilder(builder:
           (BuildContext context, BoxConstraints viewportConstraints) {
@@ -112,19 +111,23 @@ class _MenuScreenState extends State<MenuScreen>{
                                   ),
 
                                   DataColumn2(
-                                    label: Text('名称'),
+                                    label: Text('姓名'),
                                   ),
                                   DataColumn2(
                                     size: ColumnSize.S,
-                                    label: Text('图标'),
+                                    label: Text('手机号码'),
                                   ),
                                   DataColumn2(
                                     size: ColumnSize.S,
-                                    label: Text('路径'),
+                                    label: Text('部门'),
                                   ),
                                   DataColumn2(
                                     size: ColumnSize.S,
-                                    label: Text('上级ID'),
+                                    label: Text('角色'),
+                                  ),
+                                  DataColumn2(
+                                    size: ColumnSize.S,
+                                    label: Text('状态'),
                                   ),
                                   DataColumn2(
                                     size: ColumnSize.L,
@@ -137,13 +140,15 @@ class _MenuScreenState extends State<MenuScreen>{
                                       DataCell(Text('${listData[index].id}')),
 
                                       DataCell(
-                                          Text('${listData[index].name}')),
+                                          Text('${listData[index].nickName}')),
                                       DataCell(
-                                          Text('${listData[index].iconUrl}')),
+                                          Text('${listData[index].mobile}')),
                                           DataCell(
-                                              Text('${listData[index].path}')),
+                                              Text('${listData[index].depart}')),
                                           DataCell(
-                                              Text('${listData[index].parentId}')),
+                                              Text('${listData[index].roleDesc}')),
+                                          DataCell(
+                                              Text('${listData[index].enabled}')),
                                       DataCell(
                                           Row(children: [
                                             ElevatedButton(
@@ -151,7 +156,7 @@ class _MenuScreenState extends State<MenuScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  MenuEditScreen(id: listData[index].id)),
+                                                  MaterialPageRoute(builder: (context) =>  ManagerEditScreen(id: listData[index].id)),
                                                 );
                                               },
                                               child: const Text('编辑'),
@@ -161,7 +166,7 @@ class _MenuScreenState extends State<MenuScreen>{
                                             ElevatedButton(
                                               style:  elevateButtonStyle,
                                               onPressed: (){
-                                                toDelete(listData[index].id!);
+
                                               },
                                               child: const Text('删除'),
                                             ),
@@ -171,7 +176,7 @@ class _MenuScreenState extends State<MenuScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  MenuEditScreen(id: listData[index].id)),
+                                                  MaterialPageRoute(builder: (context) =>  ManagerEditScreen(id: listData[index].id)),
                                                 );
                                               },
                                               child: const Text('查看'),
@@ -187,19 +192,7 @@ class _MenuScreenState extends State<MenuScreen>{
   toAdd(){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>  const MenuEditScreen()),
+      MaterialPageRoute(builder: (context) =>  const ManagerEditScreen()),
     );
-  }
-
-  Future toDelete(int curId) async {
-    try {
-      var retData = await DioUtils().request(
-          '${HttpApi.sys_menu_delete}$curId', "DELETE");
-
-      loadData();
-    } on DioError catch(error) {
-      CustomAppException customAppException = CustomAppException.create(error);
-      debugPrint(customAppException.getMessage());
-    }
   }
 }

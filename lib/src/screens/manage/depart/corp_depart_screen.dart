@@ -3,26 +3,24 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:znny_manager/src/model/manage/CorpRole.dart';
-import 'package:znny_manager/src/model/manage/UserInfo.dart';
+import 'package:znny_manager/src/model/manage/CorpDepart.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/corp_role_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/manager_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/menu_dispatch_screen.dart';
+import 'package:znny_manager/src/screens/manage/depart/corp_depart_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/manager/manager_edit_screen.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 
-class CorpRoleScreen extends StatefulWidget {
-  const CorpRoleScreen({Key? key}) : super(key: key);
+class CorpDepartScreen extends StatefulWidget {
+  const CorpDepartScreen({Key? key}) : super(key: key);
 
   @override
-  State<CorpRoleScreen> createState() => _CorpRoleScreenState();
+  State<CorpDepartScreen> createState() => _CorpDepartScreenState();
 }
 
-class _CorpRoleScreenState extends State<CorpRoleScreen>{
+class _CorpDepartScreenState extends State<CorpDepartScreen>{
 
-  List<CorpRole> listData = [];
+  List<CorpDepart> listData = [];
 
   @override
   void dispose() {
@@ -45,7 +43,7 @@ class _CorpRoleScreenState extends State<CorpRoleScreen>{
           HttpApi.role_findAll, "GET", queryParameters: params);
       if(retData != null) {
         setState(() {
-          listData = (retData as List).map((e) => CorpRole.fromJson(e)).toList();
+          listData = (retData as List).map((e) => CorpDepart.fromJson(e)).toList();
         });
       }
     } on DioError catch(error) {
@@ -59,7 +57,7 @@ class _CorpRoleScreenState extends State<CorpRoleScreen>{
 
     return  Scaffold(
         appBar: AppBar(
-          title: const Text('角色管理'),
+          title: const Text('部门管理'),
         ),
       body: LayoutBuilder(builder:
           (BuildContext context, BoxConstraints viewportConstraints) {
@@ -135,7 +133,7 @@ class _CorpRoleScreenState extends State<CorpRoleScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  CorpRoleEditScreen(id: listData[index].id)),
+                                                  MaterialPageRoute(builder: (context) =>  CorpDepartEditScreen(id: listData[index].id)),
                                                 );
                                               },
                                               child: const Text('编辑'),
@@ -155,10 +153,10 @@ class _CorpRoleScreenState extends State<CorpRoleScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  MenuDispatchScreen(roleId: listData[index].id!)),
+                                                  MaterialPageRoute(builder: (context) =>  CorpDepartEditScreen(id: listData[index].id)),
                                                 );
                                               },
-                                              child: const Text('权限分配'),
+                                              child: const Text('查看'),
                                             ),
                                           ],))
                                     ]))),

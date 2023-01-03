@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ListProfilImage extends StatelessWidget {
-  const ListProfilImage({
+class ListProfileImage extends StatelessWidget {
+  const ListProfileImage({
     required this.images,
     this.onPressed,
     this.maxImages = 3,
@@ -54,7 +54,6 @@ class ListProfilImage extends StatelessWidget {
         padding: const EdgeInsets.all(1),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Theme.of(Get.context!).cardColor,
         ),
         child: CircleAvatar(
           backgroundImage: image,

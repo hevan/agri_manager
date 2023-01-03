@@ -28,40 +28,31 @@ class ProgressCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadius),
       ),
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(kBorderRadius),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Transform.translate(
-                offset: const Offset(10, 30),
-                child: SizedBox(
-                  height: 200,
-                  width: 200,
-                  child: SvgPicture.asset(
-                    ImageVectorPath.happy2,
-                    fit: BoxFit.fitHeight,
-                  ),
-                ),
-              ),
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(kSpacing/2),
+        height: 100,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromRGBO(111, 88, 255, 1),
+              Color.fromRGBO(157, 86, 248, 1),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: kSpacing,
-              top: kSpacing,
-            ),
-            child: Column(
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
+        child: Row( children: [
+         Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "You Have ${data.totalUndone} Undone Tasks",
-                  style: const TextStyle(fontWeight: FontWeight.w500),
+                  "待完成任务 ${data.totalUndone}",
+                  style: const TextStyle(color: Colors.white),
                 ),
                 Text(
-                  "${data.totalTaskInProress} Tasks are in progress",
-                  style: TextStyle(color: kFontColorPallets[1]),
+                  "进行中任务 ${data.totalTaskInProress}",
+                  style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: kSpacing),
                 ElevatedButton(
@@ -69,10 +60,8 @@ class ProgressCard extends StatelessWidget {
                   child: const Text("Check"),
                 )
               ],
-            ),
+            ),]),
           ),
-        ],
-      ),
     );
   }
 }

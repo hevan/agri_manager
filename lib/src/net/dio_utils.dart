@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:znny_manager/src/net/interceptors/AuthInterceptor.dart';
-import 'package:znny_manager/src/screens/responsive.dart';
 
 class DioUtils {
   static final DioUtils _singleton = DioUtils._();
