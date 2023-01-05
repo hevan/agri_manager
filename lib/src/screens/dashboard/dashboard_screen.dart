@@ -73,6 +73,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisCount: 3,
                 crossAxisCellCount: 3,
               ),
+              const SizedBox(height: kSpacing / 2),
+              _buildRecentMessages(data: messageData),
+              _buildBlogs(data: listBlog),
             ]);
           },
           tabletBuilder: (context, constraints) {
@@ -91,6 +94,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? 3
                     : 2,
               ),
+              const SizedBox(height: kSpacing / 2),
+              _buildRecentMessages(data: messageData),
+              _buildBlogs(data: listBlog)
             ]);
           },
           desktopBuilder: (context, constraints) {

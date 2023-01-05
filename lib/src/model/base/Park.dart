@@ -96,7 +96,6 @@ Park copyWith({  int? id,
   }
 
 
-
   set createdAt(String? value) {
     _createdAt = value;
   }

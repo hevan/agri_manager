@@ -69,4 +69,5 @@ const kNotifColor = Color.fromRGBO(74, 177, 120, 1);
 class Constant {
   static const String accessToken = 'accessToken';
   static const String userId = 'current_user_id';
+  static const String currentCorp = 'current_corp_info';
 }

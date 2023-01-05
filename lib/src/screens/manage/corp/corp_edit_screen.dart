@@ -177,7 +177,7 @@ class _CorpEditScreenState extends State<CorpEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('部门编辑'),
+        title: const Text('企业信息编辑'),
       ),
       body: SingleChildScrollView(
         child: Center(

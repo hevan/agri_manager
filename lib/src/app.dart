@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:znny_manager/src/controller/LocaleProvider.dart';
 import 'package:znny_manager/src/controller/menu_controller.dart';
+import 'package:znny_manager/src/screens/corp_dashbord/corp_dashboard.dart';
 import 'package:znny_manager/src/screens/login_signup/login.dart';
 import 'package:znny_manager/src/screens/dashboard/dashboard_screen.dart';
 import 'package:znny_manager/src/screens/manage/depart/corp_depart_screen.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
           routes: {
             '/': (context) => const SplashScreen(),
             '/home': (context) => const DashboardScreen(),
+            '/managerDashboard': (context) => const CorpDashboardScreen(),
             '/login': (context) => const Login(),
             '/manager': (context) => const ManagerScreen(),
             '/role': (context) => const CorpRoleScreen(),

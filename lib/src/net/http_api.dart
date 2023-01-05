@@ -19,6 +19,8 @@ class HttpApi {
   static const String depart_delete = '/secure/corpDepart/';
 
   static const String corp_pageQuery ='/open/corp/pageQuery';
+
+  static const String corp_find_by_user = '/open/corp/findByUserId';
   static const String corp_update = '/open/corp/';
   static const String corp_add ='/open/corp/add';
   static const String corp_find ='/open/corp/find/';
@@ -174,6 +176,7 @@ class HttpApi {
   static const String batch_team_delete = '/secure/batchTeam/';
 
   static const String sys_menu_findAll = '/secure/sysMenu/findAll';
+  static const String sys_menu_findAllSub = '/secure/sysMenu/findAllSub';
   static const String sys_menu_update = '/secure/sysMenu/';
   static const String sys_menu_add ='/secure/sysMenu';
   static const String sys_menu_find ='/secure/sysMenu/';

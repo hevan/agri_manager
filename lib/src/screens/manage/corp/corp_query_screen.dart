@@ -24,7 +24,7 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
 
   List<Corp> listData = [];
 
-   Corp selectCorp = new Corp() ;
+  Corp selectCorp = new Corp() ;
 
   @override
   void dispose() {

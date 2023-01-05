@@ -1,14 +1,18 @@
+import 'dart:convert';
 
-import 'package:data_table_2/data_table_2.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:znny_manager/src/model/manage/Corp.dart';
+import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:znny_manager/src/model/sys/sys_menu.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/manager/manager_edit_screen.dart';
+import 'package:znny_manager/src/shared_components/responsive_builder.dart';
 import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class CorpDashboardScreen extends StatefulWidget {
   const CorpDashboardScreen({Key? key}) : super(key: key);
@@ -17,9 +21,16 @@ class CorpDashboardScreen extends StatefulWidget {
   State<CorpDashboardScreen> createState() => _CorpDashboardScreenState();
 }
 
-class _CorpDashboardScreenState extends State<CorpDashboardScreen>{
+class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
+  List<Corp> listCorp = [];
+  List<SysMenu> corpListMenu = [];
 
-  List<Corp> listData = [];
+  LoginInfoToken userInfo = new LoginInfoToken();
+  final ScrollController controllerButton = ScrollController();
+
+  Corp? selectCorp;
+
+  var gridViewLists = [];
 
   @override
   void dispose() {
@@ -28,147 +39,165 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen>{
 
   @override
   void initState() {
-
     super.initState();
+    setState(() {
+      userInfo =
+          LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+     //selectCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      Map? mapCorpSelect = SpUtil.getObject(Constant.currentCorp);
 
-    loadData();
+      if(null != mapCorpSelect && mapCorpSelect.isNotEmpty){
+        selectCorp = Corp.fromJson(mapCorpSelect);
+      }
+    });
+    loadCorp();
   }
 
-  Future loadData() async{
-    var params = {'name': '', 'page': 0, 'size': 50};
-
+  Future loadCorp() async {
+    var params = {'userId': userInfo.userId};
+    debugPrint(json.encode(params));
     try {
-      var retData = await DioUtils().request(
-          HttpApi.corp_pageQuery, "GET", queryParameters: params);
-      if(retData != null) {
+      var retData = await DioUtils()
+          .request(HttpApi.corp_find_by_user, "GET", queryParameters: params);
+      debugPrint(json.encode(retData));
+      if (retData != null) {
+        debugPrint(json.encode(retData));
         setState(() {
-          listData = (retData as List).map((e) => Corp.fromJson(e)).toList();
+          listCorp = (retData as List).map((e) => Corp.fromJson(e)).toList();
+          selectCorp = listCorp[0];
+
+          loadMenu();
         });
+        debugPrint(json.encode(retData));
       }
-    } on DioError catch(error) {
+    } on DioError catch (error) {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
+    }
+  }
+
+  Future loadCorpData() async {
+
+  }
+
+  Future loadMenu() async{
+    try {
+      var params = {'corpId': selectCorp!.id};
+      var resData = await DioUtils().request(
+          HttpApi.sys_menu_findAllSub, "GET", queryParameters: params);
+      if (resData != null) {
+        setState(() {
+          corpListMenu = ( resData as List ) .map((e) => SysMenu.fromJson(e)).toList();
+          for (var i = 0; i < corpListMenu.length; i += 10) {
+            gridViewLists.add(corpListMenu.sublist(
+                i, i + 10 > corpListMenu.length ? corpListMenu.length : i + 10));
+          }
+        });
+      }
+    } on DioError catch(error){
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return  Scaffold(
+    return Scaffold(
         appBar: AppBar(
-          title: const Text('企业管理'),
+          title:  Text('${selectCorp?.name ?? ''}管理台', style: TextStyle(overflow: TextOverflow.ellipsis),),
+          actions: <Widget>[
+            IconButton(
+              icon: Image.asset('assets/icons/icon_change.png', color: Colors.white,),
+              onPressed: () {
+                showCorpSelectDialog();
+              },
+            )
+          ],
         ),
-        body: LayoutBuilder(builder:
-            (BuildContext context, BoxConstraints viewportConstraints) {
-          return SingleChildScrollView(
-              child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: viewportConstraints.maxHeight,
-                  ),
-                  child: IntrinsicHeight(
-                      child: Column(children: <Widget>[
-                        Container(
-                          // A fixed-height child.
-                          height: 80.0,
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                style:  elevateButtonStyle,
-                                onPressed: (){
-                                  loadData();
-                                },
-                                child: const Text('查询'),
-                              ),
-                              Container(width: 20,),
-                              ElevatedButton(
-                                style:  elevateButtonStyle,
-                                onPressed:toAdd,
-                                child: const Text('增加'),
-                              )
-                            ],
-                          ),
-                        ),
-                        const Divider(height: 1,),
-                        Expanded(
-                          // A flexible child that will grow to fit the viewport but
-                          // still be at least as big as necessary to fit its contents.
-                            child: Container(
-                              padding: const EdgeInsets.only(left: 16, right: 16),
-                              height: 300,
-                              child: DataTable2(
-                                  columnSpacing: 12,
-                                  horizontalMargin: 12,
-                                  minWidth: 600,
-                                  smRatio: 0.75,
-                                  lmRatio: 1.5,
-                                  columns: const [
-                                    DataColumn2(
-                                      size: ColumnSize.S,
-                                      label: Text('id'),
-                                    ),
+        body:  SingleChildScrollView(
+            child: ResponsiveBuilder(
+        mobileBuilder: (context, constraints) {
+          return Column( children: [
+            buildNavigatorButton(4),
 
-                                    DataColumn2(
-                                      label: Text('名称'),
-                                    ),
-                                    DataColumn2(
-                                      size: ColumnSize.L,
-                                      label: Text('操作'),
-                                    ),
-                                  ],
-                                  rows: List<DataRow>.generate(
-                                      listData.length,
-                                          (index) => DataRow(cells: [
-                                        DataCell(Text('${listData[index].id}')),
+          ],);
+        },
+        tabletBuilder: (BuildContext context, BoxConstraints constraints) {
+          return Column(children: [
+            buildNavigatorButton(6),
 
-                                        DataCell(
-                                            Text('${listData[index].name}')),
-                                        DataCell(
-                                            Row(children: [
-                                              ElevatedButton(
-                                                style:  elevateButtonStyle,
-                                                onPressed: (){
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(builder: (context) =>  CorpEditScreen(id: listData[index].id)),
-                                                  );
-                                                },
-                                                child: const Text('编辑'),
-                                              ),
-
-                                              Container(width: 10.0,),
-                                              ElevatedButton(
-                                                style:  elevateButtonStyle,
-                                                onPressed: (){
-
-                                                },
-                                                child: const Text('删除'),
-                                              ),
-                                              Container(width: 10.0,),
-                                              ElevatedButton(
-                                                style:  elevateButtonStyle,
-                                                onPressed: (){
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(builder: (context) =>  CorpEditScreen(id: listData[index].id)),
-                                                  );
-                                                },
-                                                child: const Text('查看'),
-                                              ),
-                                            ],))
-                                      ]))),
-                            ))
-                      ]))));
-        })
-    );
+          ],);
+        },
+        desktopBuilder: (BuildContext context, BoxConstraints constraints) {
+          return Column(children: [
+            buildNavigatorButton(8),
+          ],);
+        },
+    )));
   }
 
-  toAdd(){
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) =>  const ManagerEditScreen()),
+  Widget buildNavigatorButton(int ratioCount){
+
+    return  AlignedGridView.count(
+            padding: EdgeInsets.symmetric(horizontal: kSpacing, vertical: kSpacing),
+            physics: const ClampingScrollPhysics(),
+            shrinkWrap: true,
+            scrollDirection: Axis.vertical,
+            crossAxisCount: ratioCount,
+            itemCount: corpListMenu.length,
+            itemBuilder: (context, index) => SizedBox(
+              child: Column(children: [
+                Image.asset(corpListMenu[index].iconUrl!, width: 42, height: 42,),
+                Text('${corpListMenu[index].name}')
+              ],),
+              ),
+            );
+  }
+
+  Future<void> showCorpSelectDialog() async {
+    int? index = await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        var child = Container(
+            padding: const EdgeInsets.all(kSpacing),
+            constraints: const BoxConstraints(
+              maxWidth: 500,
+              maxHeight: 400,
+            ),
+            child:Column(
+          children: <Widget>[
+       Expanded(
+                 child: ListView.separated(
+                  itemCount: listCorp.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      title: Text('${listCorp[index].name}'),
+                      onTap: () => Navigator.of(context).pop(index),
+                    );
+                  },
+              separatorBuilder: (context, index) {
+                return  const Divider();
+              })),
+          ],
+        ));
+        //使用AlertDialog会报错
+        //return AlertDialog(content: child);
+        return Dialog(child: child);
+      },
     );
+    if (index != null) {
+      setState(() {
+        selectCorp = listCorp[index];
+        SpUtil.putObject(Constant.currentCorp, selectCorp!.toJson());
+      });
+    }
   }
 }

@@ -1,16 +1,19 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:sp_util/sp_util.dart';
+import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 
 class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (options.uri.toString().contains('secure')) {
-      Map? tokenMap = SpUtil.getObject(Constant.accessToken);
-      //debugPrint(tokenMap['token']);
+      LoginInfoToken tokenMap = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
 
-      if (null != tokenMap && null != tokenMap['token']) {
-        options.headers['Authorization'] = 'Bearer ${tokenMap['token']}';
+
+      if (null != tokenMap && null != tokenMap.token) {
+        debugPrint(tokenMap.token);
+        options.headers['Authorization'] = 'Bearer ${tokenMap.token}';
         options.headers['Access-Control-Expose-Headers'] = "*";
 
       }

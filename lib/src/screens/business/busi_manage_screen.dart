@@ -277,13 +277,13 @@ class _ComplexDrawerState extends State<ComplexDrawer> {
       "id": 1,
       "name": "产品管理",
       "path": "/product",
-      "iconUrl": "assets/icons/icon_person.png",
+      "iconUrl": "assets/icons/icon_customer.png",
       "parentId": 0,
       "children": [{
         "id": 2,
         "name": "分类管理",
         "path": "/product/category",
-        "iconUrl": "assets/icons/icon_person.png",
+        "iconUrl": "assets/icons/icon_customer.png",
         "parentId": 1,
         "children": []
       },
@@ -291,7 +291,7 @@ class _ComplexDrawerState extends State<ComplexDrawer> {
           "id": 3,
           "name": "产品管理",
           "path": "/product/product",
-          "iconUrl": "assets/icons/icon_person.png",
+          "iconUrl": "assets/icons/icon_customer.png",
           "parentId": 1,
           "children": []
         },
@@ -299,7 +299,7 @@ class _ComplexDrawerState extends State<ComplexDrawer> {
           "id": 4,
           "name": "生产数据",
           "path": "/product/cycle",
-          "iconUrl": "assets/icons/icon_person.png",
+          "iconUrl": "assets/icons/icon_customer.png",
           "parentId": 1,
           "children": []
         },
@@ -307,7 +307,7 @@ class _ComplexDrawerState extends State<ComplexDrawer> {
           "id": 5,
           "name": "市场数据",
           "path": "/product/market",
-          "iconUrl": "assets/icons/icon_person.png",
+          "iconUrl": "assets/icons/icon_customer.png",
           "parentId": 1,
           "children": []
         }
@@ -317,13 +317,13 @@ class _ComplexDrawerState extends State<ComplexDrawer> {
         "id": 6,
         "name": "客户管理",
         "path": "/customer",
-        "iconUrl": "assets/icons/icon_person.png",
+        "iconUrl": "assets/icons/icon_customer.png",
         "parentId": null,
         "children": [{
           "id": 7,
           "name": "客户管理",
           "path": "/customer/customer",
-          "iconUrl": "assets/icons/icon_person.png",
+          "iconUrl": "assets/icons/icon_customer.png",
           "parentId": 6,
           "children": []
         },
@@ -331,7 +331,7 @@ class _ComplexDrawerState extends State<ComplexDrawer> {
             "id": 8,
             "name": "专家管理",
             "path": "/customer/expert",
-            "iconUrl": "assets/icons/icon_person.png",
+            "iconUrl": "assets/icons/icon_customer.png",
             "parentId": 6,
             "children": []
           }

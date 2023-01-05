@@ -45,6 +45,15 @@ class _SideMenuState extends  State<SideMenu>{
     },
     {
       'id': 4,
+      'name': '管理',
+      'path': '/managerDashboard',
+      'iconUrl':'assets/icons/icon_market.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    },
+    {
+      'id': 5,
       'name': '设置',
       'path': '/setting',
       'iconUrl':'assets/icons/icon_setting.png',
@@ -53,9 +62,27 @@ class _SideMenuState extends  State<SideMenu>{
       'children': []
     },
     {
-      'id': 5,
+      'id': 6,
       'name': '企业管理',
       'path': '/corpQuery',
+      'iconUrl':'assets/icons/icon_setting.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    },
+    {
+      'id': 7,
+      'name': '资讯管理',
+      'path': '/manageNews',
+      'iconUrl':'assets/icons/icon_setting.png',
+      'parentId': null,
+      'corpId': 1,
+      'children': []
+    },
+    {
+      'id': 8,
+      'name': '市场管理',
+      'path': '/manageMarket',
       'iconUrl':'assets/icons/icon_setting.png',
       'parentId': null,
       'corpId': 1,
@@ -127,7 +154,7 @@ class _SideMenuState extends  State<SideMenu>{
           ),
           const Divider(thickness: 1),
            ListView.builder(
-            itemCount: 5,
+            itemCount: 8,
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
               //  if(index==0) return controlTile();

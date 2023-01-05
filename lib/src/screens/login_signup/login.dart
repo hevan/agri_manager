@@ -65,8 +65,8 @@ class _LoginState extends State<Login> {
 
       if (retData['token'] != null) {
         debugPrint(json.encode(retData));
-        SpUtil.putObject(Constant.accessToken, retData);
-        Navigator.of(context).popAndPushNamed("/home");
+        SpUtil.putObject(Constant.accessToken, retData)?.then((value) => Navigator.of(context).popAndPushNamed("/home"));
+
       }
     }on DioError catch (error) {
       EasyLoading.dismiss();
