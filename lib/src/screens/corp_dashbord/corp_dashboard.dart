@@ -43,10 +43,10 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
     setState(() {
       userInfo =
           LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
-     //selectCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      //selectCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
       Map? mapCorpSelect = SpUtil.getObject(Constant.currentCorp);
 
-      if(null != mapCorpSelect && mapCorpSelect.isNotEmpty){
+      if (null != mapCorpSelect && mapCorpSelect.isNotEmpty) {
         selectCorp = Corp.fromJson(mapCorpSelect);
       }
     });
@@ -73,35 +73,36 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
     } on DioError catch (error) {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
-      Fluttertoast.showToast(msg: customAppException.getMessage(),
+      Fluttertoast.showToast(
+          msg: customAppException.getMessage(),
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 6);
     }
   }
 
-  Future loadCorpData() async {
+  Future loadCorpData() async {}
 
-  }
-
-  Future loadMenu() async{
+  Future loadMenu() async {
     try {
       var params = {'corpId': selectCorp!.id};
-      var resData = await DioUtils().request(
-          HttpApi.sys_menu_findAllSub, "GET", queryParameters: params);
+      var resData = await DioUtils()
+          .request(HttpApi.sys_menu_findAllSub, "GET", queryParameters: params);
       if (resData != null) {
         setState(() {
-          corpListMenu = ( resData as List ) .map((e) => SysMenu.fromJson(e)).toList();
+          corpListMenu =
+              (resData as List).map((e) => SysMenu.fromJson(e)).toList();
           for (var i = 0; i < corpListMenu.length; i += 10) {
-            gridViewLists.add(corpListMenu.sublist(
-                i, i + 10 > corpListMenu.length ? corpListMenu.length : i + 10));
+            gridViewLists.add(corpListMenu.sublist(i,
+                i + 10 > corpListMenu.length ? corpListMenu.length : i + 10));
           }
         });
       }
-    } on DioError catch(error){
+    } on DioError catch (error) {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
-      Fluttertoast.showToast(msg: customAppException.getMessage(),
+      Fluttertoast.showToast(
+          msg: customAppException.getMessage(),
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.CENTER,
           timeInSecForIosWeb: 6);
@@ -112,54 +113,74 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title:  Text('${selectCorp?.name ?? ''}管理台', style: TextStyle(overflow: TextOverflow.ellipsis),),
+          title: Text(
+            '${selectCorp?.name ?? ''}管理台',
+            style: TextStyle(overflow: TextOverflow.ellipsis),
+          ),
           actions: <Widget>[
             IconButton(
-              icon: Image.asset('assets/icons/icon_change.png', color: Colors.white,),
+              icon: Image.asset(
+                'assets/icons/icon_change.png',
+                color: Colors.white,
+              ),
               onPressed: () {
                 showCorpSelectDialog();
               },
             )
           ],
         ),
-        body:  SingleChildScrollView(
+        body: SingleChildScrollView(
             child: ResponsiveBuilder(
-        mobileBuilder: (context, constraints) {
-          return Column( children: [
-            buildNavigatorButton(4),
-
-          ],);
-        },
-        tabletBuilder: (BuildContext context, BoxConstraints constraints) {
-          return Column(children: [
-            buildNavigatorButton(6),
-
-          ],);
-        },
-        desktopBuilder: (BuildContext context, BoxConstraints constraints) {
-          return Column(children: [
-            buildNavigatorButton(8),
-          ],);
-        },
-    )));
+          mobileBuilder: (context, constraints) {
+            return Column(
+              children: [
+                buildNavigatorButton(4),
+              ],
+            );
+          },
+          tabletBuilder: (BuildContext context, BoxConstraints constraints) {
+            return Column(
+              children: [
+                buildNavigatorButton(6),
+              ],
+            );
+          },
+          desktopBuilder: (BuildContext context, BoxConstraints constraints) {
+            return Column(
+              children: [
+                buildNavigatorButton(8),
+              ],
+            );
+          },
+        )));
   }
 
-  Widget buildNavigatorButton(int ratioCount){
-
-    return  AlignedGridView.count(
-            padding: EdgeInsets.symmetric(horizontal: kSpacing, vertical: kSpacing),
-            physics: const ClampingScrollPhysics(),
-            shrinkWrap: true,
-            scrollDirection: Axis.vertical,
-            crossAxisCount: ratioCount,
-            itemCount: corpListMenu.length,
-            itemBuilder: (context, index) => SizedBox(
-              child: Column(children: [
-                Image.asset(corpListMenu[index].iconUrl!, width: 42, height: 42,),
-                Text('${corpListMenu[index].name}')
-              ],),
+  Widget buildNavigatorButton(int ratioCount) {
+    return AlignedGridView.count(
+      padding: EdgeInsets.symmetric(horizontal: kSpacing, vertical: kSpacing),
+      physics: const ClampingScrollPhysics(),
+      shrinkWrap: true,
+      scrollDirection: Axis.vertical,
+      crossAxisCount: ratioCount,
+      itemCount: corpListMenu.length,
+      itemBuilder: (context, index) => InkWell(
+        onTap: () {
+          Navigator.of(context).pushNamed(corpListMenu[index].path!);
+        },
+        child: SizedBox(
+          child: Column(
+            children: [
+              Image.asset(
+                corpListMenu[index].iconUrl!,
+                width: 42,
+                height: 42,
               ),
-            );
+              Text('${corpListMenu[index].name}')
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> showCorpSelectDialog() async {
@@ -172,22 +193,22 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
               maxWidth: 500,
               maxHeight: 400,
             ),
-            child:Column(
-          children: <Widget>[
-       Expanded(
-                 child: ListView.separated(
-                  itemCount: listCorp.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title: Text('${listCorp[index].name}'),
-                      onTap: () => Navigator.of(context).pop(index),
-                    );
-                  },
-              separatorBuilder: (context, index) {
-                return  const Divider();
-              })),
-          ],
-        ));
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                    child: ListView.separated(
+                        itemCount: listCorp.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ListTile(
+                            title: Text('${listCorp[index].name}'),
+                            onTap: () => Navigator.of(context).pop(index),
+                          );
+                        },
+                        separatorBuilder: (context, index) {
+                          return const Divider();
+                        })),
+              ],
+            ));
         //使用AlertDialog会报错
         //return AlertDialog(content: child);
         return Dialog(child: child);
