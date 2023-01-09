@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:intl/intl.dart';
 
 class AgriUtil{
   static String hideMobile(String? mobile){
@@ -24,5 +25,10 @@ class AgriUtil{
             "/login", ModalRoute.withName('/'));
       }
     }
+  }
+
+  static String dateTimeFormat(DateTime dateTime){
+
+    return  DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
   }
 }

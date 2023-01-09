@@ -42,6 +42,19 @@ CorpDepart copyWith({  int? id,
     return map;
   }
 
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CorpDepart &&
+          runtimeType == other.runtimeType &&
+          _id == other._id &&
+          _name == other._name &&
+          _corpId == other._corpId;
+
+  @override
+  int get hashCode => _id.hashCode ^ _name.hashCode ^ _corpId.hashCode;
+
   set corpId(int? value) {
     _corpId = value;
   }

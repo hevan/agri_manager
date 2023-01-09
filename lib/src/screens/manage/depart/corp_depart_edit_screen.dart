@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/widgets.dart';
-
 import 'package:flutter/material.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:znny_manager/src/model/manage/Corp.dart';
 import 'package:znny_manager/src/model/manage/CorpDepart.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
@@ -29,7 +29,7 @@ class _CorpDepartEditScreenState extends State<CorpDepartEditScreen> {
   List<int> errorFlag = [0, 0, 0, 0, 0, 0, 0];
   
   CorpDepart _corpDepart = CorpDepart();
-
+  Corp?   currentCorp;
   @override
   void dispose() {
     _textName.dispose();
@@ -39,16 +39,18 @@ class _CorpDepartEditScreenState extends State<CorpDepartEditScreen> {
   @override
   void initState() {
     super.initState();
-
+    setState((){
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+    });
     loadData();
   }
 
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
+    var params = {'corpId': currentCorp!.id};
 
     try {
       var retData =
-          await DioUtils().request('${HttpApi.role_find}${widget.id}', "GET");
+          await DioUtils().request('${HttpApi.depart_find}${widget.id}', "GET");
 
       if (retData != null) {
         setState(() {
@@ -81,15 +83,28 @@ class _CorpDepartEditScreenState extends State<CorpDepartEditScreen> {
     }
 
     _corpDepart.name = _textName.text;
-    _corpDepart.corpId = HttpApi.corpId;
+    _corpDepart.corpId = currentCorp!.id;
 
-    try {
-      var retData = await DioUtils().request(HttpApi.role_add, "POST",
-          data: json.encode(_corpDepart), isJson: true);
-      Navigator.of(context).pop();
-    } on DioError catch (error) {
-      CustomAppException customAppException = CustomAppException.create(error);
-      debugPrint(customAppException.getMessage());
+    if(null == widget.id ) {
+      try {
+        var retData = await DioUtils().request(HttpApi.depart_add, "POST",
+            data: json.encode(_corpDepart), isJson: true);
+        Navigator.of(context).pop();
+      } on DioError catch (error) {
+        CustomAppException customAppException = CustomAppException.create(
+            error);
+        debugPrint(customAppException.getMessage());
+      }
+    }else{
+      try {
+        var retData = await DioUtils().request('${HttpApi.depart_update}${widget.id}', "PUT",
+            data: json.encode(_corpDepart), isJson: true);
+        Navigator.of(context).pop();
+      } on DioError catch (error) {
+        CustomAppException customAppException = CustomAppException.create(
+            error);
+        debugPrint(customAppException.getMessage());
+      }
     }
   }
 

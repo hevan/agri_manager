@@ -11,11 +11,11 @@ import 'package:znny_manager/src/controller/menu_controller.dart';
 import 'package:znny_manager/src/screens/corp_dashbord/corp_dashboard.dart';
 import 'package:znny_manager/src/screens/login_signup/login.dart';
 import 'package:znny_manager/src/screens/dashboard/dashboard_screen.dart';
-import 'package:znny_manager/src/screens/manage/depart/corp_depart_screen.dart';
 import 'package:znny_manager/src/screens/manage/corp/corp_query_screen.dart';
-import 'package:znny_manager/src/screens/manage/manager/manager_screen.dart';
+import 'package:znny_manager/src/screens/manage/depart/depart_query_screen.dart';
+import 'package:znny_manager/src/screens/manage/manager/manager_query_screen.dart';
 import 'package:znny_manager/src/screens/manage/menu/menu_screen.dart';
-import 'package:znny_manager/src/screens/manage/role/corp_role_screen.dart';
+import 'package:znny_manager/src/screens/manage/role/corp_role_query_screen.dart';
 import 'package:znny_manager/src/screens/splash_screen.dart';
 import 'package:znny_manager/src/settings/settings_view.dart';
 import 'package:znny_manager/src/utils/constants.dart';
@@ -74,9 +74,8 @@ class MyApp extends StatelessWidget {
             '/home': (context) => const DashboardScreen(),
             '/managerDashboard': (context) => const CorpDashboardScreen(),
             '/login': (context) => const Login(),
-            '/manager': (context) => const ManagerScreen(),
-            '/role': (context) => const CorpRoleScreen(),
-            '/depart': (context) => const CorpDepartScreen(),
+            '/manager': (context) => const ManagerQueryScreen(),
+            '/depart': (context) => const DepartQueryScreen(),
             '/menu': (context) => const MenuScreen(),
             '/setting': (context) => const SettingsView(),
             '/corpQuery': (context) => const CorpQueryScreen(),

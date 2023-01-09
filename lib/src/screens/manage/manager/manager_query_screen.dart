@@ -3,29 +3,35 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:sp_util/sp_util.dart';
 import 'package:znny_manager/src/model/manage/Corp.dart';
+import 'package:znny_manager/src/model/manage/CorpManagerInfo.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/components/corp_info_card.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_view_screen.dart';
+import 'package:znny_manager/src/screens/manage/components/corp_manager_info_card.dart';
+import 'package:znny_manager/src/screens/manage/depart/depart_query_screen.dart';
+import 'package:znny_manager/src/screens/manage/manager/manager_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/manager/manager_view_screen.dart';
+import 'package:znny_manager/src/screens/manage/role/corp_role_query_screen.dart';
 import 'package:znny_manager/src/shared_components/responsive_builder.dart';
 import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
 
-class CorpQueryScreen extends StatefulWidget {
-  const CorpQueryScreen({Key? key}) : super(key: key);
+class ManagerQueryScreen extends StatefulWidget {
+
+  const ManagerQueryScreen({Key? key}) : super(key: key);
 
   @override
-  State<CorpQueryScreen> createState() => _CorpQueryScreenState();
+  State<ManagerQueryScreen> createState() => _ManagerQueryScreenState();
 }
 
-class _CorpQueryScreenState extends State<CorpQueryScreen> {
+class _ManagerQueryScreenState extends State<ManagerQueryScreen> {
 
-  List<Corp> listData = [];
+  List<CorpManagerInfo> listData = [];
 
-  Corp? selectCorp;
+  Corp?   currentCorp;
+
+  CorpManagerInfo selectManager = new CorpManagerInfo() ;
 
   @override
   void dispose() {
@@ -35,25 +41,25 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
   @override
   void initState() {
     super.initState();
-
-    selectCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
-    loadData();
+    setState(() {
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      if (null != currentCorp) {
+        loadData();
+      }
+    });
   }
 
 
   Future loadData() async {
-    var params = {'name': '', 'page': 0, 'size': 50};
+    var params = {'corpId': currentCorp!.id!};
 
     try {
       var retData = await DioUtils().request(
-          HttpApi.corp_pageQuery, "GET", queryParameters: params);
+          HttpApi.corp_manager_info_findAll, "GET", queryParameters: params);
       if (retData != null) {
         setState(() {
-          listData = (retData['content'] as List).map((e) => Corp.fromJson(e)).toList();
-
-          if(null == selectCorp) {
-            toSelect(listData[0]);
-          }
+          listData = (retData as List).map((e) => CorpManagerInfo.fromJson(e)).toList();
+          selectManager = listData[0];
         });
 
         debugPrint(json.encode(listData));
@@ -83,14 +89,14 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
       return Row(children: [
         Flexible(flex: 4, child: _buildQuery(constraints)),
         SizedBox(width: 15, height: constraints.maxHeight,),
-        Flexible(flex: 4, child: CorpViewScreen(data: selectCorp!,)),
+        Flexible(flex: 4, child: ManagerViewScreen(data: selectManager,)),
       ]);
     },
     desktopBuilder: (BuildContext context, BoxConstraints constraints) {
       return Row(children: [
         Flexible(flex: 4, child: _buildQuery(constraints)),
         SizedBox(width: 15, height: constraints.maxHeight,),
-        Flexible(flex: 6, child: CorpViewScreen(data: selectCorp!,)),
+        Flexible(flex: 6, child: ManagerViewScreen(data: selectManager,)),
       ]);
     },
     )
@@ -101,22 +107,20 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
   toAdd(){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>  const CorpEditScreen()),
+      MaterialPageRoute(builder: (context) =>  const ManagerEditScreen()),
     );
   }
 
-  toSelectView(Corp corp){
+  toSelectView(CorpManagerInfo corpManagerInfo){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>  CorpViewScreen(data: corp)),
+      MaterialPageRoute(builder: (context) =>  ManagerViewScreen(data: corpManagerInfo)),
     );
   }
 
-  toSelect(Corp corp){
+  toSelect(CorpManagerInfo corpManagerInfo){
     setState(() {
-      selectCorp = corp;
-
-      SpUtil.putObject(Constant.currentCorp, selectCorp!.toJson());
+      selectManager = corpManagerInfo;
     });
   }
 
@@ -130,6 +134,32 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      style:  primaryButtonStyle,
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DepartQueryScreen()),
+                        );
+                      },
+                      child: const Text('部门管理'),
+                    ),
+                    const SizedBox(width: 20,),
+                    ElevatedButton(
+                      style:  primaryButtonStyle,
+                      onPressed:(){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RoleQueryScreen()),
+                        );
+                      },
+                      child: const Text('角色管理'),
+                    )
+                  ],
+                ),
       Container(
       // A fixed-height child.
       height: 80.0,
@@ -160,10 +190,10 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, int index) {
                   if(ResponsiveBuilder.isMobile(context)) {
-                    return CorpInfoCard(data: listData[index],
+                    return CorpManagerInfoCard(data: listData[index],
                         onSelected: () => toSelectView(listData[index]));
                   }else{
-                    return CorpInfoCard(data: listData[index],
+                    return CorpManagerInfoCard(data: listData[index],
                         onSelected: () => toSelect(listData[index]));
                   }
                 }

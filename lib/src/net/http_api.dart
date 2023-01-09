@@ -12,11 +12,11 @@ class HttpApi {
   static const String user_add =  '/secure/user';
   static const String user_update =  '/secure/user/';
 
-  static const String depart_findAll ='/secure/corpDepart/findAll';
-  static const String depart_update = '/secure/corpDepart/';
-  static const String depart_add ='/secure/corpDepart';
-  static const String depart_find ='/secure/corpDepart';
-  static const String depart_delete = '/secure/corpDepart/';
+  static const String depart_findAll ='/open/corpDepart/findAllByCorpId';
+  static const String depart_update = '/open/corpDepart/';
+  static const String depart_add ='/open/corpDepart';
+  static const String depart_find ='/open/corpDepart/';
+  static const String depart_delete = '/open/corpDepart/';
 
   static const String corp_pageQuery ='/open/corp/pageQuery';
 
@@ -26,19 +26,23 @@ class HttpApi {
   static const String corp_find ='/open/corp/find/';
   static const String corp_delete = '/open/corp/';
 
-  static const String role_findAll ='/secure/corpRole/findAll';
-  static const String role_update = '/secure/corpRole/';
-  static const String role_add ='/secure/corpRole';
-  static const String role_find ='/secure/corpRole/';
-  static const String role_delete = '/secure/corpRole/';
+  static const String role_findAll ='/open/corpRole/findAllByCorpId';
+  static const String role_update = '/open/corpRole/';
+  static const String role_add ='/open/corpRole';
+  static const String role_find ='/open/corpRole/';
+  static const String role_delete = '/open/corpRole/';
 
-  static const String role_menu_findAll ='/secure/corpRoleMenu/findAll';
-  static const String role_menu_add_all ='/secure/corpRoleMenu/addAll';
+  static const String role_menu_findAll ='/open/corpRoleMenu/findAll';
+  static const String role_menu_add_all ='/open/corpRoleMenu/addAll';
 
   static const String user_profile_update =  '/secure/user/';
   static const String open_file_upload = '/open/upload/single';
   static const String open_gridfs_upload = '/open/gridfs';
 
+  static const String corp_manager_info_findAll = '/open/corpManager/findAllInfoByCorpId';
+  static const String corp_manager_info_find = '/open/corpManager/findInfoById';
+  static const String corp_manager_info_add = '/open/corpManager/add';
+  static const String corp_manager_update = '/open/corpManager/';
   //multi part
   static const String doc_resource_upload = '/secure/docResource';
 

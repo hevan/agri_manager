@@ -5,27 +5,30 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sp_util/sp_util.dart';
 import 'package:znny_manager/src/model/manage/Corp.dart';
+import 'package:znny_manager/src/model/manage/CorpRole.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/components/corp_info_card.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_view_screen.dart';
+import 'package:znny_manager/src/screens/manage/role/corp_role_edit_screen.dart';
+import 'package:znny_manager/src/screens/manage/role/corp_role_view_screen.dart';
 import 'package:znny_manager/src/shared_components/responsive_builder.dart';
 import 'package:znny_manager/src/utils/constants.dart';
 
-class CorpQueryScreen extends StatefulWidget {
-  const CorpQueryScreen({Key? key}) : super(key: key);
+class RoleQueryScreen extends StatefulWidget {
+
+  const RoleQueryScreen({Key? key}) : super(key: key);
 
   @override
-  State<CorpQueryScreen> createState() => _CorpQueryScreenState();
+  State<RoleQueryScreen> createState() => _RoleQueryScreenState();
 }
 
-class _CorpQueryScreenState extends State<CorpQueryScreen> {
+class _RoleQueryScreenState extends State<RoleQueryScreen> {
 
-  List<Corp> listData = [];
+  List<CorpRole> listData = [];
 
-  Corp? selectCorp;
+  Corp?   currentCorp;
+
+  CorpRole selectRole = new CorpRole() ;
 
   @override
   void dispose() {
@@ -35,25 +38,25 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
   @override
   void initState() {
     super.initState();
-
-    selectCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
-    loadData();
+    setState(() {
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      if (null != currentCorp) {
+        loadData();
+      }
+    });
   }
 
 
   Future loadData() async {
-    var params = {'name': '', 'page': 0, 'size': 50};
+    var params = {'corpId': currentCorp!.id!};
 
     try {
       var retData = await DioUtils().request(
-          HttpApi.corp_pageQuery, "GET", queryParameters: params);
+          HttpApi.role_findAll, "GET", queryParameters: params, isJson: true);
       if (retData != null) {
         setState(() {
-          listData = (retData['content'] as List).map((e) => Corp.fromJson(e)).toList();
-
-          if(null == selectCorp) {
-            toSelect(listData[0]);
-          }
+          listData = (retData as List).map((e) => CorpRole.fromJson(e)).toList();
+          selectRole = listData[0];
         });
 
         debugPrint(json.encode(listData));
@@ -73,7 +76,7 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-        title: const Text('企业管理'),
+        title: const Text(' 角色管理'),
     ),
     body:  ResponsiveBuilder(
     mobileBuilder: (context, constraints) {
@@ -83,14 +86,14 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
       return Row(children: [
         Flexible(flex: 4, child: _buildQuery(constraints)),
         SizedBox(width: 15, height: constraints.maxHeight,),
-        Flexible(flex: 4, child: CorpViewScreen(data: selectCorp!,)),
+        Flexible(flex: 4, child: CorpRoleViewScreen(data: selectRole,)),
       ]);
     },
     desktopBuilder: (BuildContext context, BoxConstraints constraints) {
       return Row(children: [
         Flexible(flex: 4, child: _buildQuery(constraints)),
         SizedBox(width: 15, height: constraints.maxHeight,),
-        Flexible(flex: 6, child: CorpViewScreen(data: selectCorp!,)),
+        Flexible(flex: 6, child: CorpRoleViewScreen(data: selectRole,)),
       ]);
     },
     )
@@ -101,22 +104,20 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
   toAdd(){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>  const CorpEditScreen()),
+      MaterialPageRoute(builder: (context) =>  const CorpRoleEditScreen()),
     );
   }
 
-  toSelectView(Corp corp){
+  toSelectView(CorpRole corpRole){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>  CorpViewScreen(data: corp)),
+      MaterialPageRoute(builder: (context) =>  CorpRoleViewScreen(data: corpRole)),
     );
   }
 
-  toSelect(Corp corp){
+  toSelect(CorpRole corpRole){
     setState(() {
-      selectCorp = corp;
-
-      SpUtil.putObject(Constant.currentCorp, selectCorp!.toJson());
+      selectRole = corpRole;
     });
   }
 
@@ -160,11 +161,43 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, int index) {
                   if(ResponsiveBuilder.isMobile(context)) {
-                    return CorpInfoCard(data: listData[index],
-                        onSelected: () => toSelectView(listData[index]));
+                    return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: InkWell(
+                          onTap: () => toSelectView(listData[index]),
+                          child:Padding(
+                            padding: const EdgeInsets.all(kSpacing),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('${listData[index].id ?? ''} ${listData[index].name ?? ''} ', style: Theme.of(context).textTheme.bodyLarge),
+                              ],
+                            ),
+                          ),
+                        )
+                    );
                   }else{
-                    return CorpInfoCard(data: listData[index],
-                        onSelected: () => toSelect(listData[index]));
+                    return    Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: InkWell(
+                          onTap: () => toSelect(listData[index]),
+                          child:Padding(
+                            padding: const EdgeInsets.all(kSpacing),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('${listData[index].id ?? ''} ${listData[index].name ?? ''} ', style: Theme.of(context).textTheme.bodyLarge),
+                              ],
+                            ),
+                          ),
+                        )
+                    );
                   }
                 }
             )),

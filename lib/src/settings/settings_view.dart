@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:sp_util/sp_util.dart';
 import 'package:znny_manager/src/model/manage/UserInfo.dart';
+import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/screens/login_signup/reset_password.dart';
 import 'package:znny_manager/src/screens/login_signup/user_profile_update.dart';
@@ -23,18 +26,16 @@ class SettingsView extends StatefulWidget {
 }
 class _SettingsViewState extends State<SettingsView> {
 
-  UserInfo userInfo = UserInfo();
+
+  LoginInfoToken userLoginToken = new LoginInfoToken();
 
   @override
   void initState() {
     super.initState();
 
-
-    loadData();
-
-  }
-
-  Future loadData() async{
+    setState((){
+      userLoginToken = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
 
   }
 
@@ -53,14 +54,14 @@ class _SettingsViewState extends State<SettingsView> {
                     ),
                     child: Column(children: [
                        CustomListTitle(
-                        leading: userInfo.headerUrl != null ? Image.network("${HttpApi.host_image}${userInfo.headerUrl}").image : const AssetImage('images/raster/avatar-3.png'),
-                        title: '${userInfo.nickName}',
-                        subtitle: AgriUtil.hideMobile(userInfo.mobile),
-                        trailing: userInfo.nickName == null || userInfo.headerUrl == null ? '未设置':'',
+                        leading: userLoginToken.headerUrl != null ? Image.network("${HttpApi.host_image}${userLoginToken.headerUrl}").image : const AssetImage('images/raster/avatar-3.png'),
+                        title: '${userLoginToken.nickName}',
+                        subtitle: AgriUtil.hideMobile(userLoginToken.mobile),
+                        trailing: userLoginToken.nickName == null || userLoginToken.headerUrl == null ? '未设置':'',
                          onPressed: (){
                            Navigator.push(
                              context,
-                             MaterialPageRoute(builder: (context) =>  UserProfileUpdate(userInfo: userInfo)),
+                             MaterialPageRoute(builder: (context) =>  UserProfileUpdate(userId: userLoginToken.userId!)),
                            );
                          },
                       ),
@@ -73,8 +74,21 @@ class _SettingsViewState extends State<SettingsView> {
                         onPressed: (){
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>  ResetPassword(userId: userInfo.id!,)),
-                          ).then((value) => loadData());
+                            MaterialPageRoute(builder: (context) =>  ResetPassword(userId: userLoginToken.userId!,)),
+                          ).then((value) {
+
+                            if(null != value){
+                              UserInfo user = UserInfo.fromJson(jsonDecode(value));
+
+                              setState(() {
+                                userLoginToken.nickName = user.nickName;
+                                userLoginToken.headerUrl = user.headerUrl;
+
+                                SpUtil.putObject(Constant.accessToken, userLoginToken.toJson());
+                              });
+                            }
+
+                          });
                         },
                       ),
                       const SizedBox(height: 2),
