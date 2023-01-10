@@ -1,22 +1,23 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:html';
 
-import 'package:flutter/widgets.dart';
-
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/ConstType.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:znny_manager/src/model/manage/Corp.dart';
 import 'package:znny_manager/src/model/manage/CorpDepart.dart';
+import 'package:znny_manager/src/model/manage/CorpManager.dart';
+import 'package:znny_manager/src/model/manage/CorpManagerDepart.dart';
+import 'package:znny_manager/src/model/manage/CorpManagerInfo.dart';
+import 'package:znny_manager/src/model/manage/CorpManagerRole.dart';
 import 'package:znny_manager/src/model/manage/CorpRole.dart';
-import 'package:znny_manager/src/model/product/ProductCycle.dart';
-import 'package:znny_manager/src/model/manage/UserInfo.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/role/corp_role_select.dart';
+import 'package:znny_manager/src/utils/agri_util.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 
 class ManagerEditScreen extends StatefulWidget {
   final int? id;
@@ -33,56 +34,68 @@ class ManagerEditScreen extends StatefulWidget {
 class _ManagerEditScreenState extends State<ManagerEditScreen> {
   final _textName = TextEditingController();
   final _textMobile = TextEditingController();
-  final _textRoleDesc = TextEditingController();
+  final _textPosition = TextEditingController();
 
   List<int> errorFlag = [0, 0, 0, 0, 0, 0, 0];
 
-  List<CorpDepart> listDepart = [];
-  List<CorpRole> listSelectRole = [];
+  Corp?   currentCorp;
 
-  UserInfo _userInfo = UserInfo(enabled: false);
+  List<CorpDepart> listDepart = [];
+  List<CorpRole> listRole = [];
+
+  CorpManagerInfo _corpManagerInfo = CorpManagerInfo();
 
   @override
   void dispose() {
     _textName.dispose();
     _textMobile.dispose();
-    _textRoleDesc.dispose();
+    _textPosition.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-
+    setState((){
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+    });
     loadData();
   }
 
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
+    var params = {'id': widget.id};
 
     try {
       var retData =
-          await DioUtils().request('${HttpApi.user_find}${widget.id}', "GET", isJson: true);
+          await DioUtils().request(HttpApi.corp_manager_info_find, "GET", queryParameters: params, isJson: true);
 
       if (retData != null) {
         setState(() {
-          _userInfo = UserInfo.fromJson(retData);
-          _textMobile.text = _userInfo.mobile!;
-          _textName.text = _userInfo.nickName!;
+          _corpManagerInfo = CorpManagerInfo.fromJson(retData);
+          _textMobile.text = _corpManagerInfo.mobile!;
+          _textName.text = _corpManagerInfo.nickName!;
+          _textPosition.text = _corpManagerInfo.position!;
+        });
 
-          if(_userInfo.roleDesc != null) {
-            var retJson = jsonDecode(_userInfo.roleDesc!);
+        debugPrint(json.encode(_corpManagerInfo));
+      }
+    } on DioError catch (error) {
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+    }
+    var paramsCorpId = {'corpId': currentCorp!.id};
 
-            listSelectRole =
-                (retJson as List).map((e) => CorpRole.fromJson(e)).toList();
+    try {
 
-            String strRoles = '';
-            for (int i = 0; i < listSelectRole.length; i++) {
-              strRoles = '$strRoles${listSelectRole[i].name},';
-            }
+      var retDepartData = await DioUtils()
+          .request(HttpApi.depart_findAll, "GET", queryParameters: paramsCorpId, isJson: true);
 
-            _textRoleDesc.text = strRoles;
-          }
+      if (retDepartData != null) {
+        debugPrint(json.encode(retDepartData));
+        setState(() {
+          listDepart = (retDepartData as List)
+              .map((e) => CorpDepart.fromJson(e))
+              .toList();
         });
       }
     } on DioError catch (error) {
@@ -91,13 +104,14 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
     }
 
     try {
-      var retDepartData = await DioUtils()
-          .request(HttpApi.depart_findAll, "GET", queryParameters: params);
+      var retDepartRole = await DioUtils()
+          .request(HttpApi.role_findAll, "GET", queryParameters: paramsCorpId, isJson:true);
 
-      if (retDepartData != null) {
+      if (retDepartRole != null) {
+        debugPrint(json.encode(retDepartRole));
         setState(() {
-          listDepart = (retDepartData as List)
-              .map((e) => CorpDepart.fromJson(e))
+          listRole = (retDepartRole as List)
+              .map((e) => CorpRole.fromJson(e))
               .toList();
         });
       }
@@ -120,8 +134,8 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
       checkError = true;
     }
 
-    if (_textRoleDesc.text == '') {
-      errorFlag[3] = 1;
+    if (_textPosition.text == '') {
+      errorFlag[2] = 1;
       checkError = true;
     }
 
@@ -129,14 +143,13 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
       return;
     }
 
-    _userInfo.nickName = _textName.text;
-    _userInfo.mobile = _textMobile.text;
-    _userInfo.corpId = HttpApi.corpId;
-
+    _corpManagerInfo.nickName = _textName.text;
+    _corpManagerInfo.mobile = _textMobile.text;
+    _corpManagerInfo.corpId = currentCorp?.id;
     if(widget.id == null) {
       try {
-        var retData = await DioUtils().request(HttpApi.user_add, "POST",
-            data: json.encode(_userInfo), isJson: true);
+        var retData = await DioUtils().request(HttpApi.corp_manager_info_add, "POST",
+            data: json.encode(_corpManagerInfo), isJson: true);
         Navigator.of(context).pop();
       } on DioError catch (error) {
         CustomAppException customAppException = CustomAppException.create(
@@ -145,8 +158,14 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
       }
     }else{
       try {
-        var retData = await DioUtils().request('${HttpApi.user_update}${widget.id}', "PUT",
-            data: json.encode(_userInfo), isJson: true);
+        List<CorpManagerDepart> manageDeparts = _corpManagerInfo.listCorpDepart!.map((e) => CorpManagerDepart(id: null, managerId: _corpManagerInfo.id, departId: e.id)).toList();
+        List<CorpManagerRole> manageRoles = _corpManagerInfo.listCorpRole!.map((e) => CorpManagerRole(id: null, managerId: _corpManagerInfo.id, roleId: e.id)).toList();
+
+        CorpManager corpManager =  CorpManager(id:_corpManagerInfo.id, corpId: _corpManagerInfo.corpId, userId: _corpManagerInfo.userId,
+            createdAt: AgriUtil.dateTimeFormat(DateTime.now()), position: _corpManagerInfo.position, listManagerDepart: manageDeparts, listManagerRole: manageRoles);
+        debugPrint(json.encode(corpManager));
+        var retData = await DioUtils().request('${HttpApi.corp_manager_update}${widget.id}', "PUT",
+            data: json.encode(corpManager), isJson: true);
         Navigator.of(context).pop();
       } on DioError catch (error) {
         CustomAppException customAppException = CustomAppException.create(
@@ -196,88 +215,113 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
                 Container(
                   height: defaultPadding,
                 ),
-                InputDecorator(
+                TextField(
+                  controller: _textPosition,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    hintText: '部门',
-                    labelText:
-                    _userInfo.depart == null ? '选择部门' : '部门',
+                    labelText: '职位',
+                    hintText: '输入职位',
+                    errorText: errorFlag[1] == 1 ? '职位不能为空' : null,
                   ),
-                  child: DropdownButton<String>(
-                    // Step 3.
-                    value: _userInfo.depart,
-                    underline: Container(),
-                    isExpanded: true,
-                    // Step 4.
-                    items:  listDepart
-                        .map<DropdownMenuItem<String>>((item) {
-                      return DropdownMenuItem<String>(
-                        value: item.name,
-                        child: Text(
-                            '${item.name}'
-                        ),
-                      );
-                    }).toList(),
-                    // Step 5.
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _userInfo.depart = newValue;
-                      });
-                    },
-                  ),),
+                ),
                 Container(
                   height: defaultPadding,
                 ),
-                TextField(
-                  controller: _textRoleDesc,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: '角色',
-                    hintText: '角色',
-                    errorText: errorFlag[5] == 1?'请选择角色':'',
-                    suffixIcon: IconButton(
-                      onPressed: () async {
-                        String retRoles = await Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) =>  CorpRoleSelect(userRoles: listSelectRole),
-                                fullscreenDialog: true)
-                        );
-                        if(retRoles != null)
-                          // ignore: curly_braces_in_flow_control_structures
-                          setState(() {
-                              var retJson = jsonDecode(retRoles);
 
-                              listSelectRole =
-                                  (retJson as List).map((e) => CorpRole.fromJson(e)).toList();
-
-                              String strRoles = '';
-                              for(int i=0;i<listSelectRole.length;i++){
-                                strRoles = '$strRoles${listSelectRole[i].name},';
-                              }
-                              _userInfo.roleDesc = retRoles;
-
-                              _textRoleDesc.text = strRoles;
-
-                          });
-                      },
-                      icon: const Icon(Icons.search_sharp),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(.4),
+                    border: Border.all(
+                      color: Theme.of(context).primaryColor,
+                      width: 2,
                     ),
                   ),
+                  child: Column(
+                    children: <Widget>[
+                      MultiSelectBottomSheetField(
+                        initialChildSize: 0.4,
+                        listType: MultiSelectListType.CHIP,
+                        searchable: true,
+                        buttonText: Text("角色选择"),
+                        title: Text("角色"),
+                        initialValue: _corpManagerInfo.listCorpRole ?? [],
+                        items: listRole
+                            .map((role) => MultiSelectItem<CorpRole>(role, role.name!))
+                            .toList(),
+                        onConfirm: (values) {
+                          setState(() {
+                            _corpManagerInfo.listCorpRole = values.cast<CorpRole>();
+                          });
+
+                        },
+                        chipDisplay: MultiSelectChipDisplay(
+                          onTap: (value) {
+                            setState(() {
+                              _corpManagerInfo.listCorpRole?.remove(value);
+                            });
+                          },
+                        ),
+                      ),
+                      _corpManagerInfo.listCorpRole == null || _corpManagerInfo.listCorpRole!.isEmpty
+                          ? Container(
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "没有选择角色",
+                            style: TextStyle(color: Colors.black54),
+                          ))
+                          : Container(),
+                    ],
+                  ),
                 ),
                 Container(
                   height: defaultPadding,
                 ),
                 Container(
-                  child:CheckboxListTile(
-                    value: _userInfo.enabled,
-                    title: const Text('用户有效状态'),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    onChanged: (isChecked) {
-                      setState(() {
-                        _userInfo.enabled = isChecked;
-                      });
-                    },
-                  )
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(.4),
+                    border: Border.all(
+                      color: Theme.of(context).primaryColor,
+                      width: 2,
+                    ),
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      MultiSelectBottomSheetField(
+                        initialChildSize: 0.4,
+                        listType: MultiSelectListType.CHIP,
+                        searchable: true,
+                        buttonText: Text("部门选择"),
+                        title: Text("部门"),
+                        initialValue: _corpManagerInfo.listCorpDepart ?? [],
+                        items: listDepart
+                            .map((item) => MultiSelectItem<CorpDepart>(item, item.name!))
+                            .toList(),
+                        onConfirm: (values) {
+                          setState(() {
+                            _corpManagerInfo.listCorpDepart = values.cast<CorpDepart>();
+                          });
+
+                        },
+                        chipDisplay: MultiSelectChipDisplay(
+                          onTap: (value) {
+                            setState(() {
+                              _corpManagerInfo.listCorpDepart?.remove(value);
+                            });
+                          },
+                        ),
+                      ),
+                      _corpManagerInfo.listCorpDepart == null || _corpManagerInfo.listCorpDepart!.isEmpty
+                          ? Container(
+                          padding: EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "没有选择角色",
+                            style: TextStyle(color: Colors.black54),
+                          ))
+                          : Container(),
+                    ],
+                  ),
                 ),
                 Container(
                   height: defaultPadding,
@@ -333,4 +377,6 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
   String basename(String path) {
     return path.substring(path.lastIndexOf('/') + 1);
   }
+
+
 }

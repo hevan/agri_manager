@@ -10,14 +10,11 @@ import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:sp_util/sp_util.dart';
-
-import '../../utils/constants.dart';
 
 class UserProfileUpdate extends StatefulWidget {
-  const UserProfileUpdate({Key? key, required this.userInfo}) : super(key: key);
+  const UserProfileUpdate({Key? key, required this.userId}) : super(key: key);
 
-  final UserInfo userInfo;
+  final int userId;
 
   @override
   State<UserProfileUpdate> createState() => _UserProfileUpdateState();
@@ -31,16 +28,41 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
 
   String headerUrl = '';
 
+  UserInfo userInfo = new UserInfo();
+
   @override
   void initState() {
     super.initState();
 
-    setState(() {
-      nickNameController.text = widget.userInfo.nickName!;
-      if(widget.userInfo.headerUrl != null) {
-        headerUrl = widget.userInfo.headerUrl!;
+    loadData();
+  }
+
+  Future loadData() async{
+    try {
+      var retData = await DioUtils()
+          .request('${HttpApi.user_find}${widget.userId}', "GET", isJson:true);
+      debugPrint(json.encode(retData));
+      if (retData != null) {
+        debugPrint(json.encode(retData));
+        setState(() {
+          userInfo = UserInfo.fromJson(retData);
+
+          nickNameController.text = userInfo.nickName!;
+          if(userInfo.headerUrl != null) {
+            headerUrl = userInfo.headerUrl!;
+          }
+        });
+        debugPrint(json.encode(retData));
       }
-    });
+    } on DioError catch (error) {
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(
+          msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
+    }
   }
 
 
@@ -118,7 +140,7 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(30.0),
-                  onTap: resetPassword,
+                  onTap: toUpdate,
                   child: Container(
                     height: 50.0,
                     width: double.infinity,
@@ -152,7 +174,7 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
       ),
     ));
   }
-  Future resetPassword() async {
+  Future toUpdate() async {
     if('' == nickNameController.text){
       Fluttertoast.showToast(
         msg:'请输入用户名',
@@ -176,20 +198,20 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
 
     try {
       EasyLoading.show(status: '正在处理...');
-      var userPost = widget.userInfo;
-      userPost.nickName = nickNameController.text;
+
+      userInfo.nickName = nickNameController.text;
       if(headerUrl != '') {
-        userPost.headerUrl = headerUrl;
+        userInfo.headerUrl = headerUrl;
       }
-      log(json.encode(userPost));
+      log(json.encode(userInfo));
 
       var retData = await DioUtils().request(
-          '${HttpApi.user_profile_update}${widget.userInfo.id}', 'PUT', data:json.encode(userPost), isJson: true);
+          '${HttpApi.user_profile_update}${widget.userId}', 'PUT', data:json.encode(userInfo), isJson: true);
 
        EasyLoading.dismiss();
 
        if(retData != null) {
-         Navigator.of(context).pop();
+         Navigator.of(context).pop(jsonEncode(retData));
        }
 
 
@@ -215,7 +237,7 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
         //print('start to upload');r
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
-          'userId': widget.userInfo.id,
+          'userId': widget.userId,
           'corpId': HttpApi.corpId,
           'file':  MultipartFile( pFile.readStream as Stream<List<int>>, pFile.size, filename: pFile.name)
         });

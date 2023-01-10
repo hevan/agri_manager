@@ -1,20 +1,14 @@
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:flutter/widgets.dart';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/ConstType.dart';
-import 'package:znny_manager/src/model/manage/CorpDepart.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:znny_manager/src/model/manage/Corp.dart';
 import 'package:znny_manager/src/model/manage/CorpRole.dart';
-import 'package:znny_manager/src/model/product/ProductCycle.dart';
-import 'package:znny_manager/src/model/manage/UserInfo.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 
 class CorpRoleEditScreen extends StatefulWidget {
   final int? id;
@@ -33,22 +27,26 @@ class _CorpRoleEditScreenState extends State<CorpRoleEditScreen> {
   List<int> errorFlag = [0, 0, 0, 0, 0, 0, 0];
   
   CorpRole _corpRole = CorpRole();
+  Corp?   currentCorp;
 
   @override
   void dispose() {
     _textName.dispose();
+
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    setState((){
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+    });
 
     loadData();
   }
 
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
 
     try {
       var retData =
@@ -85,15 +83,28 @@ class _CorpRoleEditScreenState extends State<CorpRoleEditScreen> {
     }
 
     _corpRole.name = _textName.text;
-    _corpRole.corpId = HttpApi.corpId;
+    _corpRole.corpId = currentCorp!.id;
 
-    try {
-      var retData = await DioUtils().request(HttpApi.role_add, "POST",
-          data: json.encode(_corpRole), isJson: true);
-      Navigator.of(context).pop();
-    } on DioError catch (error) {
-      CustomAppException customAppException = CustomAppException.create(error);
-      debugPrint(customAppException.getMessage());
+    if(null == widget.id ) {
+      try {
+        var retData = await DioUtils().request(HttpApi.role_add, "POST",
+            data: json.encode(_corpRole), isJson: true);
+        Navigator.of(context).pop();
+      } on DioError catch (error) {
+        CustomAppException customAppException = CustomAppException.create(
+            error);
+        debugPrint(customAppException.getMessage());
+      }
+    }else{
+      try {
+        var retData = await DioUtils().request('${HttpApi.role_update}${widget.id}', "PUT",
+            data: json.encode(_corpRole), isJson: true);
+        Navigator.of(context).pop();
+      } on DioError catch (error) {
+        CustomAppException customAppException = CustomAppException.create(
+            error);
+        debugPrint(customAppException.getMessage());
+      }
     }
   }
 
@@ -145,39 +156,4 @@ class _CorpRoleEditScreenState extends State<CorpRoleEditScreen> {
     );
   }
 
-  Future uploadImage() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(withReadStream: true);
-    if (result != null) {
-      //log(result.files.first.name);
-      //File file = File(result.files.first.name);
-      log('start to load ');
-      try {
-        //rint('start to upload');r
-        PlatformFile pFile = result.files.single;
-        var formData = FormData.fromMap({
-          'userId': widget.id,
-          'corpId': HttpApi.corpId,
-          'file': MultipartFile(
-              pFile.readStream as Stream<List<int>>, pFile.size,
-              filename: pFile.name)
-        });
-        //print('start to upload');
-        var ret = await DioUtils().requestUpload(
-          HttpApi.open_file_upload,
-          data: formData,
-        );
-      } on DioError catch (error) {
-        CustomAppException customAppException =
-            CustomAppException.create(error);
-        debugPrint(customAppException.getMessage());
-      }
-    } else {
-      // User canceled the picker
-    }
-  }
-
-  String basename(String path) {
-    return path.substring(path.lastIndexOf('/') + 1);
-  }
 }

@@ -46,6 +46,7 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
       //selectCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
       Map? mapCorpSelect = SpUtil.getObject(Constant.currentCorp);
 
+      debugPrint(json.encode(mapCorpSelect));
       if (null != mapCorpSelect && mapCorpSelect.isNotEmpty) {
         selectCorp = Corp.fromJson(mapCorpSelect);
       }
@@ -64,7 +65,12 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
         debugPrint(json.encode(retData));
         setState(() {
           listCorp = (retData as List).map((e) => Corp.fromJson(e)).toList();
-          selectCorp = listCorp[0];
+
+          if(null == selectCorp) {
+            selectCorp = listCorp[0];
+            SpUtil.putObject(Constant.currentCorp, selectCorp!.toJson());
+          }
+
 
           loadMenu();
         });

@@ -61,11 +61,11 @@ class ProfileCard extends StatelessWidget {
       child: Row(
         children: [
           data.headerUrl != null ? CircleAvatar(
-              radius: 20.0,
-              child: Image.network("${HttpApi.host_image}${data.headerUrl}")) : Image.asset(
-            "assets/images/profile_pic.png",
-            height: 40,
-          ),
+              radius: 24.0,
+              backgroundImage:  NetworkImage('${HttpApi.host_image}${data.headerUrl}') ,
+            backgroundColor: Colors.transparent,
+          ): Image.asset(
+        "assets/images/profile_pic.png"),
           if (!ResponsiveBuilder.isMobile(context))
             Padding(
               padding:
