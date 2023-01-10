@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:sp_util/sp_util.dart';
 import 'package:znny_manager/src/model/manage/Corp.dart';
 import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
 import 'package:znny_manager/src/model/sys/sys_menu.dart';
@@ -10,9 +13,6 @@ import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/shared_components/responsive_builder.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:sp_util/sp_util.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class CorpDashboardScreen extends StatefulWidget {
   const CorpDashboardScreen({Key? key}) : super(key: key);
@@ -164,22 +164,21 @@ class _CorpDashboardScreenState extends State<CorpDashboardScreen> {
       crossAxisCount: ratioCount,
       itemCount: corpListMenu.length,
       itemBuilder: (context, index) => InkWell(
-        onTap: () {
-          Navigator.of(context).pushNamed(corpListMenu[index].path!);
-        },
-        child: SizedBox(
-          child: Column(
-            children: [
-              Image.asset(
-                corpListMenu[index].iconUrl!,
-                width: 42,
-                height: 42,
-              ),
-              Text('${corpListMenu[index].name}')
-            ],
-          ),
-        ),
-      ),
+          onTap: () {
+            Navigator.of(context).pushNamed(corpListMenu[index].path!);
+          },
+          child: SizedBox(
+            child: Column(
+              children: [
+                Image.asset(
+                  corpListMenu[index].iconUrl!,
+                  width: 42,
+                  height: 42,
+                ),
+                Text('${corpListMenu[index].name}')
+              ],
+            ),
+          )),
     );
   }
 

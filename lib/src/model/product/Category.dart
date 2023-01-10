@@ -9,15 +9,16 @@ import 'dart:convert';
 
 Category categoryFromJson(String str) => Category.fromJson(json.decode(str));
 String categoryToJson(Category data) => json.encode(data.toJson());
+
 class Category {
-  Category({
-    int? id,
-    String? name,
-    String? pathName,
-    String? imageUrl,
-    int? parentId,
-    int? corpId,
-    List<Category>? children}){
+  Category(
+      {int? id,
+      String? name,
+      String? pathName,
+      String? imageUrl,
+      int? parentId,
+      int? corpId,
+      List<Category>? children}) {
     _id = id;
     _name = name;
     _pathName = pathName;
@@ -70,4 +71,31 @@ class Category {
     return map;
   }
 
+  set children(List<Category>? value) {
+    _children = value;
+  }
+
+  set corpId(int? value) {
+    _corpId = value;
+  }
+
+  set parentId(int? value) {
+    _parentId = value;
+  }
+
+  set imageUrl(String? value) {
+    _imageUrl = value;
+  }
+
+  set pathName(String? value) {
+    _pathName = value;
+  }
+
+  set name(String? value) {
+    _name = value;
+  }
+
+  set id(int? value) {
+    _id = value;
+  }
 }
