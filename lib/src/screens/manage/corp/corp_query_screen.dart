@@ -16,7 +16,6 @@ import 'package:znny_manager/src/utils/constants.dart';
 
 class CorpQueryScreen extends StatefulWidget {
   const CorpQueryScreen({Key? key}) : super(key: key);
-
   @override
   State<CorpQueryScreen> createState() => _CorpQueryScreenState();
 }

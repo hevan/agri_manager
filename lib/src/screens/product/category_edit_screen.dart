@@ -1,23 +1,25 @@
 import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:znny_manager/src/model/product/Category.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:dio/dio.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:znny_manager/src/screens/product/category_edit_screen.dart';
 class CategoryEditScreen extends StatefulWidget {
   final Category? editCategory;
-
-  const CategoryEditScreen({Key? key, this.editCategory}) : super(key: key);
+  const CategoryEditScreen({
+    Key? key,
+    this.editCategory, int? id})
+      : super(key: key);
 
   @override
   State<CategoryEditScreen> createState() => _CategoryEditScreenState();
 }
 
-class _CategoryEditScreenState extends State<CategoryEditScreen> {
+ class _CategoryEditScreenState extends State<CategoryEditScreen> {
   final _textName = TextEditingController();
   final _textParentName = TextEditingController();
   int _validateCode = 0;
@@ -70,6 +72,10 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
     } on DioError catch (error) {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
     }
   }
 
@@ -82,12 +88,22 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
         category = Category(pathName: _textParentName.text + ' ' + _textName.text , name:  _textName.text, corpId:HttpApi.corpId);
       }
 
-      var retData = await DioUtils().request(
-          HttpApi.product_category_add, "POST", data: json.encode(category),isJson: true);
+      if(null == selectParent!.id) {
+        var retData = await DioUtils().request(
+            HttpApi.product_category_add, "POST", data: json.encode(category),isJson: true);
+      }else{
+        var retData = await DioUtils().request('${HttpApi.product_category_update}${selectParent!.id}', "PUT",
+            data: json.encode(category), isJson: true);
+      }
+
       Navigator.of(context).pop();
     } on DioError catch (error) {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
     }
   }
 

@@ -1,20 +1,9 @@
-import 'dart:convert';
-import 'dart:developer';
-
-import 'package:flutter/widgets.dart';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:znny_manager/src/model/manage/Corp.dart';
-import 'package:znny_manager/src/model/sys/Address.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/screens/manage/corp/corp_edit_screen.dart';
 import 'package:znny_manager/src/shared_components/show_field_text.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class CorpViewScreen extends StatefulWidget {
   final Corp data;
