@@ -48,9 +48,9 @@ class HttpApi {
   static const String doc_resource_upload = '/secure/docResource';
 
   static const String product_category_findAll = '/open/category/findAll';
-  static const String product_category_update = '/secure/category/';
-  static const String product_category_add = '/secure/category';
-  static const String product_category_find = '/secure/category';
+  static const String product_category_update = '/open/category/';
+  static const String product_category_add = '/open/category/add';
+  static const String product_category_find = '/open/category';
   static const String product_category_delete = '/open/category/';
 
   static const String product_query = '/open/product/findByCorpId';
