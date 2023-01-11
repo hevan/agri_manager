@@ -38,6 +38,12 @@ class HttpApi {
   static const String open_file_upload = '/open/upload/single';
   static const String open_gridfs_upload = '/open/gridfs';
 
+  static const String corp_manager_info_findAll =
+      '/open/corpManager/findAllInfoByCorpId';
+  static const String corp_manager_info_find = '/open/corpManager/findInfoById';
+  static const String corp_manager_info_add = '/open/corpManager/add';
+  static const String corp_manager_update = '/open/corpManager/';
+
   //multi part
   static const String doc_resource_upload = '/secure/docResource';
 
@@ -52,6 +58,7 @@ class HttpApi {
   static const String product_add = '/open/product/add';
   static const String product_find = '/open/product';
   static const String product_delete = '/open/product/';
+  static const String product_echo = "/open/product/findByProductId/";
 
   static const String product_cycle_findAll = '/secure/productCycle/findAll';
   static const String product_cylce_update = '/secure/productCycle/';

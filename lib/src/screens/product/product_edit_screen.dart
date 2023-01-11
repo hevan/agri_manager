@@ -80,7 +80,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     if (widget.id != null) {
       try {
         var retData = await DioUtils()
-            .request(HttpApi.product_find + '/' + widget.id!.toString(), "GET");
+            .request(HttpApi.product_echo + widget.id!.toString(), "GET");
 
         if (retData != null) {
           setState(() {
@@ -92,13 +92,19 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             _textCode.text = _product.code != null ? _product.code! : '';
             _textDescription.text =
                 _product.description != null ? _product.description! : '';
-            _textCategoryName.text = _product.category!.name!;
+            _textCategoryName.text =
+                _product.category!.name != null ? _product.category!.name! : '';
           });
         }
       } on DioError catch (error) {
         CustomAppException customAppException =
             CustomAppException.create(error);
         debugPrint(customAppException.getMessage());
+        Fluttertoast.showToast(
+            msg: customAppException.getMessage(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 6);
       }
     }
   }
