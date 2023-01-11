@@ -1,18 +1,12 @@
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:sp_util/sp_util.dart';
-import 'package:intl/intl.dart';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/product/Product.dart';
 import 'package:znny_manager/src/model/product/Market.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
 import 'package:znny_manager/src/utils/constants.dart';
-import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 
 class MarketEditScreen extends StatefulWidget {
   final int? id;
