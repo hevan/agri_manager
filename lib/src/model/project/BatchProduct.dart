@@ -1,4 +1,8 @@
 import 'dart:convert';
+
+import 'package:znny_manager/src/model/base/Park.dart';
+import 'package:znny_manager/src/model/manage/Corp.dart';
+import 'package:znny_manager/src/model/product/Product.dart';
 /// id : 1
 /// name : ""
 /// code : ""
@@ -19,43 +23,37 @@ import 'dart:convert';
 /// unit : ""
 /// corpId : 5
 
-ProductBatch productBatchFromJson(String str) => ProductBatch.fromJson(json.decode(str));
-String productBatchToJson(ProductBatch data) => json.encode(data.toJson());
-class ProductBatch {
-  ProductBatch({
+BatchProduct productBatchFromJson(String str) => BatchProduct.fromJson(json.decode(str));
+String productBatchToJson(BatchProduct data) => json.encode(data.toJson());
+class BatchProduct {
+  BatchProduct({
       int? id, 
       String? name, 
       String? code, 
-      int? productId, 
-      String? productName, 
-      int? parkId, 
-      String? parkName, 
-      double? quantity,
+      int? productId,
+      int? parkId,
       String? startAt, 
       String? endAt, 
       int? days,
       double? estimatedProduction, 
       double? realProduction, 
       double? investEstimated, 
-      double? investReal, 
-      double? saleEstimated, 
-      double? saleReal,
-      String? managerName,
-      int?    managerId,
-      String? unit, 
+      double? investReal,
+      int?    createdUserId,
+      String? calcUnit,
       int? corpId,
-    int? status,
+      int? status,
       String? createdAt,
-    String? description
+      String? description,
+      Corp? corp,
+      Park? park,
+      Product? product
   }){
     _id = id;
     _name = name;
     _code = code;
     _productId = productId;
-    _productName = productName;
     _parkId = parkId;
-    _parkName = parkName;
-    _quantity = quantity;
     _startAt = startAt;
     _endAt = endAt;
     _days = days;
@@ -63,26 +61,24 @@ class ProductBatch {
     _realProduction = realProduction;
     _investEstimated = investEstimated;
     _investReal = investReal;
-    _saleEstimated = saleEstimated;
-    _saleReal = saleReal;
-    _unit = unit;
+    _calcUnit = calcUnit;
     _status = status;
     _corpId = corpId;
-    _managerId = managerId;
-    _managerName = managerName;
+    _createdUserId = createdUserId;
     _createdAt = createdAt;
     _description = description;
+
+    _product = product;
+    _park = park;
+    _corp = corp;
 }
 
-  ProductBatch.fromJson(dynamic json) {
+  BatchProduct.fromJson(dynamic json) {
     _id = json['id'];
     _name = json['name'];
     _code = json['code'];
     _productId = json['productId'];
-    _productName = json['productName'];
     _parkId = json['parkId'];
-    _parkName = json['parkName'];
-    _quantity = json['quantity'];
     _startAt = json['startAt'];
     _endAt = json['endAt'];
     _days = json['days'];
@@ -90,24 +86,21 @@ class ProductBatch {
     _realProduction = json['realProduction'];
     _investEstimated = json['investEstimated'];
     _investReal = json['investReal'];
-    _saleEstimated = json['saleEstimated'];
-    _saleReal = json['saleReal'];
-    _unit = json['unit'];
+    _calcUnit = json['calcUnit'];
     _corpId = json['corpId'];
     _status = json['status'];
-    _managerName = json['managerName'];
-    _managerId = json['managerId'];
+    _createdUserId = json['createdUserId'];
     _createdAt = json['createdAt'];
     _description = json['description'];
+    _park = null != json['park'] ? Park.fromJson(json['park']) : null;
+    _corp = null != json['corp'] ? Corp.fromJson(json['corp']) : null;
+    _product = null != json['product'] ? Product.fromJson(json['product']) : null;
   }
   int? _id;
   String? _name;
   String? _code;
   int? _productId;
-  String? _productName;
   int? _parkId;
-  String? _parkName;
-  double? _quantity;
   String? _startAt;
   String? _endAt;
   int? _days;
@@ -117,22 +110,22 @@ class ProductBatch {
   double? _investReal;
   double? _saleEstimated;
   double? _saleReal;
-  String? _unit;
+  String? _calcUnit;
   int? _status;
   int? _corpId;
-  String? _managerName;
-  int? _managerId;
+  int? _createdUserId;
   String? _createdAt;
   String? _description;
 
-ProductBatch copyWith({  int? id,
+  Corp? _corp;
+  Park? _park;
+  Product? _product;
+
+BatchProduct copyWith({  int? id,
   String? name,
   String? code,
   int? productId,
-  String? productName,
   int? parkId,
-  String? parkName,
-  double? quantity,
   String? startAt,
   String? endAt,
   int? days,
@@ -140,23 +133,21 @@ ProductBatch copyWith({  int? id,
   double? realProduction,
   double? investEstimated,
   double? investReal,
-  double? saleEstimated,
-  double? saleReal,
-  String? managerName,
-  int? managerId,
-  String? unit,
+  int? createdUserId,
+  String? calcUnit,
   int? corpId,
   int? status,
   String? createdAt,
   String? description,
-}) => ProductBatch(  id: id ?? _id,
+
+  Corp? corp,
+  Park? park,
+  Product? product,
+}) => BatchProduct(  id: id ?? _id,
   name: name ?? _name,
   code: code ?? _code,
   productId: productId ?? _productId,
-  productName: productName ?? _productName,
   parkId: parkId ?? _parkId,
-  parkName: parkName ?? _parkName,
-  quantity: quantity ?? _quantity,
   startAt: startAt ?? _startAt,
   endAt: endAt ?? _endAt,
   days: days ?? _days,
@@ -164,24 +155,21 @@ ProductBatch copyWith({  int? id,
   realProduction: realProduction ?? _realProduction,
   investEstimated: investEstimated ?? _investEstimated,
   investReal: investReal ?? _investReal,
-  saleEstimated: saleEstimated ?? _saleEstimated,
-  saleReal: saleReal ?? _saleReal,
-  managerName: managerName ?? _managerName,
-  managerId: managerId ?? _managerId,
-  unit: unit ?? _unit,
+  createdUserId: createdUserId ?? _createdUserId,
+  calcUnit: calcUnit ?? _calcUnit,
   corpId: corpId ?? _corpId,
   status: status ?? _status,
   createdAt: createdAt ?? _createdAt,
   description: description ?? _description,
+  corp: corp ?? _corp,
+  park: park ?? _park,
+  product: product ?? _product,
 );
   int? get id => _id;
   String? get name => _name;
   String? get code => _code;
   int? get productId => _productId;
-  String? get productName => _productName;
   int? get parkId => _parkId;
-  String? get parkName => _parkName;
-  double? get quantity => _quantity;
   String? get startAt => _startAt;
   String? get endAt => _endAt;
   int? get days => _days;
@@ -189,12 +177,9 @@ ProductBatch copyWith({  int? id,
   double? get realProduction => _realProduction;
   double? get investEstimated => _investEstimated;
   double? get investReal => _investReal;
-  double? get saleEstimated => _saleEstimated;
-  double? get saleReal => _saleReal;
-  String? get unit => _unit;
+  String? get calcUnit => _calcUnit;
   int? get corpId => _corpId;
-  String? get managerName => _managerName;
-  int? get managerId => _managerId;
+  int? get createdUserId => _createdUserId;
   String? get createdAt => _createdAt;
   String? get description => _description;
 
@@ -210,10 +195,8 @@ ProductBatch copyWith({  int? id,
     map['name'] = _name;
     map['code'] = _code;
     map['productId'] = _productId;
-    map['productName'] = _productName;
     map['parkId'] = _parkId;
-    map['parkName'] = _parkName;
-    map['quantity'] = _quantity;
+
     map['startAt'] = _startAt;
     map['endAt'] = _endAt;
     map['days'] = _days;
@@ -221,15 +204,19 @@ ProductBatch copyWith({  int? id,
     map['realProduction'] = _realProduction;
     map['investEstimated'] = _investEstimated;
     map['investReal'] = _investReal;
-    map['saleEstimated'] = _saleEstimated;
-    map['saleReal'] = _saleReal;
-    map['managerId'] = _managerId;
-    map['managerName'] = _managerName;
-    map['unit'] = _unit;
+
+    map['createdUserId'] = _createdUserId;
+
+    map['calcUnit'] = _calcUnit;
     map['corpId'] = _corpId;
     map['createdAt'] = _createdAt;
     map['description'] = _description;
     map['status'] = _status;
+
+    // ignore: prefer_null_aware_operators
+    map['corp'] = _corp?.toJson();
+    map['park'] = _park?.toJson();
+    map['product'] =  _product?.toJson();
     return map;
   }
 
@@ -243,20 +230,17 @@ ProductBatch copyWith({  int? id,
     _createdAt = value;
   }
 
-  set managerId(int? value) {
-    _managerId = value;
+  set createdUserId(int? value) {
+    _createdUserId= value;
   }
 
-  set managerName(String? value) {
-    _managerName = value;
-  }
 
   set corpId(int? value) {
     _corpId = value;
   }
 
-  set unit(String? value) {
-    _unit = value;
+  set calcUnit(String? value) {
+    _calcUnit = value;
   }
 
   set saleReal(double? value) {
@@ -295,20 +279,8 @@ ProductBatch copyWith({  int? id,
     _startAt = value;
   }
 
-  set quantity(double? value) {
-    _quantity = value;
-  }
-
-  set parkName(String? value) {
-    _parkName = value;
-  }
-
   set parkId(int? value) {
     _parkId = value;
-  }
-
-  set productName(String? value) {
-    _productName = value;
   }
 
   set productId(int? value) {
@@ -325,5 +297,23 @@ ProductBatch copyWith({  int? id,
 
   set id(int? value) {
     _id = value;
+  }
+
+  Product? get product => _product;
+
+  set product(Product? value) {
+    _product = value;
+  }
+
+  Park? get park => _park;
+
+  set park(Park? value) {
+    _park = value;
+  }
+
+  Corp? get corp => _corp;
+
+  set corp(Corp? value) {
+    _corp = value;
   }
 }

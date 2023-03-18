@@ -1,235 +1,211 @@
 import 'dart:convert';
 /// id : 1
-/// batchId : 1
-/// batchName : ""
-/// batchCycleId : 1
-/// batchCycleName : ""
-/// productId : 1
-/// productName : ""
-/// investProductId : 1
-/// investProductName : ""
+/// cycleName : ""
+/// name : ""
+/// code : ""
+/// expenseType : ""
+/// amount : 9.00
 /// description : ""
-/// investAmount : 8.00
-/// investPrice : 8.00
-/// investQuantity : 9.00
-/// realAmount : 9.00
-/// realPrice : 10.0
-/// realQuantity : 11.00
 /// corpId : 1
+/// batchId : 1
+/// checkStatus : 1
+/// status : 1
+/// createdAt : "209393 "
+/// createdUserId : 1
+/// batchProduct : {}
+/// createdUser : {}
 
 BatchCycleExpense batchCycleExpenseFromJson(String str) => BatchCycleExpense.fromJson(json.decode(str));
 String batchCycleExpenseToJson(BatchCycleExpense data) => json.encode(data.toJson());
 class BatchCycleExpense {
   BatchCycleExpense({
-      int? id, 
-      int? batchId, 
-      String? batchName, 
-      int? batchCycleId, 
-      String? batchCycleName, 
-      int? productId, 
-      String? productName, 
-      int? investProductId, 
-      String? investProductName, 
+      int? id,
+      String? cycleName, 
+      String? name, 
+      String? code, 
+      String? expenseType, 
+      double? amount, 
       String? description, 
-      double? investAmount, 
-      double? investPrice, 
-      double? investQuantity, 
-      double? realAmount, 
-      double? realPrice, 
-      double? realQuantity, 
-      int? corpId,}){
+      int? corpId, 
+      int? batchId, 
+      int? checkStatus, 
+      int? status, 
+      String? createdAt, 
+      int? createdUserId, 
+      dynamic batchProduct, 
+      dynamic createdUser,}){
     _id = id;
-    _batchId = batchId;
-    _batchName = batchName;
-    _batchCycleId = batchCycleId;
-    _batchCycleName = batchCycleName;
-    _productId = productId;
-    _productName = productName;
-    _investProductId = investProductId;
-    _investProductName = investProductName;
+    _cycleName = cycleName;
+    _name = name;
+    _code = code;
+    _expenseType = expenseType;
+    _amount = amount;
     _description = description;
-    _investAmount = investAmount;
-    _investPrice = investPrice;
-    _investQuantity = investQuantity;
-    _realAmount = realAmount;
-    _realPrice = realPrice;
-    _realQuantity = realQuantity;
     _corpId = corpId;
+    _batchId = batchId;
+    _checkStatus = checkStatus;
+    _status = status;
+    _createdAt = createdAt;
+    _createdUserId = createdUserId;
+    _batchProduct = batchProduct;
+    _createdUser = createdUser;
 }
 
   BatchCycleExpense.fromJson(dynamic json) {
     _id = json['id'];
-    _batchId = json['batchId'];
-    _batchName = json['batchName'];
-    _batchCycleId = json['batchCycleId'];
-    _batchCycleName = json['batchCycleName'];
-    _productId = json['productId'];
-    _productName = json['productName'];
-    _investProductId = json['investProductId'];
-    _investProductName = json['investProductName'];
+    _cycleName = json['cycleName'];
+    _name = json['name'];
+    _code = json['code'];
+    _expenseType = json['expenseType'];
+    _amount = json['amount'];
     _description = json['description'];
-    _investAmount = json['investAmount'];
-    _investPrice = json['investPrice'];
-    _investQuantity = json['investQuantity'];
-    _realAmount = json['realAmount'];
-    _realPrice = json['realPrice'];
-    _realQuantity = json['realQuantity'];
     _corpId = json['corpId'];
+    _batchId = json['batchId'];
+    _checkStatus = json['checkStatus'];
+    _status = json['status'];
+    _createdAt = json['createdAt'];
+    _createdUserId = json['createdUserId'];
+    _batchProduct = json['batchProduct'];
+    _createdUser = json['createdUser'];
   }
   int? _id;
-  int? _batchId;
-  String? _batchName;
-  int? _batchCycleId;
-  String? _batchCycleName;
-  int? _productId;
-  String? _productName;
-  int? _investProductId;
-  String? _investProductName;
+  String? _cycleName;
+  String? _name;
+  String? _code;
+  String? _expenseType;
+  double? _amount;
   String? _description;
-  double? _investAmount;
-  double? _investPrice;
-  double? _investQuantity;
-  double? _realAmount;
-  double? _realPrice;
-  double? _realQuantity;
   int? _corpId;
+  int? _batchId;
+  int? _checkStatus;
+  int? _status;
+  String? _createdAt;
+  int? _createdUserId;
+  dynamic _batchProduct;
+  dynamic _createdUser;
+
+
 BatchCycleExpense copyWith({  int? id,
-  int? batchId,
-  String? batchName,
-  int? batchCycleId,
-  String? batchCycleName,
-  int? productId,
-  String? productName,
-  int? investProductId,
-  String? investProductName,
+  String? cycleName,
+  String? name,
+  String? code,
+  String? expenseType,
+  double? amount,
   String? description,
-  double? investAmount,
-  double? investPrice,
-  double? investQuantity,
-  double? realAmount,
-  double? realPrice,
-  double? realQuantity,
   int? corpId,
+  int? batchId,
+  int? checkStatus,
+  int? status,
+  String? createdAt,
+  int? createdUserId,
+  dynamic batchProduct,
+  dynamic createdUser,
 }) => BatchCycleExpense(  id: id ?? _id,
-  batchId: batchId ?? _batchId,
-  batchName: batchName ?? _batchName,
-  batchCycleId: batchCycleId ?? _batchCycleId,
-  batchCycleName: batchCycleName ?? _batchCycleName,
-  productId: productId ?? _productId,
-  productName: productName ?? _productName,
-  investProductId: investProductId ?? _investProductId,
-  investProductName: investProductName ?? _investProductName,
+  cycleName: cycleName ?? _cycleName,
+  name: name ?? _name,
+  code: code ?? _code,
+  expenseType: expenseType ?? _expenseType,
+  amount: amount ?? _amount,
   description: description ?? _description,
-  investAmount: investAmount ?? _investAmount,
-  investPrice: investPrice ?? _investPrice,
-  investQuantity: investQuantity ?? _investQuantity,
-  realAmount: realAmount ?? _realAmount,
-  realPrice: realPrice ?? _realPrice,
-  realQuantity: realQuantity ?? _realQuantity,
   corpId: corpId ?? _corpId,
+  batchId: batchId ?? _batchId,
+  checkStatus: checkStatus ?? _checkStatus,
+  status: status ?? _status,
+  createdAt: createdAt ?? _createdAt,
+  createdUserId: createdUserId ?? _createdUserId,
+  batchProduct: batchProduct ?? _batchProduct,
+  createdUser: createdUser ?? _createdUser,
 );
   int? get id => _id;
-  int? get batchId => _batchId;
-  String? get batchName => _batchName;
-  int? get batchCycleId => _batchCycleId;
-  String? get batchCycleName => _batchCycleName;
-  int? get productId => _productId;
-  String? get productName => _productName;
-  int? get investProductId => _investProductId;
-  String? get investProductName => _investProductName;
+  String? get cycleName => _cycleName;
+  String? get name => _name;
+  String? get code => _code;
+  String? get expenseType => _expenseType;
+  double? get amount => _amount;
   String? get description => _description;
-  double? get investAmount => _investAmount;
-  double? get investPrice => _investPrice;
-  double? get investQuantity => _investQuantity;
-  double? get realAmount => _realAmount;
-  double? get realPrice => _realPrice;
-  double? get realQuantity => _realQuantity;
   int? get corpId => _corpId;
+  int? get batchId => _batchId;
+  int? get checkStatus => _checkStatus;
+  int? get status => _status;
+  String? get createdAt => _createdAt;
+  int? get createdUserId => _createdUserId;
+  dynamic get batchProduct => _batchProduct;
+  dynamic get createdUser => _createdUser;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = _id;
-    map['batchId'] = _batchId;
-    map['batchName'] = _batchName;
-    map['batchCycleId'] = _batchCycleId;
-    map['batchCycleName'] = _batchCycleName;
-    map['productId'] = _productId;
-    map['productName'] = _productName;
-    map['investProductId'] = _investProductId;
-    map['investProductName'] = _investProductName;
+    map['cycleName'] = _cycleName;
+    map['name'] = _name;
+    map['code'] = _code;
+    map['expenseType'] = _expenseType;
+    map['amount'] = _amount;
     map['description'] = _description;
-    map['investAmount'] = _investAmount;
-    map['investPrice'] = _investPrice;
-    map['investQuantity'] = _investQuantity;
-    map['realAmount'] = _realAmount;
-    map['realPrice'] = _realPrice;
-    map['realQuantity'] = _realQuantity;
     map['corpId'] = _corpId;
+    map['batchId'] = _batchId;
+    map['checkStatus'] = _checkStatus;
+    map['status'] = _status;
+    map['createdAt'] = _createdAt;
+    map['createdUserId'] = _createdUserId;
+    map['batchProduct'] = _batchProduct;
+    map['createdUser'] = _createdUser;
     return map;
+  }
+
+  set createdUser(dynamic? value) {
+    _createdUser = value;
+  }
+
+  set batchProduct(dynamic? value) {
+    _batchProduct = value;
+  }
+
+  set createdUserId(int? value) {
+    _createdUserId = value;
+  }
+
+  set createdAt(String? value) {
+    _createdAt = value;
+  }
+
+  set status(int? value) {
+    _status = value;
+  }
+
+  set checkStatus(int? value) {
+    _checkStatus = value;
+  }
+
+  set batchId(int? value) {
+    _batchId = value;
   }
 
   set corpId(int? value) {
     _corpId = value;
   }
 
-  set realQuantity(double? value) {
-    _realQuantity = value;
-  }
-
-  set realPrice(double? value) {
-    _realPrice = value;
-  }
-
-  set realAmount(double? value) {
-    _realAmount = value;
-  }
-
-  set investQuantity(double? value) {
-    _investQuantity = value;
-  }
-
-  set investPrice(double? value) {
-    _investPrice = value;
-  }
-
-  set investAmount(double? value) {
-    _investAmount = value;
-  }
-
   set description(String? value) {
     _description = value;
   }
 
-  set investProductName(String? value) {
-    _investProductName = value;
+  set amount(double? value) {
+    _amount = value;
   }
 
-  set investProductId(int? value) {
-    _investProductId = value;
+  set expenseType(String? value) {
+    _expenseType = value;
   }
 
-  set productName(String? value) {
-    _productName = value;
+  set code(String? value) {
+    _code = value;
   }
 
-  set productId(int? value) {
-    _productId = value;
+  set name(String? value) {
+    _name = value;
   }
 
-  set batchCycleName(String? value) {
-    _batchCycleName = value;
-  }
-
-  set batchCycleId(int? value) {
-    _batchCycleId = value;
-  }
-
-  set batchName(String? value) {
-    _batchName = value;
-  }
-
-  set batchId(int? value) {
-    _batchId = value;
+  set cycleName(String? value) {
+    _cycleName = value;
   }
 
   set id(int? value) {

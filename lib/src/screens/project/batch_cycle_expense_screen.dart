@@ -11,12 +11,9 @@ import 'package:znny_manager/src/screens/project/batch_cycle_expense_edit_screen
 import 'package:znny_manager/src/utils/constants.dart';
 
 class BatchCycleExpenseScreen extends StatefulWidget {
-  final int productId;
-  final String productName;
   final int batchId;
-  final String batchName;
 
-  const BatchCycleExpenseScreen({Key? key, required this.batchId, required this.batchName,required this.productId, required this.productName}) : super(key: key);
+  const BatchCycleExpenseScreen({Key? key, required this.batchId}) : super(key: key);
 
   @override
   State<BatchCycleExpenseScreen> createState() => _BatchCycleExpenseScreenState();
@@ -62,8 +59,7 @@ class _BatchCycleExpenseScreenState extends State<BatchCycleExpenseScreen>{
     return  Scaffold(
       body: LayoutBuilder(builder:
           (BuildContext context, BoxConstraints viewportConstraints) {
-        return SingleChildScrollView(
-            child: ConstrainedBox(
+        return SingleChildScrollView(child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: viewportConstraints.maxHeight,
                 ),
@@ -135,17 +131,7 @@ class _BatchCycleExpenseScreenState extends State<BatchCycleExpenseScreen>{
                                     listData.length,
                                         (index) => DataRow(cells: [
                                       DataCell(Text('${listData[index].id}')),
-                                          DataCell(
-                                              Text('${listData[index].batchName}')),
-                                          DataCell(
-                                              Text('${listData[index].batchCycleName}')),
-                                      DataCell(
-                                          Text('${listData[index].investProductName}')),
 
-                                          DataCell(
-                                              Text('${listData[index].investQuantity}')),
-                                          DataCell(
-                                              Text('${listData[index].investAmount}')),
                                       DataCell(
                                           Row(children: [
                                             ElevatedButton(
@@ -153,7 +139,7 @@ class _BatchCycleExpenseScreenState extends State<BatchCycleExpenseScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  BatchCycleExpenseEditScreen(id: listData[index].id, batchId: widget.batchId, batchName: widget.batchName, productId: widget.productId, productName: widget.productName,)),
+                                                  MaterialPageRoute(builder: (context) =>  BatchCycleExpenseEditScreen(id: listData[index]!.id, batchId: widget.batchId)),
                                                 );
                                               },
                                               child: const Text('编辑'),
@@ -173,7 +159,7 @@ class _BatchCycleExpenseScreenState extends State<BatchCycleExpenseScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  BatchCycleExpenseEditScreen(id: listData[index].id, batchId: widget.batchId, batchName: widget.batchName, productId: widget.productId,productName: widget.productName,)),
+                                                  MaterialPageRoute(builder: (context) =>  BatchCycleExpenseEditScreen(id: listData[index].id, batchId: widget.batchId)),
                                                 );
                                               },
                                               child: const Text('查看'),
@@ -189,7 +175,7 @@ class _BatchCycleExpenseScreenState extends State<BatchCycleExpenseScreen>{
   toAdd(){
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) =>  BatchCycleExpenseEditScreen(batchId: widget.batchId, batchName: widget.batchName,productId: widget.productId, productName: widget.productName,)),
+      MaterialPageRoute(builder: (context) =>  BatchCycleExpenseEditScreen(batchId: widget.batchId)),
     );
   }
 }

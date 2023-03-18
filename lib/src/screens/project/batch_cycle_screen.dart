@@ -10,12 +10,9 @@ import 'package:znny_manager/src/utils/constants.dart';
 
 class BatchCycleScreen extends StatefulWidget {
   final int batchId;
-  final String batchName;
-  final int productId;
-  final String productName;
 
   const BatchCycleScreen(
-      {Key? key, required this.batchId, required this.batchName, required this.productId, required this.productName})
+      {Key? key, required this.batchId})
       : super(key: key);
 
   @override
@@ -147,10 +144,7 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                                             builder: (context) =>
                                                 BatchCycleEditScreen(
                                                   id: batchCycleTemp.id,
-                                                  batchId: widget.batchId,
-                                                  batchName: widget.batchName,
-                                                  productId: widget.productId,
-                                                  productName: widget.productName
+                                                  batchId: widget.batchId
                                                 )),
                                       );
                                     },
@@ -196,10 +190,7 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
       context,
       MaterialPageRoute(
           builder: (context) => BatchCycleEditScreen(
-                batchId: widget.batchId,
-                batchName: widget.batchName,
-                productId: widget.productId,
-                productName: widget.productName
+                batchId: widget.batchId
               )),
     );
   }
@@ -256,10 +247,7 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                                 builder: (context) =>
                                     BatchCycleEditScreen(
                                       id: curTemp.id,
-                                      batchId: widget.batchId,
-                                      batchName: widget.batchName,
-                                      productId: widget.productId,
-                                      productName: widget.productName,
+                                      batchId: widget.batchId
                                     )),
                           );
                         },
@@ -273,10 +261,7 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                                 builder: (context) =>
                                     BatchCycleEditScreen(
                                       id: curTemp.id,
-                                      batchId: widget.batchId,
-                                      batchName: widget.batchName,
-                                      productId: widget.productId,
-                                      productName: widget.productName,
+                                      batchId: widget.batchId
                                     )),
                           );
                         },

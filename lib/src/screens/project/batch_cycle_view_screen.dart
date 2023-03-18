@@ -140,10 +140,7 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
                                             builder: (context) =>
                                                 BatchCycleEditScreen(
                                                   id: batchCycleTemp.id,
-                                                  batchId: batchCycleTemp.batchId!,
-                                                  batchName: batchCycleTemp.batchName!,
-                                                  productId: batchCycleTemp.productId!,
-                                                  productName: batchCycleTemp.productName!
+                                                  batchId: batchCycleTemp.batchId!
                                                 )),
                                       );
                                     },
@@ -189,10 +186,7 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
       context,
       MaterialPageRoute(
           builder: (context) => BatchCycleEditScreen(
-                batchId: _curBatchCycle.batchId!,
-                batchName: _curBatchCycle.batchName!,
-                productId: _curBatchCycle.productId!,
-                productName: _curBatchCycle.productName!
+                batchId: _curBatchCycle.batchId!
               )),
     );
   }
@@ -249,10 +243,7 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
                                 builder: (context) =>
                                     BatchCycleEditScreen(
                                       id: curTemp.id,
-                                      batchId: curTemp.batchId!,
-                                      batchName: curTemp.batchName!,
-                                      productId: curTemp.productId!,
-                                      productName: curTemp.productName!,
+                                      batchId: curTemp.batchId!
                                     )),
                           );
                         },

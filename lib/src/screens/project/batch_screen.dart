@@ -4,11 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:znny_manager/src/model/ConstType.dart';
 import 'package:znny_manager/src/model/page_model.dart';
-import 'package:znny_manager/src/model/project/ProductBatch.dart';
+import 'package:znny_manager/src/model/project/BatchProduct.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/product/product_view_screen.dart';
 import 'package:znny_manager/src/screens/project/batch_edit_screen.dart';
 import 'package:znny_manager/src/screens/project/batch_view_screen.dart';
 import 'package:znny_manager/src/utils/constants.dart';
@@ -22,7 +21,7 @@ class ProductBatchScreen extends StatefulWidget {
 
 class _ProductBatchScreenState extends State<ProductBatchScreen> {
 
-  List<ProductBatch> listProductBatch = [];
+  List<BatchProduct> listProductBatch = [];
 
   PageModel pageModel = PageModel();
 
@@ -41,7 +40,7 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
       if(retData != null && retData['content'].length > 0) {
         setState(() {
           listProductBatch =
-              (retData['content'] as List).map((e) => ProductBatch.fromJson(e)).toList();
+              (retData['content'] as List).map((e) => BatchProduct.fromJson(e)).toList();
         });
       }
     } on DioError catch(error) {
@@ -157,15 +156,11 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
                                     DataCell(
                                         Text('${listProductBatch[index].name}')),
                                 DataCell(
-                                    Text('${listProductBatch[index].productName}')),
-                                DataCell(
-                                    Text('${listProductBatch[index].quantity}')),
+                                    Text('${listProductBatch[index].product?.name}')),
                                 DataCell(
                                     Text('${listProductBatch[index].startAt}')),
                                 DataCell(
                                     Text('${listProductBatch[index].endAt}')),
-                                DataCell(
-                                    Text('${listProductBatch[index].managerName}')),
                                 DataCell(
                                     Text(ConstType.getTaskStatus(listProductBatch[index].status))),
                                    DataCell(

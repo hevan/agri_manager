@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:sp_util/sp_util.dart';
 
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/project/ProductBatch.dart';
 import 'package:znny_manager/src/model/project/BatchCycle.dart';
 import 'package:znny_manager/src/model/project/BatchRisk.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';

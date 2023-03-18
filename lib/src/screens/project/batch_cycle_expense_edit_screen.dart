@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/widgets.dart';
 import 'package:sp_util/sp_util.dart';
 
 import 'package:flutter/material.dart';
@@ -18,10 +17,8 @@ import 'package:file_picker/file_picker.dart';
 class BatchCycleExpenseEditScreen extends StatefulWidget {
   final int? id;
   final int batchId;
-  final String batchName;
-  final int productId;
-  final String productName;
-  const BatchCycleExpenseEditScreen({Key? key, this.id, required this.batchId, required this.batchName,required this.productId, required this.productName}) : super(key: key);
+
+  const BatchCycleExpenseEditScreen({Key? key, this.id, required this.batchId}) : super(key: key);
 
   @override
   State<BatchCycleExpenseEditScreen> createState() => _BatchCycleExpenseEditScreenState();
@@ -62,10 +59,6 @@ class _BatchCycleExpenseEditScreenState extends State<BatchCycleExpenseEditScree
 
     setState(() {
       _batchCycleExpense.batchId = widget.batchId;
-      _batchCycleExpense.batchName = widget.batchName;
-      _batchCycleExpense.productId = widget.productId;
-      _batchCycleExpense.productName = widget.productName;
-
       userId = SpUtil.getInt(Constant.userId);
     });
   }
@@ -95,11 +88,6 @@ class _BatchCycleExpenseEditScreenState extends State<BatchCycleExpenseEditScree
         if(retData != null) {
           setState(() {
             _batchCycleExpense = BatchCycleExpense.fromJson(retData);
-
-            _textCycleName.text = _batchCycleExpense.batchCycleName != null ? _batchCycleExpense.batchCycleName! : '';
-            _textInvestProductName.text = _batchCycleExpense.investProductName != null ? _batchCycleExpense.investProductName! : '';
-            _textQuantity.text = _batchCycleExpense.investQuantity != null ? _batchCycleExpense.investQuantity.toString() : '';
-            _textPrice.text = _batchCycleExpense.investPrice != null ? _batchCycleExpense.investPrice!.toString() : '';
 
           });
         }
@@ -155,10 +143,6 @@ class _BatchCycleExpenseEditScreenState extends State<BatchCycleExpenseEditScree
     if(checkError){
       return;
     }
-
-    _batchCycleExpense.investQuantity = double.parse(_textQuantity.text);
-    _batchCycleExpense.investPrice = double.parse(_textPrice.text);
-
     try {
       var retData = await DioUtils().request(HttpApi.batch_cycle_expense_add, "POST",
           data: json.encode(_batchCycleExpense), isJson: true);
@@ -226,8 +210,6 @@ class _BatchCycleExpenseEditScreenState extends State<BatchCycleExpenseEditScree
                           setState(() {
                             parentCycle = listCycle[ret];
                             _textCycleName.text = parentCycle!.name!;
-                            _batchCycleExpense.batchCycleId = parentCycle!.id!;
-                            _batchCycleExpense.batchCycleName = parentCycle!.name!;
                           });
                         }
                       },
@@ -279,8 +261,6 @@ class _BatchCycleExpenseEditScreenState extends State<BatchCycleExpenseEditScree
                           setState(() {
                             investBatch = listProduct[ret];
                             _textInvestProductName.text = investBatch!.name!;
-                            _batchCycleExpense.investProductId = investBatch!.id!;
-                            _batchCycleExpense.investProductName = investBatch!.name!;
                           });
                         }
                       },

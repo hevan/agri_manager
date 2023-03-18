@@ -1,7 +1,7 @@
 
 import 'package:sp_util/sp_util.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/project/ProductBatch.dart';
+import 'package:znny_manager/src/model/project/BatchProduct.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
@@ -24,7 +24,7 @@ class _BatchViewScreenState extends State<BatchViewScreen> with TickerProviderSt
 
   TabController? _tabController;
 
-  ProductBatch _batch = ProductBatch(corpId: HttpApi.corpId);
+  BatchProduct _batch = BatchProduct(corpId: HttpApi.corpId);
   int? userId;
 
   @override
@@ -54,7 +54,7 @@ class _BatchViewScreenState extends State<BatchViewScreen> with TickerProviderSt
 
         if(retData != null) {
           setState(() {
-            _batch = ProductBatch.fromJson(retData);
+            _batch = BatchProduct.fromJson(retData);
           });
         }
       } on DioError catch (error) {
@@ -99,11 +99,7 @@ class _BatchViewScreenState extends State<BatchViewScreen> with TickerProviderSt
                   ]),
                   Row(children: [
                     const Expanded(child:  Text('产品:'), flex: 2,),
-                    Expanded(child:  Text('${_batch.productName}'), flex:6,)
-                  ]),
-                  Row(children: [
-                    const Expanded(child:  Text('规模:'), flex: 2,),
-                    Expanded(child:  Text('${_batch.quantity}${_batch.unit}'), flex:6,)
+                    Expanded(child:  Text('${_batch.product?.name}'), flex:6,)
                   ]),
                   Row(children: [
                     const Expanded(child:  Text('描述:'), flex: 2,),
@@ -145,10 +141,10 @@ class _BatchViewScreenState extends State<BatchViewScreen> with TickerProviderSt
             body:  TabBarView(
               controller: _tabController,
               children: [
-                  null != _batch.name ? BatchCycleScreen(batchId: _batch.id!, batchName: _batch.name!,productId: _batch.productId!, productName: _batch.productName!) : const Center(),
+                  null != _batch.name ? BatchCycleScreen(batchId: _batch.id!) : const Center(),
                   null != _batch.name ? BatchRiskScreen(batchId: _batch.id!, batchName: _batch.name!, productId: _batch.id!, productName: _batch.name!) : const Center(),
 
-                  null != _batch.name ? BatchCycleExpenseScreen(batchId: _batch.id!, batchName: _batch.name!,productId: _batch.productId!, productName: _batch.productName!) : const Center(),
+                  null != _batch.name ? BatchCycleExpenseScreen(batchId: _batch.id!,) : const Center(),
 
               ],
             ),

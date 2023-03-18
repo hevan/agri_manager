@@ -15,12 +15,9 @@ import 'package:znny_manager/src/utils/constants.dart';
 class BatchCycleEditScreen extends StatefulWidget {
   final int? id;
   final int batchId;
-  final String batchName;
-  final int productId;
-  final String productName;
 
   const BatchCycleEditScreen(
-      {Key? key, this.id, required this.batchId, required this.batchName,required this.productId, required this.productName})
+      {Key? key, this.id, required this.batchId})
       : super(key: key);
 
   @override
@@ -62,9 +59,6 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
 
     setState(() {
       _batchCycle.batchId = widget.batchId;
-      _batchCycle.batchName = widget.batchName;
-      _batchCycle.productId = widget.productId;
-      _batchCycle.productName = widget.productName;
 
       userId = SpUtil.getInt(Constant.userId);
     });

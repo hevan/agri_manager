@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:sp_util/sp_util.dart';
 import 'package:znny_manager/src/model/ConstType.dart';
-import 'package:znny_manager/src/model/project/ProductBatch.dart';
+import 'package:znny_manager/src/model/project/BatchProduct.dart';
 import 'package:znny_manager/src/net/dio_utils.dart';
 import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
 import 'package:znny_manager/src/net/http_api.dart';
@@ -38,18 +38,16 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
 
   var selectProduct = {"id":null, 'name': null};
 
-  ProductBatch _productBatch = ProductBatch(corpId: HttpApi.corpId);
+  BatchProduct _productBatch = BatchProduct(corpId: HttpApi.corpId);
   int? userId;
 
   @override
   void dispose() {
     _textName.dispose();
-    _textProductName.dispose();
     _textCode.dispose();
     _textDescription.dispose();
     _textStartAt.dispose();
     _textParkName.dispose();
-    _textQuantity.dispose();
     _textUnit.dispose();
     super.dispose();
   }
@@ -74,16 +72,13 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
 
         if(retData != null) {
           setState(() {
-            _productBatch = ProductBatch.fromJson(retData);
+            _productBatch = BatchProduct.fromJson(retData);
 
             _textName.text = _productBatch.name != null ? _productBatch.name! : '';
             _textCode.text = _productBatch.code != null ? _productBatch.code! : '';
-            _textProductName.text = _productBatch.productName != null ? _productBatch.productName! : '';
-            _textParkName.text = _productBatch.parkName != null ? _productBatch.parkName! : '';
             _textStartAt.text = _productBatch.startAt != null ? _productBatch.startAt! : '';
             _textDescription.text = _productBatch.description != null ? _productBatch.description! : '';
-            _textUnit.text = _productBatch.unit != null ? _productBatch.unit! : '';
-            _textQuantity.text = _productBatch.quantity != null ? _productBatch.quantity!.toString() : '';
+            _textUnit.text = _productBatch.calcUnit != null ? _productBatch.calcUnit! : '';
           });
         }
       } on DioError catch (error) {
@@ -149,8 +144,6 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
     _productBatch.code = _textCode.text;
     _productBatch.description = _textDescription.text;
     _productBatch.startAt = _textStartAt.text;
-    _productBatch.quantity = double.parse(_textQuantity.text);
-    _productBatch.unit = _textUnit.text;
 
     try {
       var retData = await DioUtils().request(HttpApi.batch_add, "POST",
@@ -198,8 +191,7 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
                           setState(() {
                             var productMap = json.decode(retProduct);
                             _productBatch.productId = productMap['id'];
-                            _productBatch.productName = productMap['name'];
-                            _textProductName.text = productMap['name'];
+                           _textProductName.text = productMap['name'];
                           });
                       },
                       icon: const Icon(Icons.search_sharp),
@@ -228,7 +220,6 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
                           setState(() {
                             var parkMap = json.decode(retPark);
                             _productBatch.parkId = parkMap['id'];
-                            _productBatch.parkName = parkMap['name'];
                             _textParkName.text = parkMap['name'];
                           });
                       },
