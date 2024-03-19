@@ -3,19 +3,20 @@ import 'dart:convert';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/model/manage/UserInfo.dart';
-import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/login_signup/reset_password.dart';
-import 'package:znny_manager/src/screens/login_signup/user_profile_update.dart';
-import 'package:znny_manager/src/shared_components/custom_list_title.dart';
-import 'package:znny_manager/src/utils/agri_util.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/UserInfo.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/login_signup/reset_password.dart';
+import 'package:agri_manager/src/screens/login_signup/user_profile_update.dart';
+import 'package:agri_manager/src/shared_components/custom_list_title.dart';
+import 'package:agri_manager/src/utils/agri_util.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 /// Displays the various settings that can be customized by the user.
 ///
 /// When a user changes a setting, the SettingsController is updated and
 /// Widgets that listen to the SettingsController are rebuilt.
+
 class SettingsView extends StatefulWidget {
   const SettingsView({Key? key}) : super(key: key);
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:znny_manager/src/model/manage/CorpManagerInfo.dart';
-import 'package:znny_manager/src/screens/manage/manager/manager_edit_screen.dart';
-import 'package:znny_manager/src/shared_components/show_field_text.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/CorpManagerInfo.dart';
+import 'package:agri_manager/src/screens/manage/manager/manager_edit_screen.dart';
+import 'package:agri_manager/src/shared_components/show_field_text.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class ManagerViewScreen extends StatefulWidget {
   final CorpManagerInfo data;
@@ -19,10 +19,28 @@ class ManagerViewScreen extends StatefulWidget {
 
 class _ManagerViewScreenState extends State<ManagerViewScreen> {
 
+  late String departs = '';
+  late String roles = '';
 
   @override
   void dispose() {
     super.dispose();
+
+    setState(() {
+
+      if(null != widget.data.listCorpDepart){
+        for(int i=0; i<widget.data.listCorpDepart!.length ; i++){
+          departs = departs + widget.data.listCorpDepart![i].name! + ',';
+        }
+      }
+
+      if(null != widget.data.listCorpRole){
+        for(int i=0; i<widget.data.listCorpRole!.length ; i++){
+          roles = roles + widget.data.listCorpRole![i].name! + ',';
+        }
+      }
+    });
+
   }
 
   @override
@@ -80,8 +98,18 @@ class _ManagerViewScreenState extends State<ManagerViewScreen> {
                 const SizedBox(
                   height: kSpacing,
                 ),
-                ShowFieldText(title: '描述', data: widget.data.description ?? '' , dataLine: 4,),
-
+                ShowFieldText(title: '职位', data: widget.data.position ?? ''),
+                const SizedBox(
+                  height: kSpacing,
+                ),
+                ShowFieldText(title: '部门', data: departs ?? ''),
+                const SizedBox(
+                  height: kSpacing,
+                ),
+                ShowFieldText(title: '角色', data: roles ?? ''),
+                const SizedBox(
+                  height: kSpacing,
+                ),
                 ElevatedButton(
                   style: elevateButtonStyle,
                   onPressed: () {

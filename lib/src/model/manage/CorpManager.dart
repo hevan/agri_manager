@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:znny_manager/src/model/manage/CorpManagerDepart.dart';
-import 'package:znny_manager/src/model/manage/CorpManagerRole.dart';
+import 'package:agri_manager/src/model/manage/CorpManagerDepart.dart';
+import 'package:agri_manager/src/model/manage/CorpManagerRole.dart';
 /// id : 1
 /// userId : 2
 /// corpId : 1

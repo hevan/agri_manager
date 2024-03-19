@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:znny_manager/src/model/manage/CorpRole.dart';
-import 'package:znny_manager/src/screens/manage/depart/corp_depart_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/manager/manager_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/role/corp_role_edit_screen.dart';
-import 'package:znny_manager/src/shared_components/show_field_text.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/CorpRole.dart';
+import 'package:agri_manager/src/screens/manage/depart/corp_depart_edit_screen.dart';
+import 'package:agri_manager/src/screens/manage/manager/manager_edit_screen.dart';
+import 'package:agri_manager/src/screens/manage/role/corp_role_edit_screen.dart';
+import 'package:agri_manager/src/shared_components/show_field_text.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CorpRoleViewScreen extends StatefulWidget {
   final CorpRole data;

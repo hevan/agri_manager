@@ -3,14 +3,17 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/product/Product.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/product/product_edit_screen.dart';
-import 'package:znny_manager/src/screens/product/product_info_card.dart';
-import 'package:znny_manager/src/screens/product/product_view_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/page_model.dart';
+import 'package:agri_manager/src/model/product/Product.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/product/product_edit_screen.dart';
+import 'package:agri_manager/src/screens/product/product_info_card.dart';
+import 'package:agri_manager/src/screens/product/product_view_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 import '../../shared_components/responsive_builder.dart';
 
@@ -24,7 +27,11 @@ class ProductScreen extends StatefulWidget {
 class _ProductScreenState extends State<ProductScreen> {
   List<Product> listProduct = [];
 
-  Product selectProduct = new Product();
+  Product? selectProduct;
+
+  PageModel pageModel = PageModel();
+
+  Corp? curCorp;
 
   @override
   void didChangeDependencies() {
@@ -32,19 +39,35 @@ class _ProductScreenState extends State<ProductScreen> {
     super.didChangeDependencies();
   }
 
+  @override
+  void initState() {
+    super.initState();
+
+    Map? mapCorpSelect = SpUtil.getObject(Constant.currentCorp);
+
+    debugPrint(json.encode(mapCorpSelect));
+    if (null != mapCorpSelect && mapCorpSelect.isNotEmpty) {
+      setState(() {
+        curCorp = Corp.fromJson(mapCorpSelect);
+      });
+    }
+
+  }
+
   Future loadData() async {
     var params = {
-      'corpId': HttpApi.corpId,
-      'name': '',
+      'corpId': curCorp?.id,
+      'userId': '',
+      'page': pageModel.page, 'size': pageModel.size
     };
 
     try {
       var retData = await DioUtils()
           .request(HttpApi.product_query, "GET", queryParameters: params);
-      if (retData != null) {
+      if (retData != null && null != retData['content']) {
         setState(() {
           listProduct =
-              (retData as List).map((e) => Product.fromJson(e)).toList();
+              (retData['content'] as List).map((e) => Product.fromJson(e)).toList();
           selectProduct = listProduct[0];
         });
         debugPrint(json.encode(listProduct));
@@ -75,9 +98,9 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
               Flexible(
                   flex: 4,
-                  child: ProductViewScreen(
-                    data: selectProduct,
-                  )),
+                  child: null != selectProduct? ProductViewScreen(
+                    data: selectProduct!,
+                  ): const Center()),
             ]);
           },
           desktopBuilder: (BuildContext context, BoxConstraints constraints) {
@@ -89,9 +112,9 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
               Flexible(
                   flex: 6,
-                  child: ProductViewScreen(
-                    data: selectProduct,
-                  )),
+                  child: null != selectProduct? ProductViewScreen(
+                    data: selectProduct!,
+                  ): const Center()),
             ]);
           },
         ));
@@ -133,7 +156,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.only(left: kSpacing, right: kSpacing),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
                       style: secondButtonStyle,

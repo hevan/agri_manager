@@ -1,20 +1,6 @@
 import 'dart:convert';
 
-import 'package:znny_manager/src/model/product/Category.dart';
-
-/// id : 1
-/// name : "方成"
-/// code : "54s5d4as5d45"
-/// categoryId : 2
-/// imageUrl : "63bbc03ea527a37a958899f8"
-/// calcUnit : "元"
-/// corpId : 1
-/// createdAt : "2022-12-13 11:09:47"
-/// createdBy : "1"
-/// updatedAt : "2023-01-02 11:09:33"
-/// updatedBy : "21"
-/// description : "方成方成方成方成方成"
-/// category : {"id":2,"pathName":"/img/","name":"食用","imageUrl":"/img/sdjiasjdi.jpg","parentId":0,"corpId":1}
+import 'package:agri_manager/src/model/product/Category.dart';
 
 Product productFromJson(String str) => Product.fromJson(json.decode(str));
 String productToJson(Product data) => json.encode(data.toJson());

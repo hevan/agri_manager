@@ -2,12 +2,13 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/project/BatchRisk.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/project/batch_risk_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/project/BatchRisk.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/project/batch_risk_edit_screen.dart';
+import 'package:agri_manager/src/screens/project/batch_risk_view_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class BatchRiskScreen extends StatefulWidget {
   final int batchId;
@@ -59,6 +60,7 @@ class _BatchRiskScreenState extends State<BatchRiskScreen>{
   Widget build(BuildContext context) {
 
     return  Scaffold(
+      appBar: AppBar(title: const Text('风险管理')),
       body: LayoutBuilder(builder:
           (BuildContext context, BoxConstraints viewportConstraints) {
         return SingleChildScrollView(
@@ -112,10 +114,7 @@ class _BatchRiskScreenState extends State<BatchRiskScreen>{
                                   ),
                                   DataColumn2(
                                     size: ColumnSize.S,
-                                    label: Text('批次名称'),
-                                  ),
-                                  DataColumn2(
-                                    label: Text('产品名称'),
+                                    label: Text('名称'),
                                   ),
                                   DataColumn2(
                                     size: ColumnSize.S,
@@ -136,28 +135,13 @@ class _BatchRiskScreenState extends State<BatchRiskScreen>{
                                         (index) => DataRow(cells: [
                                       DataCell(Text('${listData[index].id}')),
                                           DataCell(
-                                              Text('${listData[index].batchName}')),
-                                      DataCell(
-                                          Text('${listData[index].productName}')),
+                                              Text('${listData[index].name}')),
                                       DataCell(
                                           Text('${listData[index].cycleName}')),
                                           DataCell(
                                               Text('${listData[index].riskCategory}')),
-
                                       DataCell(
                                           Row(children: [
-                                            ElevatedButton(
-                                              style:  elevateButtonStyle,
-                                              onPressed: (){
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(builder: (context) =>  BatchRiskEditScreen(id: listData[index].id, batchId: widget.batchId, batchName:widget.batchName, productId: widget.productId, productName: widget.productName,)),
-                                                );
-                                              },
-                                              child: const Text('编辑'),
-                                            ),
-
-                                            Container(width: 10.0,),
                                             ElevatedButton(
                                               style:  elevateButtonStyle,
                                               onPressed: (){
@@ -171,7 +155,7 @@ class _BatchRiskScreenState extends State<BatchRiskScreen>{
                                               onPressed: (){
                                                 Navigator.push(
                                                   context,
-                                                  MaterialPageRoute(builder: (context) =>  BatchRiskEditScreen(id: listData[index].id, batchId: widget.batchId, batchName:widget.batchName, productId: widget.productId,productName: widget.productName,)),
+                                                  MaterialPageRoute(builder: (context) =>  BatchRiskViewScreen(data:listData[index])),
                                                 );
                                               },
                                               child: const Text('查看'),

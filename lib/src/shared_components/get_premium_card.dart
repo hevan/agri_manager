@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class GetPremiumCard extends StatelessWidget {
   const GetPremiumCard({

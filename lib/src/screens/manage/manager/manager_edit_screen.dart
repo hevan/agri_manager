@@ -6,18 +6,20 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/model/manage/Corp.dart';
-import 'package:znny_manager/src/model/manage/CorpDepart.dart';
-import 'package:znny_manager/src/model/manage/CorpManager.dart';
-import 'package:znny_manager/src/model/manage/CorpManagerDepart.dart';
-import 'package:znny_manager/src/model/manage/CorpManagerInfo.dart';
-import 'package:znny_manager/src/model/manage/CorpManagerRole.dart';
-import 'package:znny_manager/src/model/manage/CorpRole.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/agri_util.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/manage/CorpDepart.dart';
+import 'package:agri_manager/src/model/manage/CorpManager.dart';
+import 'package:agri_manager/src/model/manage/CorpManagerDepart.dart';
+import 'package:agri_manager/src/model/manage/CorpManagerInfo.dart';
+import 'package:agri_manager/src/model/manage/CorpManagerRole.dart';
+import 'package:agri_manager/src/model/manage/CorpRole.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/agri_util.dart';
+import 'package:agri_manager/src/utils/constants.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ManagerEditScreen extends StatefulWidget {
   final int? id;
@@ -39,6 +41,7 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
   List<int> errorFlag = [0, 0, 0, 0, 0, 0, 0];
 
   Corp?   currentCorp;
+  LoginInfoToken? userInfo;
 
   List<CorpDepart> listDepart = [];
   List<CorpRole> listRole = [];
@@ -56,10 +59,15 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
   @override
   void initState() {
     super.initState();
-    setState((){
+    setState(() {
       currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
     });
-    loadData();
+
+    if (null != widget.id){
+      loadData();
+  }
+    loadOther();
   }
 
   Future loadData() async {
@@ -67,7 +75,9 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
 
     try {
       var retData =
-          await DioUtils().request(HttpApi.corp_manager_info_find, "GET", queryParameters: params, isJson: true);
+      await DioUtils().request(
+          HttpApi.corp_manager_info_find, "GET", queryParameters: params,
+          isJson: true);
 
       if (retData != null) {
         setState(() {
@@ -83,6 +93,8 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
     }
+  }
+  Future loadOther() async  {
     var paramsCorpId = {'corpId': currentCorp!.id};
 
     try {
@@ -145,16 +157,38 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
 
     _corpManagerInfo.nickName = _textName.text;
     _corpManagerInfo.mobile = _textMobile.text;
+    _corpManagerInfo.position = _textPosition.text;
     _corpManagerInfo.corpId = currentCorp?.id;
     if(widget.id == null) {
       try {
-        var retData = await DioUtils().request(HttpApi.corp_manager_info_add, "POST",
-            data: json.encode(_corpManagerInfo), isJson: true);
-        Navigator.of(context).pop();
+        var params = {'mobile': _corpManagerInfo.mobile, 'corpId': currentCorp?.id};
+
+        var checkExists = await DioUtils().request(HttpApi.corp_manager_exists_mobile, "GET",
+            queryParameters: params);
+
+        debugPrint(' 返回结果 --- $checkExists');
+        var existString = jsonEncode(checkExists);
+        if(null != checkExists && checkExists.isNotEmpty){
+           Fluttertoast.showToast(
+              msg: '该手机号码的管理员已经存在该企业',
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 6);
+        }else{
+          var retData = await DioUtils().request(HttpApi.corp_manager_info_add, "POST",
+              data: json.encode(_corpManagerInfo), isJson: true);
+          Navigator.of(context).pop();
+        }
+
       } on DioError catch (error) {
-        CustomAppException customAppException = CustomAppException.create(
-            error);
+        CustomAppException customAppException =
+        CustomAppException.create(error);
         debugPrint(customAppException.getMessage());
+        Fluttertoast.showToast(
+            msg: customAppException.getMessage(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 6);
       }
     }else{
       try {
@@ -168,9 +202,14 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
             data: json.encode(corpManager), isJson: true);
         Navigator.of(context).pop();
       } on DioError catch (error) {
-        CustomAppException customAppException = CustomAppException.create(
-            error);
+        CustomAppException customAppException =
+        CustomAppException.create(error);
         debugPrint(customAppException.getMessage());
+        Fluttertoast.showToast(
+            msg: customAppException.getMessage(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 6);
       }
     }
   }
@@ -354,14 +393,14 @@ class _ManagerEditScreenState extends State<ManagerEditScreen> {
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
           'userId': widget.id,
-          'corpId': HttpApi.corpId,
+          'corpId': currentCorp?.id,
           'file': MultipartFile(
               pFile.readStream as Stream<List<int>>, pFile.size,
               filename: pFile.name)
         });
         //print('start to upload');
         var ret = await DioUtils().requestUpload(
-          HttpApi.open_file_upload,
+          HttpApi.open_gridfs_upload,
           data: formData,
         );
       } on DioError catch (error) {

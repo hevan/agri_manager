@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:znny_manager/src/model/manage/CorpDepart.dart';
-import 'package:znny_manager/src/model/manage/CorpRole.dart';
+import 'package:agri_manager/src/model/manage/CorpDepart.dart';
+import 'package:agri_manager/src/model/manage/CorpRole.dart';
 /// corpId : 1
 /// userId : 2
 /// position : "总监"

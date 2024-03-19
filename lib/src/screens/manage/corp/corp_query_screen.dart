@@ -3,15 +3,17 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:znny_manager/src/model/manage/Corp.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/components/corp_info_card.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_edit_screen.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_view_screen.dart';
-import 'package:znny_manager/src/shared_components/responsive_builder.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/manage/components/corp_info_card.dart';
+import 'package:agri_manager/src/screens/manage/corp/corp_edit_screen.dart';
+import 'package:agri_manager/src/screens/manage/corp/corp_view_screen.dart';
+import 'package:agri_manager/src/shared_components/responsive_builder.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CorpQueryScreen extends StatefulWidget {
   const CorpQueryScreen({Key? key}) : super(key: key);
@@ -22,7 +24,9 @@ class CorpQueryScreen extends StatefulWidget {
 class _CorpQueryScreenState extends State<CorpQueryScreen> {
   List<Corp> listData = [];
 
-  Corp selectCorp = new Corp();
+  Corp selectCorp =  Corp();
+
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
@@ -32,11 +36,15 @@ class _CorpQueryScreenState extends State<CorpQueryScreen> {
   @override
   void initState() {
     super.initState();
+
+    setState(() {
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
     loadData();
   }
 
   Future loadData() async {
-    var params = {'name': '', 'page': 0, 'size': 50};
+    var params = {'name': '','createdUserId': userInfo?.userId, 'page': 0, 'size': 50};
 
     try {
       var retData = await DioUtils()

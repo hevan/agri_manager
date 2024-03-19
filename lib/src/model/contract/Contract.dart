@@ -4,7 +4,7 @@ import 'dart:convert';
 /// code : ""
 /// description : ""
 /// customerId : 1
-/// customerName : ""
+/// createdUserId : ""
 /// startAt : ""
 /// endAt : ""
 /// signAt : ""
@@ -20,7 +20,7 @@ class Contract {
       String? code, 
       String? description, 
       int? customerId, 
-      String? customerName, 
+      int? createdUserId,
       String? startAt, 
       String? endAt, 
       String? signAt, 
@@ -31,7 +31,7 @@ class Contract {
     _code = code;
     _description = description;
     _customerId = customerId;
-    _customerName = customerName;
+    _createdUserId = createdUserId;
     _startAt = startAt;
     _endAt = endAt;
     _signAt = signAt;
@@ -45,7 +45,7 @@ class Contract {
     _code = json['code'];
     _description = json['description'];
     _customerId = json['customerId'];
-    _customerName = json['customerName'];
+    _createdUserId = json['createdUserId'];
     _startAt = json['startAt'];
     _endAt = json['endAt'];
     _signAt = json['signAt'];
@@ -57,7 +57,7 @@ class Contract {
   String? _code;
   String? _description;
   int? _customerId;
-  String? _customerName;
+  int? _createdUserId;
   String? _startAt;
   String? _endAt;
   String? _signAt;
@@ -68,7 +68,7 @@ Contract copyWith({  int? id,
   String? code,
   String? description,
   int? customerId,
-  String? customerName,
+  int? createdUserId,
   String? startAt,
   String? endAt,
   String? signAt,
@@ -79,7 +79,7 @@ Contract copyWith({  int? id,
   code: code ?? _code,
   description: description ?? _description,
   customerId: customerId ?? _customerId,
-  customerName: customerName ?? _customerName,
+  createdUserId: createdUserId ?? _createdUserId,
   startAt: startAt ?? _startAt,
   endAt: endAt ?? _endAt,
   signAt: signAt ?? _signAt,
@@ -91,7 +91,7 @@ Contract copyWith({  int? id,
   String? get code => _code;
   String? get description => _description;
   int? get customerId => _customerId;
-  String? get customerName => _customerName;
+  int? get createdUserId => _createdUserId;
   String? get startAt => _startAt;
   String? get endAt => _endAt;
   String? get signAt => _signAt;
@@ -105,7 +105,7 @@ Contract copyWith({  int? id,
     map['code'] = _code;
     map['description'] = _description;
     map['customerId'] = _customerId;
-    map['customerName'] = _customerName;
+    map['createdUserId'] = _createdUserId;
     map['startAt'] = _startAt;
     map['endAt'] = _endAt;
     map['signAt'] = _signAt;
@@ -134,8 +134,8 @@ Contract copyWith({  int? id,
     _startAt = value;
   }
 
-  set customerName(String? value) {
-    _customerName = value;
+  set createdUserId(int? value) {
+    _createdUserId = value;
   }
 
   set customerId(int? value) {

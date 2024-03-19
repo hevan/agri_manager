@@ -25,6 +25,15 @@ final ButtonStyle elevateButtonStyle = ElevatedButton.styleFrom(
   ),
 );
 
+final ButtonStyle elevateButtonWarningStyle = ElevatedButton.styleFrom(
+  padding: const EdgeInsets.all(kSpacing),
+  backgroundColor: Colors.orange,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  ),
+  textStyle: const TextStyle(color: Colors.white),
+);
+
 final ButtonStyle primaryButtonStyle = ElevatedButton.styleFrom(
   padding: const EdgeInsets.all(kSpacing),
   shape: const RoundedRectangleBorder(
@@ -70,4 +79,25 @@ class Constant {
   static const String accessToken = 'accessToken';
   static const String userId = 'current_user_id';
   static const String currentCorp = 'current_corp_info';
+
+  static const  List<String> varFoundDirect = ['未选择', '支出', '收入'];
+
+  static const  List<Map<String, dynamic>> listStatus = [
+    {
+      'name': '未处理',
+      'status': 0,
+    },
+    {
+      'name': '处理中',
+      'status': 1,
+    },
+    {
+      'name': '已完成',
+      'status': 2,
+    },
+    {
+      'name': '逾期',
+      'status': 3,
+    },
+  ];
 }

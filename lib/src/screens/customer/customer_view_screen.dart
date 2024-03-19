@@ -1,20 +1,22 @@
-import 'package:sp_util/sp_util.dart';
-
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/customer/Customer.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/customer/customer_contact_screen.dart';
-import 'package:znny_manager/src/screens/customer/customer_link_screen.dart';
-import 'package:znny_manager/src/screens/customer/customer_trace_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/customer/Customer.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/customer/customer_contact_screen.dart';
+import 'package:agri_manager/src/screens/customer/customer_edit_screen.dart';
+import 'package:agri_manager/src/screens/customer/customer_link_screen.dart';
+import 'package:agri_manager/src/screens/customer/customer_trace_screen.dart';
+import 'package:agri_manager/src/shared_components/responsive_builder.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
 
 class CustomerViewScreen extends StatefulWidget {
-  final int? id;
+  final Customer data;
 
-  const CustomerViewScreen({Key? key, this.id}) : super(key: key);
+  const CustomerViewScreen({Key? key, required this.data}) : super(key: key);
 
   @override
   State<CustomerViewScreen> createState() => _CustomerViewScreenState();
@@ -24,7 +26,6 @@ class _CustomerViewScreenState extends State<CustomerViewScreen> with TickerProv
 
   TabController? _tabController;
 
-  Customer _customer = Customer(corpId: HttpApi.corpId, isSupply: false,isCustomer: false);
   int? userId;
 
   @override
@@ -38,50 +39,64 @@ class _CustomerViewScreenState extends State<CustomerViewScreen> with TickerProv
     _tabController = TabController(length: 3, vsync: this);
     super.initState();
 
-    loadData();
 
     setState(() {
       userId = SpUtil.getInt(Constant.userId);
     });
   }
 
-  Future loadData() async {
+  toEdit() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CustomerEditScreen(id: widget.data.id)),
+    );
+  }
 
-    if(widget.id != null){
-      try {
-        var retData = await DioUtils().request(
-            HttpApi.customer_find + '/' + widget.id!.toString(), "GET");
-
-        if(retData != null) {
-          setState(() {
-            _customer = Customer.fromJson(retData);
-          });
-        }
-      } on DioError catch (error) {
-        CustomAppException customAppException = CustomAppException.create(error);
-        debugPrint(customAppException.getMessage());
-      }
+  Future toDelete(int id) async {
+    try {
+      await DioUtils().request('${HttpApi.customer_delete}${id}', "DELETE");
+    } on DioError catch (error) {
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(
+          msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
     }
+  }
 
-
+  confirmDeleteDialog(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("确定删除"),
+          content: const Text("确定要删除该记录吗?，若存在关联数据将无法删除"),
+          actions: [
+            ElevatedButton(
+              style: elevateButtonStyle,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('取消'),
+            ),
+            ElevatedButton(
+              style: elevateButtonStyle,
+              onPressed: () async {
+                await toDelete(id);
+              },
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   List<Widget> _silverBuilder(BuildContext context, bool innerBoxIsScrolled) {
     return <Widget>[
-       SliverAppBar(
-        leading:  GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: const Icon(Icons.arrow_back_ios),
-        ),
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text('${_customer.name}'),
-        centerTitle: true, // 标题居中
-        floating: true, // 随着滑动隐藏标题
-        pinned: true
-      ),
       SliverList(
         delegate: SliverChildListDelegate([
           Container(
@@ -91,22 +106,45 @@ class _CustomerViewScreenState extends State<CustomerViewScreen> with TickerProv
                 children:  <Widget>[
                  Row(children: [
                     const Expanded(child:  Text('名称:'), flex: 2,),
-                    Expanded(child:  Text('${_customer.name}'), flex:6,)
+                    Expanded(child:  Text('${widget.data.name}'), flex:6,)
                  ]),
                   Row(children: [
                     const Expanded(child:  Text('编码:'), flex: 2,),
-                    Expanded(child:  Text('${_customer.code}'), flex:6,)
+                    Expanded(child:  Text('${widget.data.code}'), flex:6,)
                   ]),
                   Row(children: [
                     const Expanded(child:  Text('类型:'), flex: 2,),
-                    Expanded(child: _customer.isCustomer! ? const Text('客户'): const Text(''), flex:2,),
-                    Expanded(child:  _customer.isSupply ! ? const Text('供应商'): const Text(''), flex:2,)
+                    Expanded(child: widget.data.isCustomer! ? const Text('客户'): const Text(''), flex:3,),
+                    Expanded(child:  widget.data.isSupply ! ? const Text('供应商'): const Text(''), flex:3,)
                   ]),
                   Row(children: [
                     const Expanded(child:  Text('描述:'), flex: 2,),
-                    Expanded(child:  Text('${_customer.description}'), flex:6,)
+                    Expanded(child:  Text('${widget.data.description}'), flex:6,)
                   ]),
-                  const Divider(height: 1.0,)
+                  SizedBox(height: kSpacing,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: elevateButtonStyle,
+                        onPressed: () {
+                          toEdit();
+                        },
+                        child: const Text('编辑'),
+                      ),
+                      SizedBox(
+                        width: kSpacing,
+                      ),
+                      ElevatedButton(
+                        style: elevateButtonStyle,
+                        onPressed: () {
+                          confirmDeleteDialog(context, widget.data.id!);
+                        },
+                        child: const Text('删除'),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: kSpacing,),
                 ],
             ),
           )
@@ -135,20 +173,23 @@ class _CustomerViewScreenState extends State<CustomerViewScreen> with TickerProv
   Widget build(BuildContext context) {
 
     return Scaffold(
-      body: SafeArea(
+     appBar: ResponsiveBuilder.isMobile(context) ?  AppBar(
+        title: const Text('客户信息查看'),
+      ) : null,
+      body: null != widget.data.id ? SafeArea(
           child: NestedScrollView(
             headerSliverBuilder: _silverBuilder,
             body:  TabBarView(
               controller: _tabController,
               children: [
-                  null != _customer.name ? CustomerTraceScreen(customerId: _customer.id!, customerName: _customer.name!,) : const Center(),
-                  null != _customer.name ? CustomerContractScreen(customerId: _customer.id!, customerName: _customer.name!,) : const Center(),
+                  null != widget.data.id ? CustomerTraceScreen(customerId: widget.data.id!, customerName: widget.data.name!,) : const Center(),
+                  null != widget.data.id ? CustomerContractScreen(customerId: widget.data.id!, customerName: widget.data.name!,) : const Center(),
 
-                  null != _customer.name ? CustomerLinkScreen(customerId: _customer.id!): const Center(),
+                  null != widget.data.id ? CustomerLinkScreen(customerId: widget.data.id!): const Center(),
 
               ],
             ),
-          )),
+          )): Center(),
     );
   }
 }

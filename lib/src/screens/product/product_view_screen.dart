@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:znny_manager/src/screens/product/product_edit_screen.dart';
-import 'package:znny_manager/src/shared_components/show_field_text.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/screens/product/product_edit_screen.dart';
+import 'package:agri_manager/src/shared_components/responsive_builder.dart';
+import 'package:agri_manager/src/shared_components/show_field_text.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 import '../../model/product/Product.dart';
 import '../../net/dio_utils.dart';
@@ -33,27 +34,6 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
     super.initState();
   }
 
-  /*
-  Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
-    try {
-      var retData =
-          await DioUtils().request('${HttpApi.corp_find}${widget.id}', "GET");
-      if (retData != null) {
-        setState(() {
-          _corp = Corp.fromJson(retData);
-        });
-      }
-    } on DioError catch (error) {
-      CustomAppException customAppException = CustomAppException.create(error);
-      debugPrint(customAppException.getMessage());
-      Fluttertoast.showToast(msg: customAppException.getMessage(),
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 6);
-    }
-  }
-   */
 
   toEdit() {
     Navigator.push(
@@ -80,9 +60,12 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar:  ResponsiveBuilder.isMobile(context) ? AppBar(
+         title: const Text('产品查看'),
+       ) : null,
         body: FittedBox(
       fit: BoxFit.fill,
-      child: Column(
+      child: null == widget.data? const Center() : Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           const SizedBox(
@@ -92,7 +75,7 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
           const SizedBox(
             height: kSpacing,
           ),
-          ShowFieldText(title: '机构代码', data: widget.data.code ?? ''),
+          ShowFieldText(title: '产品编号', data: widget.data.code ?? ''),
           const SizedBox(
             height: kSpacing,
           ),
@@ -105,13 +88,17 @@ class _ProductViewScreenState extends State<ProductViewScreen> {
             height: kSpacing,
           ),
           ShowFieldText(
-              title: '分类', data: '${widget.data.category!.name ?? ''}'),
+              title: '分类', data: '${widget.data.category!.pathName ?? ''}'),
           const SizedBox(
             height: kSpacing,
           ),
           ShowFieldText(title: '统计单位', data: '${widget.data.calcUnit ?? ''}'),
           const SizedBox(
             height: kSpacing,
+          ),
+          Container(
+            height: 300,
+            child: null != widget.data.imageUrl ? Image.network('${HttpApi.host_image}${widget.data.imageUrl}') : Image.asset('images/product_upload.png'),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

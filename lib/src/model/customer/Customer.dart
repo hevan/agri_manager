@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:znny_manager/src/model/sys/Address.dart';
+import 'package:agri_manager/src/model/sys/Address.dart';
 /// id : 0
 /// name : ""
 /// code : ""

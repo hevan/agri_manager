@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:znny_manager/src/model/sys/sys_menu.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/manage/menu/menu_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/model/sys/sys_menu.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/manage/menu/menu_edit_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({Key? key}) : super(key: key);
@@ -21,6 +24,9 @@ class _MenuScreenState extends State<MenuScreen>{
 
   List<SysMenu> listData = [];
 
+  Corp?   currentCorp;
+  LoginInfoToken? userInfo;
+
   @override
   void dispose() {
     super.dispose();
@@ -31,11 +37,15 @@ class _MenuScreenState extends State<MenuScreen>{
 
     super.initState();
 
+    setState(() {
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
     loadData();
   }
 
   Future loadData() async{
-    var params = {'corpId': HttpApi.corpId };
+    var params = {'corpId': currentCorp?.id };
 
     try {
       var retData = await DioUtils().request(

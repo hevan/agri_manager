@@ -1,12 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/contract/Contract.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/contract/Contract.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
+import 'package:sp_util/sp_util.dart';
 
 import 'package:intl/intl.dart';
 
@@ -25,6 +28,8 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
   final _textDescription = TextEditingController();
   final _textSignAt = TextEditingController();
 
+  final _textCode = TextEditingController();
+
   final _textStartAt = TextEditingController();
   final _textEndAt = TextEditingController();
 
@@ -38,7 +43,9 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
   DateFormat df = DateFormat('yyyy-MM-dd');
 
   Contract _contract = Contract();
-  int? userId;
+
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
@@ -47,6 +54,7 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
     _textSignAt.dispose();
     _textStartAt.dispose();
     _textEndAt.dispose();
+    _textCode.dispose();
 
     super.dispose();
   }
@@ -55,12 +63,16 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
   void initState() {
     super.initState();
 
+    setState(() {
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
+
     loadData();
 
     if(widget.customerId != null){
       setState(() {
         _contract.customerId = widget.customerId;
-        _contract.customerName = widget.customerName;
       });
     }
   }
@@ -72,13 +84,14 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
     if(widget.id != null){
       try {
         var retData = await DioUtils().request(
-            HttpApi.contract_find + '/' + widget.id!.toString(), "GET");
+            HttpApi.contract_find+ widget.id!.toString(), "GET");
 
         if(retData != null) {
           setState(() {
             _contract = Contract.fromJson(retData);
 
             _textName.text = _contract.name != null ? _contract.name! : '';
+            _textCode.text = _contract.code != null ? _contract.code! : '';
             _textDescription.text = _contract.description != null ? _contract.description! : '';
              _textSignAt.text = _contract.signAt != null ? _contract.signAt! : '';
             _textStartAt.text = _contract.startAt != null ? _contract.startAt! : '';
@@ -98,29 +111,34 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
 
     bool checkError = false;
 
-
-    if(_textName.text == ''){
+    if(_textCode.text == ''){
       errorFlag[0] = 1;
       checkError=true;
     }
 
-    if(_textDescription.text == ''){
+    if(_textName.text == ''){
       errorFlag[1] = 1;
       checkError=true;
     }
 
-    if(_textSignAt.text == ''){
+
+    if(_textDescription.text == ''){
       errorFlag[2] = 1;
       checkError=true;
     }
 
-    if(_textStartAt.text == ''){
+    if(_textSignAt.text == ''){
       errorFlag[3] = 1;
       checkError=true;
     }
 
-    if(_textEndAt.text == ''){
+    if(_textStartAt.text == ''){
       errorFlag[4] = 1;
+      checkError=true;
+    }
+
+    if(_textEndAt.text == ''){
+      errorFlag[5] = 1;
       checkError=true;
     }
 
@@ -129,10 +147,13 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
     }
 
     _contract.name = _textName.text;
+    _contract.code = _textCode.text;
     _contract.description = _textDescription.text;
     _contract.signAt = _textSignAt.text;
     _contract.startAt = _textStartAt.text;
     _contract.endAt = _textEndAt.text;
+    _contract.corpId = curCorp?.id;
+    _contract.createdUserId = userInfo?.userId;
 
     try {
       var retData = await DioUtils().request(HttpApi.contract_add, "POST",
@@ -162,12 +183,12 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 TextField(
-                  controller: _textName,
+                  controller: _textCode,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: '合同标题',
-                    hintText: '输入合同标题',
-                    errorText: errorFlag[0] == 1  ? '标题不能为空' : null,
+                    labelText: '合同编号',
+                    hintText: '输入合同编号',
+                    errorText: errorFlag[0] == 1  ? '编号不能为空' : null,
                   ),
                 ),
 
@@ -175,14 +196,15 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
                   height: defaultPadding,
                 ),
                 TextField(
-                  controller: _textDescription,
+                  controller: _textName,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: '描述',
-                    hintText: '描述',
-                    errorText: errorFlag[1] == 1 ? '描述不能为空' : null,
+                    labelText: '合同标题',
+                    hintText: '输入合同标题',
+                    errorText: errorFlag[1] == 1  ? '标题不能为空' : null,
                   ),
                 ),
+
                 Container(
                   height: defaultPadding,
                 ),
@@ -190,9 +212,9 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
                   controller: _textSignAt,
                   decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      labelText: '日期',
-                      hintText: '输入日期',
-                      errorText: errorFlag[2] == 1  ? '日期不能为空' : null,
+                      labelText: '签约日期',
+                      hintText: '输入签约日期',
+                      errorText: errorFlag[3] == 1  ? '日期不能为空' : null,
                       suffixIcon: IconButton(
                           icon: const Icon(Icons.date_range),
                           onPressed:()  {_selectDate(context);}
@@ -208,7 +230,7 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
                       border: const OutlineInputBorder(),
                       labelText: '开始日期',
                       hintText: '输入开始日期',
-                      errorText: errorFlag[3] == 1  ? '开始日期不能为空' : null,
+                      errorText: errorFlag[4] == 1  ? '开始日期不能为空' : null,
                       suffixIcon: IconButton(
                           icon: const Icon(Icons.date_range),
                           onPressed:()  {_selectDateStart(context);}
@@ -224,11 +246,24 @@ class _CustomerContractEditScreenState extends State<CustomerContractEditScreen>
                       border: const OutlineInputBorder(),
                       labelText: '结束日期',
                       hintText: '输入结束日期',
-                      errorText: errorFlag[3] == 1  ? '结束日期不能为空' : null,
+                      errorText: errorFlag[5] == 1  ? '结束日期不能为空' : null,
                       suffixIcon: IconButton(
                           icon: const Icon(Icons.date_range),
                           onPressed:()  {_selectDateEnd(context);}
                       )
+                  ),
+                ),
+                Container(
+                  height: defaultPadding,
+                ),
+                TextField(
+                  controller: _textDescription,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '描述',
+                    hintText: '描述',
+                    errorText: errorFlag[2] == 1 ? '描述不能为空' : null,
                   ),
                 ),
                 Container(

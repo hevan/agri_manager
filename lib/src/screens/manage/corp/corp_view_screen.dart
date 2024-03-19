@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:znny_manager/src/model/manage/Corp.dart';
-import 'package:znny_manager/src/screens/manage/corp/corp_edit_screen.dart';
-import 'package:znny_manager/src/shared_components/show_field_text.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/screens/manage/corp/corp_edit_screen.dart';
+import 'package:agri_manager/src/shared_components/show_field_text.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CorpViewScreen extends StatefulWidget {
   final Corp data;

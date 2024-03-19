@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/customer/Customer.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/customer/Customer.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
+import 'package:sp_util/sp_util.dart';
 
 class CustomerEditScreen extends StatefulWidget {
   final int? id;
@@ -30,6 +33,8 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
   String _errorMessage = "";
 
   Customer _customer = Customer(isCustomer: false, isSupply: false);
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
@@ -47,6 +52,10 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
   void initState() {
     super.initState();
 
+    setState(() {
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
     loadData();
   }
 
@@ -112,7 +121,7 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
     _customer.managerName = _textManagerName.text;
     _customer.managerMobile = _textManagerMobile.text;
     _customer.description = _textDescription.text;
-    _customer.corpId = HttpApi.corpId;
+    _customer.corpId = curCorp?.id;
 
     try {
       var retData = await DioUtils().request(HttpApi.customer_add, "POST",

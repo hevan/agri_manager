@@ -1,20 +1,24 @@
-import 'package:flutter/widgets.dart';
-import 'package:sp_util/sp_util.dart';
-
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/base/Park.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/base/park_base_screen.dart';
-import 'package:znny_manager/src/screens/document/document_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/base/Park.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/base/park_base_edit_screen.dart';
+import 'package:agri_manager/src/screens/base/park_base_screen.dart';
+import 'package:agri_manager/src/screens/base/park_edit_screen.dart';
+import 'package:agri_manager/src/shared_components/responsive_builder.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
 
 class ParkViewScreen extends StatefulWidget {
-  final int? id;
+  final Park data;
 
-  const ParkViewScreen({Key? key, this.id}) : super(key: key);
+  const ParkViewScreen({Key? key, required this.data}) : super(key: key);
 
   @override
   State<ParkViewScreen> createState() => _ParkViewScreenState();
@@ -24,8 +28,6 @@ class _ParkViewScreenState extends State<ParkViewScreen> with TickerProviderStat
 
   TabController? _tabController;
 
-  Park _park = Park(corpId: HttpApi.corpId);
-  int? userId;
 
   @override
   void dispose() {
@@ -33,55 +35,83 @@ class _ParkViewScreenState extends State<ParkViewScreen> with TickerProviderStat
     super.dispose();
   }
 
+  Corp?   currentCorp;
+  LoginInfoToken? userInfo;
+
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
 
-    loadData();
-
     setState(() {
-      userId = SpUtil.getInt(Constant.userId);
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
     });
   }
 
-  Future loadData() async {
-
-    if(widget.id != null){
-      try {
-        var retData = await DioUtils().request(
-            HttpApi.park_find + '/' + widget.id!.toString(), "GET");
-
-        if(retData != null) {
-          setState(() {
-            _park = Park.fromJson(retData);
-          });
-        }
-      } on DioError catch (error) {
-        CustomAppException customAppException = CustomAppException.create(error);
-        debugPrint(customAppException.getMessage());
-      }
-    }
 
 
+  toEdit() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ParkEditScreen(id: widget.data.id)),
+    );
   }
+
+  toEditBase() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => const ParkBaseEditScreen()),
+    );
+  }
+
+  Future toDelete(int id) async {
+    try {
+      await DioUtils().request('${HttpApi.customer_delete}${id}', "DELETE");
+    } on DioError catch (error) {
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(
+          msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
+    }
+  }
+
+  confirmDeleteDialog(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("确定删除"),
+          content: const Text("确定要删除该记录吗?，若存在关联数据将无法删除"),
+          actions: [
+            ElevatedButton(
+              style: elevateButtonStyle,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('取消'),
+            ),
+            ElevatedButton(
+              style: elevateButtonStyle,
+              onPressed: () async {
+                await toDelete(id);
+              },
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   List<Widget> _silverBuilder(BuildContext context, bool innerBoxIsScrolled) {
     return <Widget>[
-       SliverAppBar(
-        leading:  GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: const Icon(Icons.arrow_back_ios),
-        ),
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text('${_park.name}'),
-        centerTitle: true, // 标题居中
-        floating: true, // 随着滑动隐藏标题
-        pinned: true
-      ),
       SliverList(
         delegate: SliverChildListDelegate([
           Container(
@@ -91,21 +121,44 @@ class _ParkViewScreenState extends State<ParkViewScreen> with TickerProviderStat
                 children:  <Widget>[
                  Row(children: [
                     const Expanded(child:  Text('名称:'), flex: 2,),
-                    Expanded(child:  Text('${_park.name}'), flex:6,)
+                    Expanded(child:  Text('${widget.data.name}'), flex:6,)
                  ]),
                   Row(children: [
                     const Expanded(child:  Text('面积:'), flex: 2,),
-                    Expanded(child:  Text('${_park.area}'), flex:6,)
+                    Expanded(child:  Text('${widget.data.area}'), flex:6,)
                   ]),
                   Row(children: [
                     const Expanded(child:  Text('实际面积:'), flex: 2,),
-                    Expanded(child:  Text('${_park.areaUse}'), flex:6,)
+                    Expanded(child:  Text('${widget.data.areaUse}'), flex:6,)
                   ]),
                   Row(children: [
                     const Expanded(child:  Text('描述:'), flex: 2,),
-                    Expanded(child:  Text('${_park.description}'), flex:6,)
+                    Expanded(child:  Text('${widget.data.description}'), flex:6,)
                   ]),
-                  const Divider(height: 1.0,)
+                  SizedBox(height: kSpacing,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        style: elevateButtonStyle,
+                        onPressed: () {
+                          toEdit();
+                        },
+                        child: const Text('编辑'),
+                      ),
+                      SizedBox(
+                        width: kSpacing,
+                      ),
+                      ElevatedButton(
+                        style: elevateButtonStyle,
+                        onPressed: () {
+                          confirmDeleteDialog(context, widget.data.id!);
+                        },
+                        child: const Text('删除'),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: kSpacing,),
                 ],
             ),
           )
@@ -117,10 +170,7 @@ class _ParkViewScreenState extends State<ParkViewScreen> with TickerProviderStat
           tabs:const [
              Tab(
               text: "地块信息",
-            ),
-            Tab(
-              text: "基地资料",
-            ),
+            )
           ],
         )),
       ),
@@ -132,14 +182,16 @@ class _ParkViewScreenState extends State<ParkViewScreen> with TickerProviderStat
 
 
     return Scaffold(
+      appBar: ResponsiveBuilder.isMobile(context) ?  AppBar(
+        title: const Text('基地信息查看'),
+      ) : null,
       body:  NestedScrollView(
             headerSliverBuilder: _silverBuilder,
             body:  TabBarView(
               controller: _tabController,
               children: [
-                  null != _park.name ? ParkBaseScreen(parkId: _park.id!, parkName: _park.name!,) : const Center(),
-                  null != _park.name ? DocumentScreen(entityId: _park.id!, entityName: 'park', name: _park.name!,) : const Center(),
-              ],
+                  null != widget.data.id ? ParkBaseScreen(parkId: widget.data.id!, parkName: widget.data.name!,) : const Center(),
+               ],
             ),
           ),
     );

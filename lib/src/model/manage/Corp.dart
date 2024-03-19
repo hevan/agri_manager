@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:znny_manager/src/model/sys/Address.dart';
+import 'package:agri_manager/src/model/sys/Address.dart';
 /// id : 1
 /// name : "农业产业研究院"
 /// code : "1001"
@@ -18,15 +18,26 @@ class Corp {
       String? code, 
       String? description, 
       int? addressId,
-      String? createdAt, 
-      Address? address,}){
+      String? createdAt,
+      int? createdUserId,
+      Address? address,
+    int? countProject,
+    int? countTask,
+    int? countApply,
+    int? countCheck ,
+     }){
     _id = id;
     _name = name;
     _code = code;
     _description = description;
     _addressId = addressId;
     _createdAt = createdAt;
+    _createdUserId = createdUserId;
     _address = address;
+    _countProject = countProject;
+    _countTask = countTask;
+    _countApply = countApply;
+    _countCheck = countCheck;
 }
 
   Corp.fromJson(dynamic json) {
@@ -36,7 +47,13 @@ class Corp {
     _description = json['description'];
     _addressId = json['addressId'];
     _createdAt = json['createdAt'];
+    _createdUserId = json['createdUserId'];
     _address = json['address'] != null ? Address.fromJson(json['address']) : null;
+
+    _countProject = json['countProject'];
+    _countTask = json['countTask'];
+    _countApply = json['countApply'];
+    _countCheck = json['countCheck'];
   }
   int? _id;
   String? _name;
@@ -44,21 +61,38 @@ class Corp {
   String? _description;
   int? _addressId;
   String? _createdAt;
+  int? _createdUserId;
   Address? _address;
+  int? _countProject;
+  int? _countTask;
+  int? _countApply;
+  int? _countCheck;
+
+
 Corp copyWith({  int? id,
   String? name,
   String? code,
   String? description,
   int? addressId,
   String? createdAt,
+  int? createdUserId,
   Address? address,
+  int? countProject,
+  int? countTask,
+  int? countApply,
+  int? countCheck
 }) => Corp(  id: id ?? _id,
   name: name ?? _name,
   code: code ?? _code,
   description: description ?? _description,
   addressId: addressId ?? _addressId,
   createdAt: createdAt ?? _createdAt,
+  createdUserId: createdUserId ?? _createdUserId,
   address: address ?? _address,
+  countProject: countProject ?? _countProject,
+  countTask: countTask ?? _countTask,
+  countApply: countApply ?? _countApply,
+  countCheck: countCheck ?? _countCheck,
 );
   int? get id => _id;
   String? get name => _name;
@@ -66,12 +100,14 @@ Corp copyWith({  int? id,
   String? get description => _description;
   int? get addressId => _addressId;
   String? get createdAt => _createdAt;
+  int? get createdUserId => _createdUserId;
   Address? get address => _address;
+  int? get countTask => _countTask;
+  int? get countProject => _countProject;
+  int? get countApply => _countApply;
+  int? get countCheck => _countCheck;
 
 
-  set id(int? value) {
-    _id = value;
-  }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -80,6 +116,7 @@ Corp copyWith({  int? id,
     map['code'] = _code;
     map['description'] = _description;
     map['addressId'] = _addressId;
+    map['createdUserId'] = _createdUserId;
     map['createdAt'] = _createdAt;
     if (_address != null) {
       map['address'] = _address?.toJson();
@@ -87,6 +124,13 @@ Corp copyWith({  int? id,
     return map;
   }
 
+  set countProject(int? value) {
+    _countProject = value;
+  }
+
+  set id(int? value) {
+    _id = value;
+  }
   set name(String? value) {
     _name = value;
   }
@@ -109,6 +153,24 @@ Corp copyWith({  int? id,
 
   set address(Address? value) {
     _address = value;
+  }
+
+
+  set countTask(int? value) {
+    _countTask = value;
+  }
+
+
+  set countApply(int? value) {
+    _countApply = value;
+  }
+
+  set countCheck(int? value) {
+    _countCheck = value;
+  }
+
+  set createdUserId(int? value) {
+    _createdUserId = value;
   }
 }
 

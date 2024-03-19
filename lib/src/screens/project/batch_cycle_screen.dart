@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/project/BatchCycle.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/model/project/BatchCycle.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
 import 'package:dio/dio.dart';
-import 'package:znny_manager/src/screens/project/batch_cycle_edit_screen.dart';
-import 'package:znny_manager/src/screens/project/batch_cycle_view_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/screens/project/batch_cycle_edit_screen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class BatchCycleScreen extends StatefulWidget {
   final int batchId;
@@ -77,18 +77,25 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(title: const Text('计划管理')),
         body: Column(
       children: [
+        const SizedBox(height: kSpacing,),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: [ElevatedButton(onPressed: toAdd, child: const Text('增加'))],
+          children: [
+            ElevatedButton(onPressed: loadData, child: const Text('查询')),
+            const SizedBox(width: 10,),
+            ElevatedButton(onPressed: toAdd, child: const Text('增加')),
+            const SizedBox(width: 10,),
+          ],
         ),
         Expanded(
             child: ListView.separated(
-                primary: false,
                 itemCount: listData.length,
                 separatorBuilder: (BuildContext context, int index) =>
                     const Divider(
@@ -97,9 +104,7 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                     ),
                 itemBuilder: (context, index) {
                   BatchCycle batchCycleTemp = listData[index];
-
-                  return Card(
-                    child: Column(
+                  return Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -110,11 +115,10 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                                   ? Image(
                                       image: NetworkImage(
                                           '${HttpApi.host_image}${batchCycleTemp.imageUrl}'),
-                                      width: 120,
-                                      height: 120)
+                                      width: 60,
+                                      height: 60)
                                   : Center(
-                                      child: Image.asset(
-                                          'assets/icons/icon_add_image.png'),
+                                      child: Image.asset('assets/icons/icon_add_image.png', width: 60, height: 60),
                                     ),
                               flex: 2,
                             ),
@@ -123,49 +127,40 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('${batchCycleTemp.name}'),
-                                  Text('${batchCycleTemp.batchName}'),
-                                  Text('${batchCycleTemp.description}'),
+                                  Text('${batchCycleTemp.name}', style: TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('时间：${batchCycleTemp.startAt} 至 ${batchCycleTemp.endAt}', style: TextStyle(color: Colors.grey)),
+                                  Text('描述：${batchCycleTemp.description}', style: TextStyle(color: Colors.grey)),
                                 ],
                               ),
                               flex: 6,
                             ),
                             Expanded(
-                              child: Column(
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  InkWell(
-                                    child: const Text('编辑'),
-                                    onTap: () {
+                                  IconButton(
+                                    icon: Icon(Icons.edit,),
+                                    tooltip: '编辑',
+                                    onPressed: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 BatchCycleEditScreen(
-                                                  id: batchCycleTemp.id,
-                                                  batchId: widget.batchId
+                                                    id: batchCycleTemp.id,
+                                                    batchId: widget.batchId
                                                 )),
                                       );
                                     },
                                   ),
-                                  InkWell(
-                                    child: const Text('查看'),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                BatchCycleViewScreen(
-                                                  batchCycleId: batchCycleTemp.id!,
-                                                )),
-                                      );
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color:Colors.orange),
+                                    tooltip: '删除',
+                                    onPressed: () {
+                                      toDelete(batchCycleTemp.id);
                                     },
-                                  ),
-                                  InkWell(
-                                    child: const Text('删除'),
-                                    onTap: toDelete(batchCycleTemp.id),
-                                  ),
+                                  )
                                 ],
                               ),
                               flex: 2,
@@ -178,7 +173,6 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                               )
                             : Container(),
                       ],
-                    ),
                   );
                 })),
       ],
@@ -195,14 +189,26 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
     );
   }
 
-  toDelete(int? id) {}
+  toDelete(int? id) async {
+    try {
+      await DioUtils().request('${HttpApi.batch_cycle_delete}${id}', "DELETE");
+    } on DioError catch (error) {
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+      Fluttertoast.showToast(
+          msg: customAppException.getMessage(),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 6);
+    }
+  }
 
   buildItem(List<BatchCycle> listItem) {
-    List<Widget> itemWdiget = [];
+    List<Widget> itemWidget = [];
     for (int i = 0; i < listItem.length; i++) {
       BatchCycle curTemp = listItem[i];
-      itemWdiget.add(SizedBox(
-          height: 120,
+      itemWidget.add(SizedBox(
+          height: 70,
           child: Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -212,35 +218,36 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                   child:curTemp.imageUrl != null
                       ? Image(
                       image: NetworkImage(
-                          'http://localhost:8080/open/gridfs/${curTemp.imageUrl}'),
-                      width: 80,
-                      height: 80)
+                          '${HttpApi.host_image}${curTemp.imageUrl}'),
+                      width: 60,
+                      height: 60)
                       : Center(
                     child: Image.asset(
-                        'assets/icons/icon_add_image.png'),
+                        'assets/icons/icon_add_image.png', width: 60, height: 60,),
                   ),
-                  flex: 4,
+                  flex: 3,
                 ),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${curTemp.name}'),
-                      Text('${curTemp.batchName}'),
-                      Text('${curTemp.description}'),
+                      Text('${curTemp.name}', style: TextStyle(fontWeight: FontWeight.bold),),
+                      Text('时间：${curTemp.startAt} 至 ${curTemp.endAt}', style: TextStyle(color: Colors.grey)),
+                      Text('描述：${curTemp.description}', style: TextStyle(color: Colors.grey)),
                     ],
                   ),
                   flex: 6,
                 ),
                 Expanded(
-                  child: Column(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InkWell(
-                        child: const Text('编辑'),
-                        onTap: () {
+                      IconButton(
+                        icon: Icon(Icons.edit,),
+                        tooltip: '编辑',
+                        onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -252,24 +259,13 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
                           );
                         },
                       ),
-                      InkWell(
-                        child: const Text('查看'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    BatchCycleEditScreen(
-                                      id: curTemp.id,
-                                      batchId: widget.batchId
-                                    )),
-                          );
+                      IconButton(
+                        icon: Icon(Icons.delete, color:Colors.orange),
+                        tooltip: '删除',
+                        onPressed: () {
+                          toDelete(curTemp.id);
                         },
-                      ),
-                      InkWell(
-                        child: const Text('删除'),
-                        onTap: toDelete(curTemp.id),
-                      ),
+                      )
                     ],
                   ),
                   flex: 2,
@@ -279,6 +275,34 @@ class _BatchCycleScreenState extends State<BatchCycleScreen> {
           )));
     }
 
-    return itemWdiget;
+    return itemWidget;
+  }
+
+  confirmDeleteDialog(BuildContext context, int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("确定删除"),
+          content: const Text("确定要删除该记录吗?，若存在关联数据将无法删除"),
+          actions: [
+            ElevatedButton(
+              style: elevateButtonStyle,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('取消'),
+            ),
+            ElevatedButton(
+              style: elevateButtonStyle,
+              onPressed: () async {
+                await toDelete(id);
+              },
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

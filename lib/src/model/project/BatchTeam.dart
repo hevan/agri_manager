@@ -1,81 +1,97 @@
 import 'dart:convert';
+
+import 'package:agri_manager/src/model/business/CheckManager.dart';
 /// id : 1
 /// batchId : 1
-/// batchName : ""
-/// managerId : 1
-/// managerName : ""
-/// createdAt : ""
+/// userId : 1
 /// isManager : true
+/// createdAt : ""
+/// user : {}
 
 BatchTeam batchTeamFromJson(String str) => BatchTeam.fromJson(json.decode(str));
 String batchTeamToJson(BatchTeam data) => json.encode(data.toJson());
 class BatchTeam {
   BatchTeam({
-      int? id, 
-      int? batchId, 
-      String? batchName, 
-      int? managerId, 
-      String? managerName, 
+      num? id, 
+      num? batchId, 
+      num? userId, 
+      bool? isManager, 
       String? createdAt, 
-      bool? isManager,}){
+      CheckManager? user,}){
     _id = id;
     _batchId = batchId;
-    _batchName = batchName;
-    _managerId = managerId;
-    _managerName = managerName;
-    _createdAt = createdAt;
+    _userId = userId;
     _isManager = isManager;
+    _createdAt = createdAt;
+    _user = user;
 }
 
   BatchTeam.fromJson(dynamic json) {
     _id = json['id'];
     _batchId = json['batchId'];
-    _batchName = json['batchName'];
-    _managerId = json['managerId'];
-    _managerName = json['managerName'];
-    _createdAt = json['createdAt'];
+    _userId = json['userId'];
     _isManager = json['isManager'];
+    _createdAt = json['createdAt'];
+    _user = null != json['user'] ? CheckManager.fromJson(json['user']): null;
   }
-  int? _id;
-  int? _batchId;
-  String? _batchName;
-  int? _managerId;
-  String? _managerName;
-  String? _createdAt;
+  num? _id;
+  num? _batchId;
+  num? _userId;
   bool? _isManager;
-BatchTeam copyWith({  int? id,
-  int? batchId,
-  String? batchName,
-  int? managerId,
-  String? managerName,
-  String? createdAt,
+  String? _createdAt;
+  CheckManager? _user;
+BatchTeam copyWith({  num? id,
+  num? batchId,
+  num? userId,
   bool? isManager,
+  String? createdAt,
+  CheckManager? user,
 }) => BatchTeam(  id: id ?? _id,
   batchId: batchId ?? _batchId,
-  batchName: batchName ?? _batchName,
-  managerId: managerId ?? _managerId,
-  managerName: managerName ?? _managerName,
-  createdAt: createdAt ?? _createdAt,
+  userId: userId ?? _userId,
   isManager: isManager ?? _isManager,
+  createdAt: createdAt ?? _createdAt,
+  user: user ?? _user,
 );
-  int? get id => _id;
-  int? get batchId => _batchId;
-  String? get batchName => _batchName;
-  int? get managerId => _managerId;
-  String? get managerName => _managerName;
-  String? get createdAt => _createdAt;
+  num? get id => _id;
+  num? get batchId => _batchId;
+  num? get userId => _userId;
   bool? get isManager => _isManager;
+  String? get createdAt => _createdAt;
+  CheckManager? get user => _user;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = _id;
     map['batchId'] = _batchId;
-    map['batchName'] = _batchName;
-    map['managerId'] = _managerId;
-    map['managerName'] = _managerName;
-    map['createdAt'] = _createdAt;
+    map['userId'] = _userId;
     map['isManager'] = _isManager;
+    map['createdAt'] = _createdAt;
+    map['user'] = _user?.toJson();
     return map;
   }
 
+  set user(CheckManager? value) {
+    _user = value;
+  }
+
+  set createdAt(String? value) {
+    _createdAt = value;
+  }
+
+  set isManager(bool? value) {
+    _isManager = value;
+  }
+
+  set userId(num? value) {
+    _userId = value;
+  }
+
+  set batchId(num? value) {
+    _batchId = value;
+  }
+
+  set id(num? value) {
+    _id = value;
+  }
 }

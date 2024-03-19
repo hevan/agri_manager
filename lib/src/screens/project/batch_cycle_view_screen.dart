@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/project/BatchCycle.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/model/project/BatchCycle.dart';
+import 'package:agri_manager/src/model/project/BatchCycleExecute.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
 import 'package:dio/dio.dart';
-import 'package:znny_manager/src/screens/project/batch_cycle_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/screens/project/batch_cycle_edit_screen.dart';
+import 'package:agri_manager/src/screens/project/batch_cycle_execute_edit_screen.dart';
+import 'package:agri_manager/src/utils/agri_util.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class BatchCycleViewScreen extends StatefulWidget {
 
@@ -19,21 +24,53 @@ class BatchCycleViewScreen extends StatefulWidget {
   State<BatchCycleViewScreen> createState() => _BatchCycleViewScreenState();
 }
 
-class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
+class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> with TickerProviderStateMixin{
   List<BatchCycle> listData = [];
-  BatchCycle _curBatchCycle = BatchCycle();
+  List<BatchCycleExecute> listExecute = [];
+  BatchCycle _curBatchCycle = BatchCycle(status: 0);
+
+  late final TabController _tabController;
 
   @override
   void dispose() {
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _curBatchCycle.id = widget.batchCycleId;
+
+    _tabController = TabController(length: 2, vsync: this);
 
     loadData();
-    _curBatchCycle.id = widget.batchCycleId;
+    loadExecute();
+  }
+
+  Future loadExecute() async{
+    var params = {
+      'batchCycleId': widget.batchCycleId,
+      'page': 0,
+      'size': 100,
+    };
+
+    try {
+      var retData = await DioUtils().request(
+          HttpApi.batch_cycle_execute_query, "GET",
+          queryParameters: params);
+      debugPrint(json.encode(retData));
+      if (retData != null) {
+
+        setState(() {
+          listExecute =  (retData['content'] as List).map((e) => BatchCycleExecute.fromJson(e)).toList();
+        });
+
+      }
+    } on DioError catch (error) {
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+    }
   }
 
   Future loadData() async {
@@ -45,6 +82,7 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
       var retData = await DioUtils().request(
           HttpApi.batch_cycle_findAll_parent, "GET",
           queryParameters: params);
+      debugPrint(json.encode(retData));
       if (retData != null) {
         List<BatchCycle> listTemp =
             (retData as List).map((e) => BatchCycle.fromJson(e)).toList();
@@ -60,9 +98,10 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
 
     try {
       var retBatch = await DioUtils().request(
-          '${HttpApi.batch_cycle_find}/${widget.batchCycleId}', "GET");
+          '${HttpApi.batch_cycle_find}${widget.batchCycleId}', "GET");
       if (retBatch != null) {
 
+        debugPrint(json.encode(retBatch));
         setState(() {
           _curBatchCycle = BatchCycle.fromJson(retBatch);
         });
@@ -73,18 +112,231 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
     }
   }
 
+  toDeleteExecute(int id) async{
+    try {
+      var retBatch = await DioUtils().request(
+          '${HttpApi.batch_cycle_execute_delete}${id}', "DELETE");
+    }on DioError catch (error) {
+      CustomAppException customAppException = CustomAppException.create(error);
+      debugPrint(customAppException.getMessage());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              title: Text(
+                "任务详情",
+              ),
+              centerTitle: true,
+              pinned: false,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.pin,
+                background: Center(
+          child: Container(
+          padding: const EdgeInsets.all(20),
+          constraints: const BoxConstraints(
+          maxWidth: 500,
+          ),
+          child:Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(height: kSpacing,),
+                Row(children: [
+                const Expanded(child:  Text('名称:'), flex: 2,),
+                Expanded(child:  Text('${_curBatchCycle.name}'), flex:6,)
+                ]),
+            Row(children: [
+              const Expanded(child:  Text('描述:'), flex: 2,),
+              Expanded(child:  Text('${_curBatchCycle.description}'), flex:6,)
+            ]),
+            Row(children: [
+              const Expanded(child:  Text('时间:'), flex: 2,),
+              Expanded(child:  Text('${_curBatchCycle.startAt}-${_curBatchCycle.endAt}'), flex:6,)
+            ]),
+            Row(children: [
+              const Expanded(child:  Text('状态:'), flex: 2,),
+              Expanded(child:  Text(AgriUtil.showTaskStatus(_curBatchCycle.status!)), flex:6,)
+            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(onPressed: toAdd, child: const Text('增加子任务')),
+                const SizedBox(width: 10,),
+                ElevatedButton(onPressed: toAddExecute, child: const Text('添加跟踪记录'))],
+            ),
+                  ],
+                ))),
+              ),
+              expandedHeight: 260.0,
+              bottom: TabBar(
+                  indicatorColor: Colors.black,
+                  labelPadding: const EdgeInsets.only(
+                    bottom: 16,
+                  ),
+                  controller: _tabController,
+                  tabs: [
+                    Text("子任务"),
+                    Text("执行情况"),
+                  ]),
+            ),
+          ];
+        },
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            ListView.separated(
+                itemCount: listData.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                const Divider(
+                  height: defaultPadding,
+                  color: Colors.grey,
+                ),
+                itemBuilder: (context, index) {
+                  BatchCycle batchCycleTemp = listData[index];
+
+                  return ListTile(leading: CircleAvatar(
+                      radius:50,
+                      backgroundImage: NetworkImage(
+                          '${HttpApi.host_image}${batchCycleTemp.imageUrl}')),
+                    title:  Text('${batchCycleTemp.name}'),
+                    subtitle:  Text('${batchCycleTemp.description}'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>  BatchCycleViewScreen(batchCycleId: batchCycleTemp.id!,))
+                      );
+                    },
+                  );
+                }),
+
+            ListView.separated(
+                itemCount: listExecute.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                const Divider(
+                  height: defaultPadding,
+                  color: Colors.grey,
+                ),
+                itemBuilder: (context, index) {
+                  BatchCycleExecute cycleExecute = listExecute[index];
+
+                  return Container(
+                      height: 100,
+                      padding: EdgeInsets.all(kSpacing),
+                      child:Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('${cycleExecute.name}', style: TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('描述：${cycleExecute.description}', style: TextStyle(color: Colors.grey)),
+                                  Text('时间：${cycleExecute.startAt} 至 ${cycleExecute.endAt}', style: TextStyle(color: Colors.grey)),
+                                ],
+                              ),
+                              flex: 6,
+                            ),
+                        Expanded( child: Text(AgriUtil.showTaskStatus(cycleExecute.status!)),flex:1),
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit,),
+                                    tooltip: '编辑',
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                BatchCycleExecuteEditScreen(id: cycleExecute.id, batchCycleId: cycleExecute.batchCycle!.id!, batchCycleName: cycleExecute.batchCycle!.name!)
+
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color:Colors.orange),
+                                    tooltip: '删除',
+                                    onPressed: () {
+                                      toDeleteExecute(cycleExecute.id!);
+                                    },
+                                  )
+                                ],
+                              ),
+                              flex: 1,
+                            ),
+                          ]) );
+                }),
+
+          ],
+        ),
+      ),
+    );
+  }
+
+  /*
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
       children: [
+
+        Center(
+        child: Container(
+        padding: const EdgeInsets.all(defaultPadding),
+      constraints: const BoxConstraints(
+        maxWidth: 500,
+      ),
+      child: Column( children: [
+      Row(children: [
+          const Expanded(child:  Text('名称:'), flex: 2,),
+          Expanded(child:  Text('${_curBatchCycle.name}'), flex:6,)
+        ]),
+        Row(children: [
+          const Expanded(child:  Text('描述:'), flex: 2,),
+          Expanded(child:  Text('${_curBatchCycle.description}'), flex:6,)
+        ]),
+        Row(children: [
+          const Expanded(child:  Text('时间:'), flex: 2,),
+          Expanded(child:  Text('${_curBatchCycle.startAt}-${_curBatchCycle.endAt}'), flex:6,)
+        ]),
+        Row(children: [
+          const Expanded(child:  Text('状态:'), flex: 2,),
+          Expanded(child:  Text(AgriUtil.showTaskStatus(_curBatchCycle.status!)), flex:6,)
+        ]),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: [ElevatedButton(onPressed: toAdd, child: const Text('增加'))],
-        ),
+          children: [
+            ElevatedButton(onPressed: toAdd, child: const Text('增加子任务')),
+            const SizedBox(width: 10,),
+            ElevatedButton(onPressed: toAddExecute, child: const Text('添加跟踪记录'))],
+        ),]))),
+        Expanded(child:
+        TabBar(
+          controller: _tabController,
+          tabs: const <Widget>[
+            Tab(text: '子任务'),
+            Tab(text: '执行记录'),
+          ],
+        )),
         Expanded(
-            child: ListView.separated(
-                primary: false,
+            child:
+            TabBarView(
+                controller: _tabController,
+                children: <Widget>[
+            ListView.separated(
                 itemCount: listData.length,
                 separatorBuilder: (BuildContext context, int index) =>
                     const Divider(
@@ -94,92 +346,89 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
                 itemBuilder: (context, index) {
                   BatchCycle batchCycleTemp = listData[index];
 
-                  return Card(
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: batchCycleTemp.imageUrl != null
-                                  ? Image(
-                                      image: NetworkImage(
-                                          '${HttpApi.host_image}${batchCycleTemp.imageUrl}'),
-                                      width: 120,
-                                      height: 120)
-                                  : Center(
-                                      child: Image.asset(
-                                          'assets/icons/icon_add_image.png'),
-                                    ),
-                              flex: 2,
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('${batchCycleTemp.name}'),
-                                  Text('${batchCycleTemp.batchName}'),
-                                  Text('${batchCycleTemp.description}'),
-                                ],
-                              ),
-                              flex: 6,
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  InkWell(
-                                    child: const Text('编辑'),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                BatchCycleEditScreen(
-                                                  id: batchCycleTemp.id,
-                                                  batchId: batchCycleTemp.batchId!
-                                                )),
-                                      );
-                                    },
-                                  ),
-                                  InkWell(
-                                    child: const Text('查看'),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                BatchCycleViewScreen(
-                                                  batchCycleId: batchCycleTemp.id!
-                                                )),
-                                      );
-                                    },
-                                  ),
-                                  InkWell(
-                                    child: const Text('删除'),
-                                    onTap: toDelete(batchCycleTemp.id),
-                                  ),
-                                ],
-                              ),
-                              flex: 2,
-                            ),
-                          ],
-                        ),
-                        null != batchCycleTemp.children
-                            ? Column(
-                                children: buildItem(batchCycleTemp.children!),
-                              )
-                            : Container(),
-                      ],
-                    ),
+                  return ListTile(leading: CircleAvatar(
+                      radius:50,
+                      backgroundImage: NetworkImage(
+                          '${HttpApi.host_image}${batchCycleTemp.imageUrl}')),
+                    title:  Text('${batchCycleTemp.name}'),
+                    subtitle:  Text('${batchCycleTemp.description}'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>  BatchCycleViewScreen(batchCycleId: batchCycleTemp.id!,))
+                      );
+                    },
                   );
-                })),
+                }),
+
+                  ListView.separated(
+                      itemCount: listExecute.length,
+                      separatorBuilder: (BuildContext context, int index) =>
+                      const Divider(
+                        height: defaultPadding,
+                        color: Colors.grey,
+                      ),
+                      itemBuilder: (context, index) {
+                        BatchCycleExecute cycleExecute = listExecute[index];
+
+                        return Card(
+                            child:Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${cycleExecute.name}', style: TextStyle(fontWeight: FontWeight.bold),),
+                                    Text('时间：${cycleExecute.startAt} 至 ${cycleExecute.endAt}', style: TextStyle(color: Colors.grey)),
+                                    Text('描述：${cycleExecute.description}', style: TextStyle(color: Colors.grey)),
+                                  ],
+                                ),
+                                flex: 6,
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit,),
+                                      tooltip: '编辑',
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  BatchCycleExecuteEditScreen(id: cycleExecute.id, batchCycleId: cycleExecute.batchCycle!.id!, batchCycleName: cycleExecute.batchCycle!.name!)
+
+                                                  ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.delete, color:Colors.orange),
+                                      tooltip: '删除',
+                                      onPressed: () {
+                                        toDeleteExecute(cycleExecute.id!);
+                                      },
+                                    )
+                                  ],
+                                ),
+                                flex: 2,
+                              ),
+                            ]) );
+                      }),
+
+                ])),
       ],
     ));
   }
+
+   */
 
   toAdd() {
     Navigator.push(
@@ -191,89 +440,14 @@ class _BatchCycleViewScreenState extends State<BatchCycleViewScreen> {
     );
   }
 
-  toDelete(int? id) {}
-
-  buildItem(List<BatchCycle> listItem) {
-    List<Widget> itemWdiget = [];
-    for (int i = 0; i < listItem.length; i++) {
-      BatchCycle curTemp = listItem[i];
-      itemWdiget.add(SizedBox(
-          height: 120,
-          child: Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child:curTemp.imageUrl != null
-                      ? Image(
-                      image: NetworkImage(
-                          'http://localhost:8080/open/gridfs/${curTemp.imageUrl}'),
-                      width: 80,
-                      height: 80)
-                      : Center(
-                    child: Image.asset(
-                        'assets/icons/icon_add_image.png'),
-                  ),
-                  flex: 4,
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${curTemp.name}'),
-                      Text('${curTemp.batchName}'),
-                      Text('${curTemp.description}'),
-                    ],
-                  ),
-                  flex: 6,
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InkWell(
-                        child: const Text('编辑'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    BatchCycleEditScreen(
-                                      id: curTemp.id,
-                                      batchId: curTemp.batchId!
-                                    )),
-                          );
-                        },
-                      ),
-                      InkWell(
-                        child: const Text('查看'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    BatchCycleViewScreen(
-                                      batchCycleId: curTemp.id!,
-                                    )),
-                          );
-                        },
-                      ),
-                      InkWell(
-                        child: const Text('删除'),
-                        onTap: toDelete(curTemp.id),
-                      ),
-                    ],
-                  ),
-                  flex: 2,
-                ),
-              ],
-            ),
-          )));
-    }
-
-    return itemWdiget;
+  toAddExecute() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BatchCycleExecuteEditScreen(
+              batchCycleId: _curBatchCycle.id!,
+              batchCycleName: _curBatchCycle.name!,
+          )),
+    );
   }
 }

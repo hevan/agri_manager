@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:znny_manager/src/model/base/Park.dart';
-import 'package:znny_manager/src/model/manage/Corp.dart';
-import 'package:znny_manager/src/model/product/Product.dart';
+import 'package:agri_manager/src/model/base/Park.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/product/Product.dart';
+import 'package:agri_manager/src/model/project/BatchTeam.dart';
 /// id : 1
 /// name : ""
 /// code : ""
@@ -14,8 +15,8 @@ import 'package:znny_manager/src/model/product/Product.dart';
 /// startAt : ""
 /// endAt : ""
 /// days : ""
-/// estimatedProduction : 999999.00
-/// realProduction : 9999.88
+/// estimatedPrice : 999999.00
+/// quantity : 9999.88
 /// investEstimated : 9993.00
 /// investReal : 9999.00
 /// saleEstimated : 909090.00
@@ -31,14 +32,13 @@ class BatchProduct {
       String? name, 
       String? code, 
       int? productId,
+      double? area,
       int? parkId,
       String? startAt, 
       String? endAt, 
       int? days,
-      double? estimatedProduction, 
-      double? realProduction, 
-      double? investEstimated, 
-      double? investReal,
+      double? estimatedPrice, 
+      double? quantity,
       int?    createdUserId,
       String? calcUnit,
       int? corpId,
@@ -47,20 +47,20 @@ class BatchProduct {
       String? description,
       Corp? corp,
       Park? park,
-      Product? product
+      Product? product,
+      List<BatchTeam>? listTeam,
   }){
     _id = id;
     _name = name;
     _code = code;
     _productId = productId;
+    _area = area;
     _parkId = parkId;
     _startAt = startAt;
     _endAt = endAt;
     _days = days;
-    _estimatedProduction = estimatedProduction;
-    _realProduction = realProduction;
-    _investEstimated = investEstimated;
-    _investReal = investReal;
+    _estimatedPrice = estimatedPrice;
+    _quantity = quantity;
     _calcUnit = calcUnit;
     _status = status;
     _corpId = corpId;
@@ -71,6 +71,8 @@ class BatchProduct {
     _product = product;
     _park = park;
     _corp = corp;
+    _listTeam = listTeam;
+
 }
 
   BatchProduct.fromJson(dynamic json) {
@@ -78,14 +80,13 @@ class BatchProduct {
     _name = json['name'];
     _code = json['code'];
     _productId = json['productId'];
+    _area = json['area'];
     _parkId = json['parkId'];
     _startAt = json['startAt'];
     _endAt = json['endAt'];
     _days = json['days'];
-    _estimatedProduction = json['estimatedProduction'];
-    _realProduction = json['realProduction'];
-    _investEstimated = json['investEstimated'];
-    _investReal = json['investReal'];
+    _estimatedPrice = json['estimatedPrice'];
+    _quantity = json['quantity'];
     _calcUnit = json['calcUnit'];
     _corpId = json['corpId'];
     _status = json['status'];
@@ -95,21 +96,19 @@ class BatchProduct {
     _park = null != json['park'] ? Park.fromJson(json['park']) : null;
     _corp = null != json['corp'] ? Corp.fromJson(json['corp']) : null;
     _product = null != json['product'] ? Product.fromJson(json['product']) : null;
+    _listTeam = null != json['listTeam'] ? List<BatchTeam>.from((json['listTeam'] as List).map((e) => BatchTeam.fromJson(e))) : null;
   }
   int? _id;
   String? _name;
   String? _code;
   int? _productId;
+  double? _area;
   int? _parkId;
   String? _startAt;
   String? _endAt;
   int? _days;
-  double? _estimatedProduction;
-  double? _realProduction;
-  double? _investEstimated;
-  double? _investReal;
-  double? _saleEstimated;
-  double? _saleReal;
+  double? _estimatedPrice;
+  double? _quantity;
   String? _calcUnit;
   int? _status;
   int? _corpId;
@@ -120,19 +119,19 @@ class BatchProduct {
   Corp? _corp;
   Park? _park;
   Product? _product;
+  List<BatchTeam>? _listTeam;
 
 BatchProduct copyWith({  int? id,
   String? name,
   String? code,
   int? productId,
+  double? area,
   int? parkId,
   String? startAt,
   String? endAt,
   int? days,
-  double? estimatedProduction,
-  double? realProduction,
-  double? investEstimated,
-  double? investReal,
+  double? estimatedPrice,
+  double? quantity,
   int? createdUserId,
   String? calcUnit,
   int? corpId,
@@ -143,18 +142,18 @@ BatchProduct copyWith({  int? id,
   Corp? corp,
   Park? park,
   Product? product,
+  List<BatchTeam>? listTeam
 }) => BatchProduct(  id: id ?? _id,
   name: name ?? _name,
   code: code ?? _code,
   productId: productId ?? _productId,
+  area:  area ?? _area,
   parkId: parkId ?? _parkId,
   startAt: startAt ?? _startAt,
   endAt: endAt ?? _endAt,
   days: days ?? _days,
-  estimatedProduction: estimatedProduction ?? _estimatedProduction,
-  realProduction: realProduction ?? _realProduction,
-  investEstimated: investEstimated ?? _investEstimated,
-  investReal: investReal ?? _investReal,
+  estimatedPrice: estimatedPrice ?? _estimatedPrice,
+  quantity: quantity ?? _quantity,
   createdUserId: createdUserId ?? _createdUserId,
   calcUnit: calcUnit ?? _calcUnit,
   corpId: corpId ?? _corpId,
@@ -164,19 +163,19 @@ BatchProduct copyWith({  int? id,
   corp: corp ?? _corp,
   park: park ?? _park,
   product: product ?? _product,
+  listTeam: listTeam ?? _listTeam,
 );
   int? get id => _id;
   String? get name => _name;
   String? get code => _code;
   int? get productId => _productId;
+  double? get area => _area;
   int? get parkId => _parkId;
   String? get startAt => _startAt;
   String? get endAt => _endAt;
   int? get days => _days;
-  double? get estimatedProduction => _estimatedProduction;
-  double? get realProduction => _realProduction;
-  double? get investEstimated => _investEstimated;
-  double? get investReal => _investReal;
+  double? get estimatedPrice => _estimatedPrice;
+  double? get quantity => _quantity;
   String? get calcUnit => _calcUnit;
   int? get corpId => _corpId;
   int? get createdUserId => _createdUserId;
@@ -184,6 +183,8 @@ BatchProduct copyWith({  int? id,
   String? get description => _description;
 
   int? get status => _status;
+
+  List<BatchTeam>? get listTeam => _listTeam;
 
   set status(int? value) {
     _status = value;
@@ -195,16 +196,14 @@ BatchProduct copyWith({  int? id,
     map['name'] = _name;
     map['code'] = _code;
     map['productId'] = _productId;
+    map['area'] = _area;
     map['parkId'] = _parkId;
 
     map['startAt'] = _startAt;
     map['endAt'] = _endAt;
     map['days'] = _days;
-    map['estimatedProduction'] = _estimatedProduction;
-    map['realProduction'] = _realProduction;
-    map['investEstimated'] = _investEstimated;
-    map['investReal'] = _investReal;
-
+    map['estimatedPrice'] = _estimatedPrice;
+    map['quantity'] = _quantity;
     map['createdUserId'] = _createdUserId;
 
     map['calcUnit'] = _calcUnit;
@@ -217,6 +216,7 @@ BatchProduct copyWith({  int? id,
     map['corp'] = _corp?.toJson();
     map['park'] = _park?.toJson();
     map['product'] =  _product?.toJson();
+    map['product'] =  _listTeam?.map((e) => e.toJson());
     return map;
   }
 
@@ -243,28 +243,12 @@ BatchProduct copyWith({  int? id,
     _calcUnit = value;
   }
 
-  set saleReal(double? value) {
-    _saleReal = value;
+  set quantity(double? value) {
+    _quantity = value;
   }
 
-  set saleEstimated(double? value) {
-    _saleEstimated = value;
-  }
-
-  set investReal(double? value) {
-    _investReal = value;
-  }
-
-  set investEstimated(double? value) {
-    _investEstimated = value;
-  }
-
-  set realProduction(double? value) {
-    _realProduction = value;
-  }
-
-  set estimatedProduction(double? value) {
-    _estimatedProduction = value;
+  set estimatedPrice(double? value) {
+    _estimatedPrice = value;
   }
 
   set days(int? value) {
@@ -285,6 +269,10 @@ BatchProduct copyWith({  int? id,
 
   set productId(int? value) {
     _productId = value;
+  }
+
+  set area(double? value) {
+    _area = value;
   }
 
   set code(String? value) {
@@ -316,4 +304,9 @@ BatchProduct copyWith({  int? id,
   set corp(Corp? value) {
     _corp = value;
   }
+
+  set listTeam(List<BatchTeam>? value) {
+    _listTeam = value;
+  }
+
 }

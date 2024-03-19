@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:znny_manager/src/net/interceptors/AuthInterceptor.dart';
+import 'package:agri_manager/src/net/interceptors/AuthInterceptor.dart';
 
 class DioUtils {
   static final DioUtils _singleton = DioUtils._();
@@ -15,13 +15,12 @@ class DioUtils {
   Dio get dio => _dio!;
 
   DioUtils._() {
-
     // 不使用http状态码判断状态，需要设置followRedirects， validateStatus
     var options = BaseOptions(
       connectTimeout: 5000,
       receiveTimeout: 5000,
       responseType: ResponseType.json,
-      baseUrl: 'http://localhost:8080',
+      baseUrl: 'https://api.gucuntech.cn', //'http://localhost:8080'
       contentType: 'application/x-www-form-urlencoded',
     );
     _dio = Dio(options);
@@ -69,6 +68,13 @@ class DioUtils {
   Options _checkOptions(method, options, isJson) {
     if (options == null) {
       options = Options();
+
+      /*
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, OPTIONS',
+    'Access-Control-Allow-Headers': 'Origin, Content-Type, Cookie, X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN, Access-Control-Allow-Origin',
+    }*/
       if (isJson) {
         options = Options(contentType: "application/json");
       } else {

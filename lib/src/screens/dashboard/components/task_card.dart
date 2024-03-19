@@ -1,8 +1,8 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/ConstType.dart';
-import 'package:znny_manager/src/shared_components/list_profile_image.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/ConstType.dart';
+import 'package:agri_manager/src/shared_components/list_profile_image.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class TaskCardData {
   final String title;

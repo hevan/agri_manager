@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/shared_components/chart_percent_indicator.dart';
+import 'package:agri_manager/src/shared_components/chart_percent_indicator.dart';
 
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class ProgressReportCardData {
   final double percent;

@@ -1,10 +1,12 @@
 import 'dart:convert';
+
+import 'package:agri_manager/src/model/customer/Customer.dart';
 /// id : 0
 /// customerId : 0
-/// customerName : ""
-/// managerName : ""
-/// managerMobile : "2022-02-01"
-/// managerId : 0
+/// customer : ""
+/// linkName : ""
+/// linkMobile : "2022-02-01"
+/// createdUserId : 0
 /// title : ""
 /// description : ""
 /// corpId : 2
@@ -15,21 +17,20 @@ String customerTraceToJson(CustomerTrace data) => json.encode(data.toJson());
 class CustomerTrace {
   CustomerTrace({
       int? id, 
-      int? customerId, 
-      String? customerName, 
-      String? managerName, 
-      String? managerMobile, 
-      int? managerId, 
+      int? customerId,
+      String? linkName, 
+      String? linkMobile, 
+      int? createdUserId, 
       String? title, 
       String? description, 
       int? corpId, 
-      String? createdAt, String? occurAt}){
+      String? createdAt, String? occurAt, Customer? customer}){
     _id = id;
     _customerId = customerId;
-    _customerName = customerName;
-    _managerName = managerName;
-    _managerMobile = managerMobile;
-    _managerId = managerId;
+    _customer = customer;
+    _linkName = linkName;
+    _linkMobile = linkMobile;
+    _createdUserId = createdUserId;
     _title = title;
     _description = description;
     _corpId = corpId;
@@ -40,10 +41,10 @@ class CustomerTrace {
   CustomerTrace.fromJson(dynamic json) {
     _id = json['id'];
     _customerId = json['customerId'];
-    _customerName = json['customerName'];
-    _managerName = json['managerName'];
-    _managerMobile = json['managerMobile'];
-    _managerId = json['managerId'];
+    _customer = null != json['customer'] ? Customer.fromJson(json['customer']) : null;
+    _linkName = json['linkName'];
+    _linkMobile = json['linkMobile'];
+    _createdUserId = json['createdUserId'];
     _title = json['title'];
     _description = json['description'];
     _corpId = json['corpId'];
@@ -52,22 +53,22 @@ class CustomerTrace {
   }
   int? _id;
   int? _customerId;
-  String? _customerName;
-  String? _managerName;
-  String? _managerMobile;
-  int? _managerId;
+  String? _linkName;
+  String? _linkMobile;
+  int? _createdUserId;
   String? _title;
   String? _description;
   int? _corpId;
   String? _createdAt;
   String? _occurAt;
+  Customer? _customer;
 
   int? get id => _id;
   int? get customerId => _customerId;
-  String? get customerName => _customerName;
-  String? get managerName => _managerName;
-  String? get managerMobile => _managerMobile;
-  int? get managerId => _managerId;
+  Customer? get customer => _customer;
+  String? get linkName => _linkName;
+  String? get linkMobile => _linkMobile;
+  int? get createdUserId => _createdUserId;
   String? get title => _title;
   String? get description => _description;
   int? get corpId => _corpId;
@@ -78,10 +79,10 @@ class CustomerTrace {
     final map = <String, dynamic>{};
     map['id'] = _id;
     map['customerId'] = _customerId;
-    map['customerName'] = _customerName;
-    map['managerName'] = _managerName;
-    map['managerMobile'] = _managerMobile;
-    map['managerId'] = _managerId;
+    map['customer'] = _customer?.toJson();
+    map['linkName'] = _linkName;
+    map['linkMobile'] = _linkMobile;
+    map['createdUserId'] = _createdUserId;
     map['title'] = _title;
     map['description'] = _description;
     map['corpId'] = _corpId;
@@ -110,20 +111,20 @@ class CustomerTrace {
     _title = value;
   }
 
-  set managerId(int? value) {
-    _managerId = value;
+  set createdUserId(int? value) {
+    _createdUserId = value;
   }
 
-  set managerMobile(String? value) {
-    _managerMobile = value;
+  set linkMobile(String? value) {
+    _linkMobile = value;
   }
 
-  set managerName(String? value) {
-    _managerName = value;
+  set linkName(String? value) {
+    _linkName = value;
   }
 
-  set customerName(String? value) {
-    _customerName = value;
+  set customer(Customer? value) {
+    _customer = value;
   }
 
   set customerId(int? value) {

@@ -7,12 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/model/product/Category.dart';
-import 'package:znny_manager/src/model/product/Product.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/product/Category.dart';
+import 'package:agri_manager/src/model/product/Product.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
+
+import '../../model/manage/Corp.dart';
 
 class ProductEditScreen extends StatefulWidget {
   final int? id;
@@ -35,8 +38,10 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   List<Category> listCategory = [];
   Category? selectCategory;
 
-  Product _product = Product(corpId: HttpApi.corpId);
-  int? userId;
+  Product _product = Product();
+
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
@@ -52,15 +57,18 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
   void initState() {
     super.initState();
 
-    loadData();
 
     setState(() {
-      userId = SpUtil.getInt(Constant.userId);
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
     });
+
+    loadData();
+
   }
 
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
+    var params = {'corpId': curCorp?.id};
 
     try {
       var retData = await DioUtils().request(
@@ -80,7 +88,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     if (widget.id != null) {
       try {
         var retData = await DioUtils()
-            .request(HttpApi.product_echo + widget.id!.toString(), "GET");
+            .request(HttpApi.product_find + widget.id!.toString(), "GET");
 
         if (retData != null) {
           setState(() {
@@ -93,7 +101,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
             _textDescription.text =
                 _product.description != null ? _product.description! : '';
             _textCategoryName.text =
-                _product.category!.name != null ? _product.category!.name! : '';
+                _product.category!.pathName != null ? _product.category!.pathName! : '';
           });
         }
       } on DioError catch (error) {
@@ -145,12 +153,22 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     _product.code = _textCode.text;
     _product.calcUnit = _textCalcUnit.text;
     _product.description = _textDescription.text;
+    _product.corpId = curCorp?.id;
 
     try {
-      var retData = await DioUtils().request(HttpApi.product_add, "POST",
-          data: json.encode(_product), isJson: true);
-      if (retData != null) {
-        Navigator.of(context).pop();
+
+      if(null == widget.id) {
+        var retData = await DioUtils().request(HttpApi.product_add, "POST",
+            data: json.encode(_product), isJson: true);
+        if (retData != null) {
+          Navigator.of(context).pop();
+        }
+      }else{
+        var retData = await DioUtils().request('${HttpApi.product_update}${widget.id}', "PUT",
+            data: json.encode(_product), isJson: true);
+        if (retData != null) {
+          Navigator.of(context).pop();
+        }
       }
     } on DioError catch (error) {
       CustomAppException customAppException = CustomAppException.create(error);
@@ -203,7 +221,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                                       itemBuilder: (context, index) {
                                         Category curItem = listCategory[index];
                                         return ListTile(
-                                          title: Text("${curItem.name}"),
+                                          title: Text("${curItem.pathName}"),
                                           onTap: () {
                                             Navigator.of(context).pop(index);
                                           },
@@ -219,9 +237,9 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                         if (ret != null) {
                           setState(() {
                             selectCategory = listCategory[ret];
-                            _textCategoryName.text = selectCategory!.name!;
+                            _textCategoryName.text = selectCategory!.pathName!;
                             _product.categoryId = selectCategory!.id!;
-                            _product.category!.name = selectCategory!.pathName!;
+                            _product.category = selectCategory;
                           });
                         }
                       },
@@ -292,7 +310,7 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
                     child: _product.imageUrl != null
                         ? Image(
                             image: NetworkImage(
-                                'http://localhost:8080/open/gridfs/${_product.imageUrl}'),
+                                '${HttpApi.host_image}${_product.imageUrl}'),
                           )
                         : Center(
                             child:
@@ -330,8 +348,8 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
         //print('start to upload');r
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
-          'userId': userId,
-          'corpId': HttpApi.corpId,
+          'userId': userInfo?.userId,
+          'corpId': curCorp?.id,
           'file': MultipartFile(
               pFile.readStream as Stream<List<int>>, pFile.size,
               filename: pFile.name)

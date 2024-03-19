@@ -2,12 +2,14 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/product/Category.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/product/category_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/product/Category.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/product/category_edit_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({Key? key}) : super(key: key);
 
@@ -22,14 +24,24 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   List<Category> listCategory = [];
 
+  Corp? curCorp;
+
   @override
   void didChangeDependencies() {
     loadData();
     super.didChangeDependencies();
   }
+  
+  @override
+  void initState(){
+    super.initState();
+    setState(() {
+       curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+    });
+  }
 
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
+    var params = {'corpId': curCorp?.id};
 
     try {
       DioUtils().request(

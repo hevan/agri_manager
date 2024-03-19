@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:znny_manager/src/model/contract/Contract.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/customer/customer_contact_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/contract/Contract.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/customer/customer_contact_edit_screen.dart';
+import 'package:agri_manager/src/screens/customer/customer_contract_view_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CustomerContractScreen extends StatefulWidget {
   final int customerId;
@@ -30,6 +31,12 @@ class _CustomerContractScreenState extends State<CustomerContractScreen> {
   void didChangeDependencies() {
     loadData();
     super.didChangeDependencies();
+  }
+
+  @override
+  void initState(){
+    super.initState();
+
   }
 
   Future loadData() async {
@@ -103,10 +110,13 @@ class _CustomerContractScreenState extends State<CustomerContractScreen> {
                     label: Text('名称'),
                   ),
                   DataColumn2(
-                    label: Text('描述'),
+                    label: Text('编号'),
                   ),
                   DataColumn2(
-                    label: Text('日期'),
+                    label: Text('签约日期'),
+                  ),
+                  DataColumn2(
+                    label: Text('合同期'),
                   ),
                   DataColumn2(
                     size:ColumnSize.L,
@@ -118,8 +128,9 @@ class _CustomerContractScreenState extends State<CustomerContractScreen> {
                     (index) => DataRow(cells: [
                           DataCell(Text('${listData[index].id}')),
                           DataCell(Text('${listData[index].name}')),
-                          DataCell(Text('${listData[index].description}')),
+                          DataCell(Text('${listData[index].code}')),
                           DataCell(Text('${listData[index].signAt}')),
+                          DataCell(Text('${listData[index].startAt} 至 ${listData[index].endAt}')),
                           DataCell(
                             Container(
                               width: 400,
@@ -138,18 +149,13 @@ class _CustomerContractScreenState extends State<CustomerContractScreen> {
                                     child: const Text('编辑'),
                                   ),
                                   ElevatedButton(
-
-                                    onPressed: () {},
-                                    child: const Text('删除'),
-                                  ),
-                                  ElevatedButton(
                                     onPressed: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                CustomerContractEditScreen(
-                                                    id: listData[index].id)),
+                                                CustomerContractViewScreen(
+                                                    data: listData[index])),
                                       );
                                     },
                                     child: const Text('查看'),

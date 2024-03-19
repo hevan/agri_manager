@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CustomListTitle extends StatelessWidget {
   const CustomListTitle({

@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:znny_manager/src/model/customer/CustomerTrace.dart';
-import 'package:znny_manager/src/model/page_model.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/customer/customer_link_edit_screen.dart';
-import 'package:znny_manager/src/screens/customer/customer_trace_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/customer/CustomerTrace.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/page_model.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/screens/customer/customer_trace_edit_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CustomerTraceScreen extends StatefulWidget {
   final int customerId;
@@ -25,6 +27,9 @@ class _CustomerTraceScreenState extends State<CustomerTraceScreen> {
 
   PageModel pageModel = PageModel();
 
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
+
   @override
   void dispose() {
     super.dispose();
@@ -36,22 +41,31 @@ class _CustomerTraceScreenState extends State<CustomerTraceScreen> {
     super.didChangeDependencies();
   }
 
+  @override
+  void initState(){
+    super.initState();
+
+    setState(() {
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
+
+  }
+
   Future loadData() async {
     var params = {
       'customerId': widget.customerId,
-      'managerId': 1,
-      'page': pageModel.page, 'size': pageModel.size
     };
 
     try {
       var retData = await DioUtils().request(
-          HttpApi.customer_trace_query, "GET",
+          HttpApi.customer_trace_findAll, "GET",
           queryParameters: params);
       if (retData != null) {
-        print(retData);
+        //debugPrint(retData);
         setState(() {
           listData =
-              (retData['content'] as List).map((e) => CustomerTrace.fromJson(e)).toList();
+              (retData as List).map((e) => CustomerTrace.fromJson(e)).toList();
         });
       }
     } on DioError catch (error) {

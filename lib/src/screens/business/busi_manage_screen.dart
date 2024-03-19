@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/sys/sys_menu.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/sys/sys_menu.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class BusiManageScreen extends StatefulWidget {
   const BusiManageScreen({ Key? key }) : super(key: key);
 
   @override
-  _BusiManageScreenState createState() => _BusiManageScreenState();
+  State<BusiManageScreen> createState() => _BusiManageScreenState();
 }
 
 class _BusiManageScreenState extends State<BusiManageScreen> {

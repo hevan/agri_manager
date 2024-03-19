@@ -3,21 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/controller/menu_controller.dart';
-import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/shared_components/responsive_builder.dart';
-import 'package:znny_manager/src/shared_components/today_text.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/controller/menu_controller.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/shared_components/responsive_builder.dart';
+import 'package:agri_manager/src/shared_components/today_text.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 
-class Header extends StatelessWidget {
+class Header extends StatefulWidget {
+  final LoginInfoToken data;
   const Header({
     Key? key,
-    required this.data
+    required this.data,
   }) : super(key: key);
 
-  final LoginInfoToken data;
+
+@override
+State<Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> {
 
   @override
   Widget build(BuildContext context) {
@@ -26,25 +32,49 @@ class Header extends StatelessWidget {
         if (!ResponsiveBuilder.isDesktop(context))
           IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: context.read<MenuController>().controlMenu,
+            onPressed: context.read<CustomMenuController>().controlMenu,
           ),
         if (!ResponsiveBuilder.isMobile(context))
           const TodayText(),
         if (!ResponsiveBuilder.isMobile(context))
           Spacer(flex: ResponsiveBuilder.isDesktop(context) ? 2 : 1),
         const Expanded(child: SearchField()),
-         ProfileCard(data:data)
+         ProfileCard(data:widget.data)
       ],
     );
   }
 }
 
-class ProfileCard extends StatelessWidget {
+
+class ProfileCard extends StatefulWidget {
+  final LoginInfoToken data;
   const ProfileCard({
     Key? key,
     required this.data,
   }) : super(key: key);
-  final LoginInfoToken data;
+
+
+  @override
+  State<ProfileCard> createState() => _ProfileCardState();
+}
+
+class _ProfileCardState extends State<ProfileCard> {
+
+  toSetting(){
+    Navigator.pushNamed(
+      context,
+      '/setting',
+    );
+  }
+  toLogout(){
+    SpUtil.clear();
+    Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/login',
+        ModalRoute.withName('/home')
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -60,9 +90,9 @@ class ProfileCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          data.headerUrl != null ? CircleAvatar(
+          widget.data.headerUrl != null ? CircleAvatar(
               radius: 24.0,
-              backgroundImage:  NetworkImage('${HttpApi.host_image}${data.headerUrl}') ,
+              backgroundImage:  NetworkImage('${HttpApi.host_image}${widget.data.headerUrl}') ,
             backgroundColor: Colors.transparent,
           ): Image.asset(
         "assets/images/profile_pic.png"),
@@ -70,9 +100,15 @@ class ProfileCard extends StatelessWidget {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-              child: data.nickName != null ? Text('${data.nickName!}') :  Text('未设置'),
+              child: widget.data.nickName != null ? Text('${widget.data.nickName!}') :  Text('未设置'),
             ),
-          PopupMenuButton(
+          PopupMenuButton(onSelected: (result) {
+            if (result == 1) {
+              toSetting();
+            }else {
+              toLogout();
+            }
+          },
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(
                 child: Row(children: [
@@ -80,19 +116,12 @@ class ProfileCard extends StatelessWidget {
                   Text("设置"),
                 ],),
                 value: 1,
-                onTap: (){
-
-                },
               ),
               PopupMenuItem(
                 child: Row(children: [
                   const Icon(Icons.outbox),
                   Text("退出"),
                 ],),
-                onTap: (){
-                  SpUtil.clear();
-
-                },
                 value: 2,
               )
             ],
@@ -104,13 +133,6 @@ class ProfileCard extends StatelessWidget {
     );
   }
 
-  _toSetting(BuildContext context){
-
-  }
-
-  _logout(){
-
-  }
 }
 
 class SearchField extends StatelessWidget {

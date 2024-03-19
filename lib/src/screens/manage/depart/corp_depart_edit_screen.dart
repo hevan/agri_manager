@@ -3,12 +3,12 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/model/manage/Corp.dart';
-import 'package:znny_manager/src/model/manage/CorpDepart.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/manage/CorpDepart.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -168,14 +168,14 @@ class _CorpDepartEditScreenState extends State<CorpDepartEditScreen> {
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
           'userId': widget.id,
-          'corpId': HttpApi.corpId,
+          'corpId': currentCorp?.id,
           'file': MultipartFile(
               pFile.readStream as Stream<List<int>>, pFile.size,
               filename: pFile.name)
         });
         //print('start to upload');
         var ret = await DioUtils().requestUpload(
-          HttpApi.open_file_upload,
+          HttpApi.open_gridfs_upload,
           data: formData,
         );
       } on DioError catch (error) {

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:znny_manager/src/screens/dashboard/dashboard_screen.dart';
+import 'package:agri_manager/src/screens/dashboard/dashboard_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   const OTPScreen({Key? key}):super(key:key);

@@ -1,4 +1,4 @@
-# znny_manager
+# agri_manager
 
 A new Flutter project.
 
@@ -29,5 +29,6 @@ To support additional languages, please visit the tutorial on
 [Internationalizing Flutter
 apps](https://flutter.dev/docs/development/accessibility-and-localization/internationalization)
 
+#flutter build web --web-renderer html
 #flutter run -d chrome --web-port=4200
 #flutter config --no-analytics

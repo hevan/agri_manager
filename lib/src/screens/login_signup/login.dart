@@ -4,13 +4,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
+import 'package:flutter/services.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:mobile_number/mobile_number.dart';
 
 
 
@@ -29,6 +31,43 @@ class _LoginState extends State<Login> {
   final FocusNode phoneFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
   bool _showPassword = true;
+
+
+  Future<void> initMobileNumberState() async {
+    if (!await MobileNumber.hasPhonePermission) {
+      await MobileNumber.requestPhonePermission;
+      return;
+    }
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      phoneNumber = (await MobileNumber.mobileNumber)!;
+
+    } on PlatformException catch (e) {
+      debugPrint("Failed to get mobile number because of '${e.message}'");
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {});
+  }
+
+  @override
+  void initState(){
+    super.initState();
+
+    MobileNumber.listenPhonePermission((isPermissionGranted) {
+      if (isPermissionGranted) {
+        initMobileNumberState();
+      } else {}
+    });
+
+    initMobileNumberState();
+
+  }
+
 
   Future login(BuildContext context) async {
     if('' == phoneController.text){
@@ -86,7 +125,7 @@ class _LoginState extends State<Login> {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-            image: AssetImage('assets/images/bg.png'), fit: BoxFit.cover),
+            image: AssetImage('assets/images/bg_start.jpeg'), fit: BoxFit.cover),
       ),
       child: Stack(
         children: <Widget>[

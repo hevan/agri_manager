@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:znny_manager/src/model/customer/CustomerLink.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/customer/customer_link_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/customer/CustomerLink.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/customer/customer_link_edit_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CustomerLinkScreen extends StatefulWidget {
   final int customerId;
@@ -41,7 +41,7 @@ class _CustomerLinkScreenState extends State<CustomerLinkScreen> {
           HttpApi.customer_link_findAll, "GET",
           queryParameters: params);
       if (retData != null) {
-        print(retData);
+        //debugPrint(retData);
         setState(() {
           listData =
               (retData as List).map((e) => CustomerLink.fromJson(e)).toList();

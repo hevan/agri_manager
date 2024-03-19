@@ -25,21 +25,19 @@ class BatchCycle {
       String? name, 
       String? description, 
       String? imageUrl, 
-      int? days, 
+      int? days,
+    double? investEstimated,
       String? startAt, 
-      String? endAt, 
-      double? investEstimated, 
-      double? investReal, 
-      int? batchId, 
-      String? batchName, 
-      int? productId, 
-      String? productName, 
+      String? endAt,
+      int? batchId,
       int? status, 
       double? progress, 
       int? parentId,
-      String? managerName,
-      int?    managerId,
-      List<BatchCycle>? children,}){
+      int?    createdUserId,
+    String? createdAt,
+    int? cycleType,
+    int? corpId,
+    List<BatchCycle>? children,}){
     _id = id;
     _name = name;
     _description = description;
@@ -47,18 +45,16 @@ class BatchCycle {
     _days = days;
     _startAt = startAt;
     _endAt = endAt;
-    _investEstimated = investEstimated;
-    _investReal = investReal;
     _batchId = batchId;
-    _batchName = batchName;
-    _productId = productId;
-    _productName = productName;
     _status = status;
     _progress = progress;
     _parentId = parentId;
+    _investEstimated = investEstimated;
     _children = children;
-    _managerId = managerId;
-    _managerName = managerName;
+    _createdUserId = createdUserId;
+    _createdAt = createdAt;
+    _cycleType = cycleType;
+    _corpId = corpId;
 }
 
   BatchCycle.fromJson(dynamic json) {
@@ -69,17 +65,15 @@ class BatchCycle {
     _days = json['days'];
     _startAt = json['startAt'];
     _endAt = json['endAt'];
-    _investEstimated = json['investEstimated'];
-    _investReal = json['investReal'];
     _batchId = json['batchId'];
-    _batchName = json['batchName'];
-    _productId = json['productId'];
-    _productName = json['productName'];
     _status = json['status'];
     _progress = json['progress'];
+    _investEstimated = json['investEstimated'];
     _parentId = json['parentId'];
-    _managerName = json['managerName'];
-    _managerId = json['managerId'];
+    _createdAt = json['createdAt'];
+    _createdUserId = json['createdUserId'];
+    _cycleType = json['cycleType'];
+    _corpId = json['corpId'];
     if (json['children'] != null) {
       _children = [];
       json['children'].forEach((v) {
@@ -94,18 +88,18 @@ class BatchCycle {
   int? _days;
   String? _startAt;
   String? _endAt;
-  double? _investEstimated;
-  double? _investReal;
   int? _batchId;
-  String? _batchName;
-  int? _productId;
-  String? _productName;
   int? _status;
   double? _progress;
+  double? _investEstimated;
   int? _parentId;
-  String? _managerName;
-  int? _managerId;
+  int? _cycleType;
+  String? _createdAt;
+  int? _createdUserId;
+  int? _corpId;
   List<BatchCycle>? _children;
+
+
 BatchCycle copyWith({  int? id,
   String? name,
   String? description,
@@ -113,17 +107,14 @@ BatchCycle copyWith({  int? id,
   int? days,
   String? startAt,
   String? endAt,
-  double? investEstimated,
-  double? investReal,
   int? batchId,
-  String? batchName,
-  int? productId,
-  String? productName,
   int? status,
   double? progress,
+  double? investEstimated,
   int? parentId,
-  String? managerName,
-  int? managerId,
+  String? createdAt,
+  int? createdUserId,
+  int? cycleType,
   List<BatchCycle>? children,
 }) => BatchCycle(  id: id ?? _id,
   name: name ?? _name,
@@ -132,18 +123,16 @@ BatchCycle copyWith({  int? id,
   days: days ?? _days,
   startAt: startAt ?? _startAt,
   endAt: endAt ?? _endAt,
-  investEstimated: investEstimated ?? _investEstimated,
-  investReal: investReal ?? _investReal,
-  batchId: batchId ?? _batchId,
-  batchName: batchName ?? _batchName,
-  productId: productId ?? _productId,
-  productName: productName ?? _productName,
-  status: status ?? _status,
+   batchId: batchId ?? _batchId,
+    status: status ?? _status,
   progress: progress ?? _progress,
+  investEstimated: investEstimated ?? _investEstimated,
   parentId: parentId ?? _parentId,
-  managerName: managerName ?? _managerName,
-  managerId: managerId ?? _managerId,
+  createdAt: createdAt ?? _createdAt,
+  createdUserId: createdUserId ?? _createdUserId,
+  cycleType: cycleType ?? _cycleType,
   children: children ?? _children,
+  corpId: corpId ?? _corpId,
 );
   int? get id => _id;
   String? get name => _name;
@@ -152,17 +141,16 @@ BatchCycle copyWith({  int? id,
   int? get days => _days;
   String? get startAt => _startAt;
   String? get endAt => _endAt;
-  double? get investEstimated => _investEstimated;
-  double? get investReal => _investReal;
   int? get batchId => _batchId;
-  String? get batchName => _batchName;
-  int? get productId => _productId;
-  String? get productName => _productName;
   int? get status => _status;
   double? get progress => _progress;
   int? get parentId => _parentId;
-  String? get managerName => _managerName;
-  int? get managerId => _managerId;
+  String? get createdAt => _createdAt;
+  int? get createdUserId => _createdUserId;
+  int? get cycleType => _cycleType;
+  int? get corpId => _corpId;
+
+  double? get investEstimated => _investEstimated;
   List<BatchCycle>? get children => _children;
 
   Map<String, dynamic> toJson() {
@@ -175,16 +163,14 @@ BatchCycle copyWith({  int? id,
     map['startAt'] = _startAt;
     map['endAt'] = _endAt;
     map['investEstimated'] = _investEstimated;
-    map['investReal'] = _investReal;
     map['batchId'] = _batchId;
-    map['batchName'] = _batchName;
-    map['productId'] = _productId;
-    map['productName'] = _productName;
     map['status'] = _status;
     map['progress'] = _progress;
     map['parentId'] = _parentId;
-    map['managerId'] = _managerId;
-    map['managerName'] = _managerName;
+    map['createdUserId'] = _createdUserId;
+    map['createdAt'] = _createdAt;
+    map['cycleType'] = _cycleType;
+    map['corpId'] = _corpId;
     if (_children != null) {
       map['children'] = _children?.map((v) => v.toJson()).toList();
     }
@@ -195,12 +181,12 @@ BatchCycle copyWith({  int? id,
     _children = value;
   }
 
-  set managerId(int? value) {
-    _managerId = value;
+  set createdUserId(int? value) {
+    _createdUserId = value;
   }
 
-  set managerName(String? value) {
-    _managerName = value;
+  set createdAt(String? value) {
+    _createdAt = value;
   }
 
   set parentId(int? value) {
@@ -211,32 +197,17 @@ BatchCycle copyWith({  int? id,
     _progress = value;
   }
 
+  set investEstimated(double? value) {
+    _investEstimated = value;
+  }
+
   set status(int? value) {
     _status = value;
   }
 
-  set productName(String? value) {
-    _productName = value;
-  }
-
-  set productId(int? value) {
-    _productId = value;
-  }
-
-  set batchName(String? value) {
-    _batchName = value;
-  }
 
   set batchId(int? value) {
     _batchId = value;
-  }
-
-  set investReal(double? value) {
-    _investReal = value;
-  }
-
-  set investEstimated(double? value) {
-    _investEstimated = value;
   }
 
   set endAt(String? value) {
@@ -265,5 +236,13 @@ BatchCycle copyWith({  int? id,
 
   set id(int? value) {
     _id = value;
+  }
+
+  set cycleType(int? value) {
+    _cycleType = value;
+  }
+
+  set corpId(int? value) {
+    _corpId = value;
   }
 }

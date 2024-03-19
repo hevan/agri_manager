@@ -5,12 +5,15 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:znny_manager/src/model/manage/CorpRole.dart';
-import 'package:znny_manager/src/model/sys/sys_menu.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/manage/CorpRole.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/model/sys/sys_menu.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class MenuEditScreen extends StatefulWidget {
   final int? id;
@@ -36,6 +39,9 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
 
   SysMenu _sysMenu = SysMenu();
 
+  Corp?   currentCorp;
+  LoginInfoToken? userInfo;
+
   @override
   void dispose() {
     _textName.dispose();
@@ -47,12 +53,15 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
   @override
   void initState() {
     super.initState();
-
+    setState(() {
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
     loadData();
   }
 
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
+    var params = {'corpId': currentCorp?.id};
 
     try {
       var retData =
@@ -112,7 +121,7 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
     _sysMenu.name = _textName.text;
     _sysMenu.iconUrl = _textIcon.text;
     _sysMenu.path = _textPath.text;
-    _sysMenu.corpId = HttpApi.corpId;
+    _sysMenu.corpId = currentCorp?.id;
 
     if(widget.id == null) {
       try {
@@ -250,14 +259,14 @@ class _MenuEditScreenState extends State<MenuEditScreen> {
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
           'userId': widget.id,
-          'corpId': HttpApi.corpId,
+          'corpId': currentCorp?.id,
           'file': MultipartFile(
               pFile.readStream as Stream<List<int>>, pFile.size,
               filename: pFile.name)
         });
         //print('start to upload');
         var ret = await DioUtils().requestUpload(
-          HttpApi.open_file_upload,
+          HttpApi.open_gridfs_upload,
           data: formData,
         );
       } on DioError catch (error) {

@@ -10,8 +10,8 @@ import 'dart:convert';
 /// solution : ""
 /// feeAmount : 9.00
 /// occurDate : ""
-/// managerId : 1
-/// managerName : ""
+/// createdUserId : 1
+/// createdBy : ""
 /// createdAt : ""
 
 BatchRisk batchRiskFromJson(String str) => BatchRisk.fromJson(json.decode(str));
@@ -30,9 +30,9 @@ class BatchRisk {
       String? solution, 
       double? feeAmount, 
       String? occurDate, 
-      int? managerId, 
-      String? managerName, 
-      String? createdAt,}){
+      int? createdUserId, 
+      String? createdBy, 
+      String? createdAt,int? corpId}){
     _id = id;
     _name = name;
     _batchId = batchId;
@@ -45,9 +45,10 @@ class BatchRisk {
     _solution = solution;
     _feeAmount = feeAmount;
     _occurDate = occurDate;
-    _managerId = managerId;
-    _managerName = managerName;
+    _createdUserId = createdUserId;
+    _createdBy = createdBy;
     _createdAt = createdAt;
+    _corpId = corpId;
 }
 
   BatchRisk.fromJson(dynamic json) {
@@ -63,9 +64,10 @@ class BatchRisk {
     _solution = json['solution'];
     _feeAmount = json['feeAmount'];
     _occurDate = json['occurDate'];
-    _managerId = json['managerId'];
-    _managerName = json['managerName'];
+    _createdUserId = json['createdUserId'];
+    _createdBy = json['createdBy'];
     _createdAt = json['createdAt'];
+    _corpId = json['corpId'];
   }
   int? _id;
   String? _name;
@@ -79,9 +81,10 @@ class BatchRisk {
   String? _solution;
   double? _feeAmount;
   String? _occurDate;
-  int? _managerId;
-  String? _managerName;
+  int? _createdUserId;
+  String? _createdBy;
   String? _createdAt;
+  int? _corpId;
 BatchRisk copyWith({  int? id,
   String? name,
   int? batchId,
@@ -94,9 +97,10 @@ BatchRisk copyWith({  int? id,
   String? solution,
   double? feeAmount,
   String? occurDate,
-  int? managerId,
-  String? managerName,
+  int? createdUserId,
+  String? createdBy,
   String? createdAt,
+  int? corpId,
 }) => BatchRisk(  id: id ?? _id,
   name: name ?? _name,
   batchId: batchId ?? _batchId,
@@ -109,9 +113,10 @@ BatchRisk copyWith({  int? id,
   solution: solution ?? _solution,
   feeAmount: feeAmount ?? _feeAmount,
   occurDate: occurDate ?? _occurDate,
-  managerId: managerId ?? _managerId,
-  managerName: managerName ?? _managerName,
+  createdUserId: createdUserId ?? _createdUserId,
+  createdBy: createdBy ?? _createdBy,
   createdAt: createdAt ?? _createdAt,
+  corpId: corpId ?? _corpId,
 );
   int? get id => _id;
   String? get name => _name;
@@ -125,9 +130,10 @@ BatchRisk copyWith({  int? id,
   String? get solution => _solution;
   double? get feeAmount => _feeAmount;
   String? get occurDate => _occurDate;
-  int? get managerId => _managerId;
-  String? get managerName => _managerName;
+  int? get createdUserId => _createdUserId;
+  String? get createdBy => _createdBy;
   String? get createdAt => _createdAt;
+  int? get corpId => _corpId;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -143,9 +149,10 @@ BatchRisk copyWith({  int? id,
     map['solution'] = _solution;
     map['feeAmount'] = _feeAmount;
     map['occurDate'] = _occurDate;
-    map['managerId'] = _managerId;
-    map['managerName'] = _managerName;
+    map['createdUserId'] = _createdUserId;
+    map['createdBy'] = _createdBy;
     map['createdAt'] = _createdAt;
+    map['corpId'] = _corpId;
     return map;
   }
 
@@ -153,12 +160,12 @@ BatchRisk copyWith({  int? id,
     _createdAt = value;
   }
 
-  set managerName(String? value) {
-    _managerName = value;
+  set createdBy(String? value) {
+    _createdBy = value;
   }
 
-  set managerId(int? value) {
-    _managerId = value;
+  set createdUserId(int? value) {
+    _createdUserId = value;
   }
 
   set occurDate(String? value) {
@@ -191,6 +198,10 @@ BatchRisk copyWith({  int? id,
 
   set productId(int? value) {
     _productId = value;
+  }
+
+  set corpId(int? value) {
+    _corpId = value;
   }
 
   set batchName(String? value) {

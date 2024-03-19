@@ -6,11 +6,15 @@ import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/model/project/BatchCycle.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/business/CheckManager.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/project/BatchCycle.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/manage/manager/manager_select_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class BatchCycleEditScreen extends StatefulWidget {
   final int? id;
@@ -28,17 +32,22 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
   final _textName = TextEditingController();
   final _textParentName = TextEditingController();
   final _textDays = TextEditingController();
-  final _textInvestEstimated = TextEditingController();
   final _textDescription = TextEditingController();
   final _textStartAt = TextEditingController();
+  final _textEndAt = TextEditingController();
+  final _textStatus = TextEditingController();
+  final _textProgress = TextEditingController();
+  final _textCreateUserName = TextEditingController();
 
-  List<int> errorFlag = [0, 0, 0, 0, 0, 0];
+  List<int> errorFlag = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   
   List<BatchCycle> listCycle = [];
   BatchCycle? parentCycle;
 
-  BatchCycle _batchCycle = BatchCycle();
-  int? userId;
+  BatchCycle _batchCycle = BatchCycle(status: 0);
+
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
@@ -46,8 +55,11 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
     _textParentName.dispose();
     _textDays.dispose();
     _textDescription.dispose();
-    _textInvestEstimated.dispose();
     _textStartAt.dispose();
+    _textEndAt.dispose();
+    _textStatus.dispose();
+    _textProgress.dispose();
+    _textCreateUserName.dispose();
     super.dispose();
   }
 
@@ -59,9 +71,10 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
 
     setState(() {
       _batchCycle.batchId = widget.batchId;
-
-      userId = SpUtil.getInt(Constant.userId);
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
     });
+
   }
 
   Future loadData() async {
@@ -84,7 +97,7 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
     if (widget.id != null) {
       try {
         var retData = await DioUtils().request(
-            HttpApi.batch_cycle_find + '/' + widget.id!.toString(), "GET");
+            HttpApi.batch_cycle_find + widget.id!.toString(), "GET");
 
         if (retData != null) {
           setState(() {
@@ -94,14 +107,14 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
                 _batchCycle.name != null ? _batchCycle.name! : '';
             _textDays.text =
                 _batchCycle.days != null ? _batchCycle.days.toString() : '';
-            _textInvestEstimated.text = _batchCycle.investEstimated != null
-                ? _batchCycle.investEstimated.toString()
-                : '';
             _textDescription.text = _batchCycle.description != null
                 ? _batchCycle.description!
                 : '';
             _textStartAt.text = _batchCycle.startAt != null
                 ? _batchCycle.startAt!
+                : '';
+            _textEndAt.text = _batchCycle.endAt != null
+                ? _batchCycle.endAt!
                 : '';
 
             if (null != _batchCycle.parentId) {
@@ -130,21 +143,25 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
       checkError = true;
     }
 
-    if (_textDays.text == '') {
-      errorFlag[3] = 1;
-      checkError = true;
-    }
     if (_textStartAt.text == '') {
       errorFlag[2] = 1;
       checkError = true;
     }
-    if (_textInvestEstimated.text == '') {
-      errorFlag[4] = 1;
+
+
+    if (_textDays.text == '') {
+      errorFlag[3] = 1;
       checkError = true;
     }
 
+
     if (_textDescription.text == '') {
       errorFlag[5] = 1;
+      checkError = true;
+    }
+
+    if (_textCreateUserName.text == '') {
+      errorFlag[6] = 1;
       checkError = true;
     }
 
@@ -154,10 +171,14 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
 
     _batchCycle.name = _textName.text;
     _batchCycle.days = int.parse(_textDays.text);
-    _batchCycle.investEstimated = double.parse(_textInvestEstimated.text);
     _batchCycle.description = _textDescription.text;
     _batchCycle.startAt = _textStartAt.text;
+    _batchCycle.batchId = widget.batchId;
+    _batchCycle.parentId = null != parentCycle ? parentCycle!.id : null;
+    _batchCycle.corpId = curCorp?.id;
+    _batchCycle.createdUserId = userInfo?.userId;
 
+    debugPrint(json.encode(_batchCycle));
     try {
       var retData = await DioUtils().request(HttpApi.batch_cycle_add, "POST",
           data: json.encode(_batchCycle), isJson: true);
@@ -172,7 +193,7 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('产品生产阶段'),
+        title: const Text('任务管理'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -212,6 +233,8 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
                                           subtitle:
                                               Text("${curItem.description}"),
                                           onTap: () {
+
+
                                             Navigator.of(context).pop(index);
                                           },
                                         );
@@ -310,14 +333,54 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
                 Container(
                   height: defaultPadding,
                 ),
+                DropdownButtonFormField<Map<String, dynamic>>(
+                  value:  Constant.listStatus[_batchCycle.status!],
+                  items: Constant.listStatus
+                      .map((itemStatus) => DropdownMenuItem(
+                    child: Text('${itemStatus['name']}'),
+                    value: itemStatus,
+                  )).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _batchCycle.status = value!['status']!;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: '任务状态',
+                    hintText: '选择任务状态',
+                  ),
+                ),
                 TextField(
-                  controller: _textInvestEstimated,
+                  controller: _textCreateUserName,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: '投入费用',
-                    hintText: '费用',
-                    errorText: errorFlag[4] == 1 ? '投入费用' : null,
+                    labelText: '责任人',
+                    hintText: '责任人',
+                    errorText: errorFlag[6] == 1 ? '请选择责任人' : '',
+                    suffixIcon: IconButton(
+                      onPressed: () async {
+                        String retData = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ManagerSelectScreen(),
+                                fullscreenDialog: true));
+                        if (retData != null) {
+                          // ignore: curly_braces_in_flow_control_structures
+                          setState(() {
+                            var retDataMap = json.decode(retData);
+                            CheckManager curCheck = CheckManager.fromJson(retDataMap);
+                            _textCreateUserName.text = curCheck.nickName!;
+                            _batchCycle.createdUserId = curCheck.userId!;
+                          });
+                        }
+                      },
+                      icon: const Icon(Icons.search_sharp),
+                    ),
                   ),
+                ),
+                Container(
+                  height: defaultPadding,
                 ),
                 Container(
                   height: kSpacing,
@@ -328,7 +391,7 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
                     child: _batchCycle.imageUrl != null
                         ? Image(
                             image: NetworkImage(
-                                'http://localhost:8080/open/gridfs/${_batchCycle.imageUrl}'),
+                                '${HttpApi.host_image}${_batchCycle.imageUrl}'),
                           )
                         : Center(
                             child:
@@ -366,8 +429,8 @@ class _BatchCycleEditScreenState extends State<BatchCycleEditScreen> {
         //print('start to upload');r
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
-          'userId': userId,
-          'corpId': HttpApi.corpId,
+          'userId': userInfo?.userId,
+          'corpId': curCorp?.id,
           'file': MultipartFile(
               pFile.readStream as Stream<List<int>>, pFile.size,
               filename: pFile.name)

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/model/sys/LoginInfoToken.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class AuthInterceptor extends Interceptor {
   @override

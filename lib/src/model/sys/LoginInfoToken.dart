@@ -32,10 +32,6 @@ class LoginInfoToken {
 
   String? get token => _token;
 
-  set token(String? value) {
-    _token = value;
-  }
-
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['token'] = _token;
@@ -48,6 +44,10 @@ class LoginInfoToken {
   }
 
   int? get userId => _userId;
+
+  set token(String? value) {
+    _token = value;
+  }
 
   set userId(int? value) {
     _userId = value;

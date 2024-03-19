@@ -4,12 +4,14 @@ import 'dart:developer';
 import 'package:flutter/widgets.dart';
 
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/manage/Corp.dart';
-import 'package:znny_manager/src/model/sys/Address.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/Address.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -41,6 +43,8 @@ class _CorpEditScreenState extends State<CorpEditScreen> {
   
   Corp _corp = Corp();
 
+  LoginInfoToken? userInfo;
+
   @override
   void dispose() {
     _textName.dispose();
@@ -50,6 +54,10 @@ class _CorpEditScreenState extends State<CorpEditScreen> {
   @override
   void initState() {
     super.initState();
+
+    setState((){
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
 
     if(null != widget.id) {
       loadData();
@@ -147,6 +155,7 @@ class _CorpEditScreenState extends State<CorpEditScreen> {
     _corp.name = _textName.text;
     _corp.code = _textCode.text;
     _corp.description = _textDescription.text;
+    _corp.createdUserId = userInfo?.userId;
     _corp.address ??= new Address();
     _corp.address!.province = _textProvince.text;
     _corp.address!.city = _textCity.text;
@@ -324,14 +333,14 @@ class _CorpEditScreenState extends State<CorpEditScreen> {
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
           'userId': widget.id,
-          'corpId': HttpApi.corpId,
+          'corpId': 1,
           'file': MultipartFile(
               pFile.readStream as Stream<List<int>>, pFile.size,
               filename: pFile.name)
         });
         //print('start to upload');
         var ret = await DioUtils().requestUpload(
-          HttpApi.open_file_upload,
+          HttpApi.open_gridfs_upload,
           data: formData,
         );
       } on DioError catch (error) {

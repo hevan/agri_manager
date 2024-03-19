@@ -1,6 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 import '../../model/product/Product.dart';
 
@@ -29,17 +30,11 @@ class ProductInfoCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${data.name}',
-                    style: Theme.of(context).textTheme.bodyLarge),
-                Text('${data.code}',
-                    style: TextStyle(
-                        fontSize: markTextStyleSize,
-                        color: isDark ? Colors.white54 : Colors.black54)),
-                Text('${data.category!.name}',
-                    style: TextStyle(
-                        fontSize: markTextStyleSize,
-                        overflow: TextOverflow.ellipsis,
-                        color: isDark ? Colors.white54 : Colors.black54)),
+                ListTile(
+                  leading: null != data.imageUrl? Image.network('${HttpApi.host_image}${data.imageUrl}', width: 50, height: 50,) : Image.asset('images/product_upload.png', width: 50, height: 50,),
+                  title:  Text('${data.name}'),
+                  subtitle:  Text('代码：${data.code} 分类：${data.category!.pathName}'),
+                ),
               ],
             ),
           ),

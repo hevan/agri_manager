@@ -1,10 +1,12 @@
 import 'dart:convert';
+
+import 'package:agri_manager/src/model/manage/UserInfo.dart';
 /// id : 0
 /// name : ""
 /// docType : ""
 /// docUrl : ""
 /// showImage : ""
-/// category : ""
+/// groupName : ""
 /// entityId : 0
 /// entityName : ""
 /// corpId : 0
@@ -20,24 +22,25 @@ class DocResource {
       String? docExt,
       String? docUrl,
       String? showImage, 
-      String? category, 
+      String? groupName, 
       int? entityId, 
       String? entityName, 
       int? corpId,
-    int? userId,
-    String? createdAt,}){
+    int? createdUserId,
+    String? createdAt,UserInfo? createdUser}){
     _id = id;
     _name = name;
     _docType = docType;
     _docType = docExt;
     _docUrl = docUrl;
     _showImage = showImage;
-    _category = category;
+    _groupName = groupName;
     _entityId = entityId;
     _entityName = entityName;
     _corpId = corpId;
-    _userId = userId;
+    _createdUserId = createdUserId;
     _createdAt = createdAt;
+    _createdUser = createdUser;
 }
 
   DocResource.fromJson(dynamic json) {
@@ -47,11 +50,13 @@ class DocResource {
     _docExt = json['docExt'];
     _docUrl = json['docUrl'];
     _showImage = json['showImage'];
-    _category = json['category'];
+    _groupName = json['groupName'];
     _entityId = json['entityId'];
     _entityName = json['entityName'];
     _corpId = json['corpId'];
+    _createdUserId = json['createdUserId'];
     _createdAt = json['createdAt'];
+    _createdUser = null != json['createdUser'] ? UserInfo.fromJson(json['createdUser']): null;
   }
   int? _id;
   String? _name;
@@ -59,12 +64,13 @@ class DocResource {
   String? _docExt;
   String? _docUrl;
   String? _showImage;
-  String? _category;
+  String? _groupName;
   int? _entityId;
   String? _entityName;
   int? _corpId;
-  int? _userId;
+  int? _createdUserId;
   String? _createdAt;
+  UserInfo? _createdUser;
 
   int? get id => _id;
   String? get name => _name;
@@ -72,12 +78,13 @@ class DocResource {
   String? get docType => _docType;
   String? get docUrl => _docUrl;
   String? get showImage => _showImage;
-  String? get category => _category;
+  String? get groupName => _groupName;
   int? get entityId => _entityId;
   String? get entityName => _entityName;
   int? get corpId => _corpId;
-  int? get userId => _userId;
+  int? get createdUserId => _createdUserId;
   String? get createdAt => _createdAt;
+  UserInfo? get createdUser => _createdUser;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -87,12 +94,13 @@ class DocResource {
     map['docType'] = _docType;
     map['docUrl'] = _docUrl;
     map['showImage'] = _showImage;
-    map['category'] = _category;
+    map['groupName'] = _groupName;
     map['entityId'] = _entityId;
     map['entityName'] = _entityName;
     map['corpId'] = _corpId;
-    map['userId'] = _userId;
+    map['createdUserId'] = _createdUserId;
     map['createdAt'] = _createdAt;
+    map['createdUser'] = _createdUser?.toJson();
     return map;
   }
 

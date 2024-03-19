@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sp_util/sp_util.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}):super(key:key);
@@ -20,20 +21,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     String? token = SpUtil.getString(Constant.accessToken, defValue: "");
 
-    //log(token!);
-    /*
-    Timer(
-        const Duration(seconds: 4),
-        () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ["", null].contains(token) ? const Login() : const MainScreen()),
-            ));
 
-     */
     Timer(
         const Duration(seconds: 4),
             () {
-              ["", null].contains(token) ? Navigator.of(context).pushNamed('/login'): Navigator.of(context).pushReplacementNamed('/home');
+              ["", null].contains(token) ? Navigator.of(context).pushNamed( kIsWeb?  '/login' :  Platform.isAndroid ? '/loginAuto': '/login') : Navigator.of(context).pushReplacementNamed('/home');
             });
   }
   
@@ -44,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-            image: AssetImage('assets/images/bg.png'), fit: BoxFit.cover),
+            image: AssetImage('assets/images/bg_start.jpeg'), fit: BoxFit.cover),
       ),
       child: Stack(
         children: <Widget>[

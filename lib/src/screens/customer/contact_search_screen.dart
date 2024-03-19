@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'package:dio/dio.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:znny_manager/src/model/contract/Contract.dart';
-import 'package:znny_manager/src/model/page_model.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/customer/customer_contact_edit_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/contract/Contract.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/page_model.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/customer/customer_contact_edit_screen.dart';
+import 'package:agri_manager/src/screens/customer/customer_contract_view_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
 
 class ContractSearchScreen extends StatefulWidget {
   const ContractSearchScreen({Key? key}) : super(key: key);
@@ -22,6 +26,10 @@ class _ContractSearchScreenState extends State<ContractSearchScreen> {
 
   final _textName = TextEditingController();
   PageModel pageModel = PageModel();
+
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
+
   @override
   void dispose() {
     _textName.dispose();
@@ -34,9 +42,19 @@ class _ContractSearchScreenState extends State<ContractSearchScreen> {
     super.didChangeDependencies();
   }
 
+  @override
+  void initState(){
+    super.initState();
+    setState(() {
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
+
+  }
+
   Future loadData() async {
     var params = {
-      'corpId': HttpApi.corpId,
+      'corpId': curCorp?.id,
       'name': _textName.text,
       'page': pageModel.page, 'size': pageModel.size
     };
@@ -121,10 +139,13 @@ class _ContractSearchScreenState extends State<ContractSearchScreen> {
                     label: Text('名称'),
                   ),
                   DataColumn2(
-                    label: Text('描述'),
+                    label: Text('编号'),
                   ),
                   DataColumn2(
-                    label: Text('日期'),
+                    label: Text('签约日期'),
+                  ),
+                  DataColumn2(
+                    label: Text('合同期'),
                   ),
                   DataColumn2(
                     size:ColumnSize.L,
@@ -136,8 +157,9 @@ class _ContractSearchScreenState extends State<ContractSearchScreen> {
                     (index) => DataRow(cells: [
                           DataCell(Text('${listData[index].id}')),
                           DataCell(Text('${listData[index].name}')),
-                          DataCell(Text('${listData[index].description}')),
+                          DataCell(Text('${listData[index].code}')),
                           DataCell(Text('${listData[index].signAt}')),
+                          DataCell(Text('${listData[index].startAt} 至 ${listData[index].endAt}')),
                           DataCell(
                             Container(
                               width: 500,
@@ -149,25 +171,7 @@ class _ContractSearchScreenState extends State<ContractSearchScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                CustomerContractEditScreen(
-                                                    id: listData[index].id)),
-                                      );
-                                    },
-                                    child: const Text('编辑'),
-                                  ),
-                                  ElevatedButton(
-
-                                    onPressed: () {},
-                                    child: const Text('删除'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                CustomerContractEditScreen(
-                                                    id: listData[index].id)),
+                                                CustomerContractViewScreen(data: listData[index])),
                                       );
                                     },
                                     child: const Text('查看'),

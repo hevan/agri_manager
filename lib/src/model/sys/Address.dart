@@ -50,6 +50,7 @@ class Address {
   String? _linkName;
   String? _linkMobile;
   String? _createdAt;
+
   Address copyWith({  int? id,
     String? province,
     String? city,

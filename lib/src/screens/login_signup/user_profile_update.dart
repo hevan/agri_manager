@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:znny_manager/src/model/manage/UserInfo.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/model/manage/UserInfo.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
 import 'package:file_picker/file_picker.dart';
 
 class UserProfileUpdate extends StatefulWidget {
@@ -125,7 +125,7 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
           child: headerUrl != ''
               ?  Image(
             image: NetworkImage(
-                'http://localhost:8080/open/gridfs/${headerUrl}'),
+                '${HttpApi.host_image}${headerUrl}'),
           )
               : Center(
             child:
@@ -238,7 +238,7 @@ class _UserProfileUpdateState extends State<UserProfileUpdate> {
         PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
           'userId': widget.userId,
-          'corpId': HttpApi.corpId,
+          'corpId': 1,
           'file':  MultipartFile( pFile.readStream as Stream<List<int>>, pFile.size, filename: pFile.name)
         });
 

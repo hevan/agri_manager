@@ -1,12 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/customer/CustomerTrace.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/customer/CustomerTrace.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
+import 'package:sp_util/sp_util.dart';
 
 import 'package:intl/intl.dart';
 
@@ -24,6 +27,8 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
   final _textTitle = TextEditingController();
   final _textDescription = TextEditingController();
   final _textOccurAt = TextEditingController();
+  final _textLinkName = TextEditingController();
+  final _textLinkMobile = TextEditingController();
 
   List<int> errorFlag = [0,0,0,0,0,0,0,0,0];
 
@@ -35,14 +40,17 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
   DateFormat df = DateFormat('yyyy-MM-dd');
 
   CustomerTrace _customerTrace = CustomerTrace();
-  int? userId;
+
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
     _textTitle.dispose();
     _textDescription.dispose();
     _textOccurAt.dispose();
-
+    _textLinkName.dispose();
+    _textLinkMobile.dispose();
     super.dispose();
   }
 
@@ -50,12 +58,16 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
   void initState() {
     super.initState();
 
+    setState(() {
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+    });
+
     loadData();
 
     if(widget.customerId != null){
       setState(() {
         _customerTrace.customerId = widget.customerId;
-        _customerTrace.customerName = widget.customerName;
       });
     }
   }
@@ -67,7 +79,7 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
     if(widget.id != null){
       try {
         var retData = await DioUtils().request(
-            HttpApi.customer_trace_find + '/' + widget.id!.toString(), "GET");
+            HttpApi.customer_trace_find + widget.id!.toString(), "GET");
 
         if(retData != null) {
           setState(() {
@@ -76,6 +88,8 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
             _textTitle.text = _customerTrace.title != null ? _customerTrace.title! : '';
             _textDescription.text = _customerTrace.description != null ? _customerTrace.description! : '';
              _textOccurAt.text = _customerTrace.occurAt != null ? _customerTrace.occurAt! : '';
+            _textLinkName.text = _customerTrace.linkName != null ? _customerTrace.linkName! : '';
+            _textLinkMobile.text = _customerTrace.linkMobile != null ? _customerTrace.linkMobile! : '';
           });
         }
       } on DioError catch (error) {
@@ -91,20 +105,29 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
 
     bool checkError = false;
 
-
-    if(_textTitle.text == ''){
+    if(_textOccurAt.text == ''){
       errorFlag[0] = 1;
       checkError=true;
     }
 
-    if(_textOccurAt.text == ''){
+    if(_textLinkName.text == ''){
       errorFlag[1] = 1;
+      checkError=true;
+    }
+
+    if(_textLinkMobile.text == ''){
+      errorFlag[2] = 1;
+      checkError=true;
+    }
+
+    if(_textTitle.text == ''){
+      errorFlag[3] = 1;
       checkError=true;
     }
 
 
     if(_textDescription.text == ''){
-      errorFlag[2] = 1;
+      errorFlag[4] = 1;
       checkError=true;
     }
 
@@ -115,11 +138,15 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
     _customerTrace.title = _textTitle.text;
     _customerTrace.description = _textDescription.text;
     _customerTrace.occurAt = _textOccurAt.text;
-    _customerTrace.corpId = HttpApi.corpId;
+    _customerTrace.linkName = _textLinkName.text;
+    _customerTrace.linkMobile = _textLinkMobile.text;
+    _customerTrace.corpId = curCorp?.id;
+    _customerTrace.createdUserId = userInfo?.userId;
+
 
     try {
       var retData = await DioUtils().request(HttpApi.customer_trace_add, "POST",
-          data: json.encode(_customerTrace.toJson()), isJson: true);
+          data: json.encode(_customerTrace), isJson: true);
       Navigator.of(context).pop();
     } on DioError catch (error) {
       CustomAppException customAppException = CustomAppException.create(error);
@@ -157,7 +184,30 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
                       )
                   ),
                 ),
-
+                Container(
+                  height: defaultPadding,
+                ),
+                TextField(
+                  controller: _textLinkName,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '联系人',
+                    hintText: '联系人',
+                    errorText: errorFlag[1] == 1  ? '联系人不能为空' : null,
+                  ),
+                ),
+                Container(
+                  height: defaultPadding,
+                ),
+                TextField(
+                  controller: _textLinkMobile,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '联系电话',
+                    hintText: '联系电话',
+                    errorText: errorFlag[2] == 1  ? '联系电话不能为空' : null,
+                  ),
+                ),
                 Container(
                   height: defaultPadding,
                 ),
@@ -167,7 +217,7 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
                     border: const OutlineInputBorder(),
                     labelText: '跟进标题',
                     hintText: '输入跟进标题',
-                    errorText: errorFlag[0] == 1  ? '标题不能为空' : null,
+                    errorText: errorFlag[3] == 1  ? '标题不能为空' : null,
                   ),
                 ),
                 Container(
@@ -179,7 +229,7 @@ class _CustomerTraceEditScreenState extends State<CustomerTraceEditScreen> {
                     border: const OutlineInputBorder(),
                     labelText: '描述',
                     hintText: '描述',
-                    errorText: errorFlag[2] == 1 ? '描述不能为空' : null,
+                    errorText: errorFlag[4] == 1 ? '描述不能为空' : null,
                   ),
                 ),
                 Container(

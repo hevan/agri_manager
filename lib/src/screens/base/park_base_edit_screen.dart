@@ -5,11 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:sp_util/sp_util.dart';
 
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/base/ParkBase.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/base/ParkBase.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -38,8 +40,10 @@ class _ParkBaseEditScreenState extends State<ParkBaseEditScreen> {
   List<Park> listPark = [];
   Park? selectPark;
 
-  ParkBase _parkBase = ParkBase(corpId: HttpApi.corpId,);
-  int? userId;
+  ParkBase _parkBase = ParkBase();
+  Corp?   currentCorp;
+  LoginInfoToken? userInfo;
+
 
   @override
   void dispose() {
@@ -57,7 +61,8 @@ class _ParkBaseEditScreenState extends State<ParkBaseEditScreen> {
     super.initState();
     loadData();
     setState(() {
-      userId = SpUtil.getInt(Constant.userId);
+      currentCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
     });
 
     if(widget.parkName != null){
@@ -69,7 +74,7 @@ class _ParkBaseEditScreenState extends State<ParkBaseEditScreen> {
   }
 
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId};
+    var params = {'corpId': currentCorp?.id};
 
     try {
       var retData = await DioUtils().request(
@@ -147,7 +152,7 @@ class _ParkBaseEditScreenState extends State<ParkBaseEditScreen> {
     _parkBase.areaUse = double.parse(_textAreaUse.text);
     _parkBase.area = double.parse(_textArea.text);
     _parkBase.description = _textDescription.text;
-    _parkBase.corpId = HttpApi.corpId;
+    _parkBase.corpId = currentCorp?.id;
 
     try {
       var retData = await DioUtils().request(HttpApi.park_base_add, "POST",
@@ -291,7 +296,7 @@ class _ParkBaseEditScreenState extends State<ParkBaseEditScreen> {
                     child: _parkBase.imageUrl != null
                         ?  Image(
                             image: NetworkImage(
-                                'http://localhost:8080/open/gridfs/${_parkBase.imageUrl}'),
+                                '${HttpApi.host_image}${_parkBase.imageUrl}'),
                           )
                         : Center(
                             child:
@@ -328,8 +333,8 @@ class _ParkBaseEditScreenState extends State<ParkBaseEditScreen> {
         //print('start to upload');r
        PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
-          'userId': userId,
-          'corpId': HttpApi.corpId,
+          'userId': userInfo?.userId,
+          'corpId': currentCorp?.id,
           'file':  MultipartFile( pFile.readStream as Stream<List<int>>, pFile.size, filename: pFile.name)
         });
       

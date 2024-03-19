@@ -6,14 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/model/ConstType.dart';
-import 'package:znny_manager/src/model/project/BatchProduct.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/base/park_select_screen.dart';
-import 'package:znny_manager/src/screens/product/product_select_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/ConstType.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/project/BatchProduct.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/base/park_select_screen.dart';
+import 'package:agri_manager/src/screens/product/product_select_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class BatchEditScreen extends StatefulWidget {
   final int? id;
@@ -30,25 +32,35 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
   final _textParkName = TextEditingController();
   final _textCode = TextEditingController();
   final _textStartAt = TextEditingController();
+  final _textEndAt = TextEditingController();
   final _textDescription = TextEditingController();
   final _textQuantity = TextEditingController();
+  final _textArea = TextEditingController();
+  final _textestimatedPrice = TextEditingController();
   final _textUnit = TextEditingController();
 
-  List<int> errorFlag = [0,0,0,0,0,0,0,0];
+  List<int> errorFlag = [0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
   var selectProduct = {"id":null, 'name': null};
 
-  BatchProduct _productBatch = BatchProduct(corpId: HttpApi.corpId);
-  int? userId;
+  BatchProduct _productBatch = BatchProduct();
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
     _textName.dispose();
     _textCode.dispose();
+    _textProductName.dispose();
+    _textParkName.dispose();
     _textDescription.dispose();
     _textStartAt.dispose();
+    _textEndAt.dispose();
     _textParkName.dispose();
+    _textQuantity.dispose();
+    _textestimatedPrice.dispose();
     _textUnit.dispose();
+    _textArea.dispose();
     super.dispose();
   }
 
@@ -59,8 +71,10 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
     loadData();
 
     setState(() {
-      userId = SpUtil.getInt(Constant.userId);
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+      userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
     });
+
   }
 
   Future loadData() async {
@@ -68,17 +82,22 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
     if(widget.id != null){
       try {
         var retData = await DioUtils().request(
-            HttpApi.batch_find + '/' + widget.id!.toString(), "GET");
+            HttpApi.batch_find  + widget.id!.toString(), "GET");
 
         if(retData != null) {
           setState(() {
             _productBatch = BatchProduct.fromJson(retData);
-
+            _textProductName.text = _productBatch.product!.name!;
+            _textParkName.text = _productBatch.park!.name!;
             _textName.text = _productBatch.name != null ? _productBatch.name! : '';
             _textCode.text = _productBatch.code != null ? _productBatch.code! : '';
             _textStartAt.text = _productBatch.startAt != null ? _productBatch.startAt! : '';
+            _textEndAt.text = _productBatch.endAt != null ? _productBatch.endAt! : '';
             _textDescription.text = _productBatch.description != null ? _productBatch.description! : '';
             _textUnit.text = _productBatch.calcUnit != null ? _productBatch.calcUnit! : '';
+            _textQuantity.text = _productBatch.quantity.toString();
+            _textestimatedPrice.text = _productBatch.estimatedPrice.toString();
+            _textArea.text = _productBatch.area.toString();
           });
         }
       } on DioError catch (error) {
@@ -123,6 +142,16 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
       checkError=true;
     }
 
+    if(_textArea.text == ''){
+      errorFlag[9] = 1;
+      checkError=true;
+    }
+
+    if(_textestimatedPrice.text == ''){
+      errorFlag[10] = 1;
+      checkError=true;
+    }
+
     if(_textQuantity.text == ''){
       errorFlag[6] = 1;
       checkError=true;
@@ -133,10 +162,12 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
       checkError=true;
     }
 
-    if(checkError){
-      setState((){
+    if(_textEndAt.text == ''){
+      errorFlag[8] = 1;
+      checkError=true;
+    }
 
-      });
+    if(checkError){
       return;
     }
 
@@ -144,6 +175,12 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
     _productBatch.code = _textCode.text;
     _productBatch.description = _textDescription.text;
     _productBatch.startAt = _textStartAt.text;
+    _productBatch.endAt = _textEndAt.text;
+    _productBatch.area = double.parse(_textArea.text);
+    _productBatch.quantity = double.parse(_textQuantity.text);
+    _productBatch.estimatedPrice = double.parse(_textestimatedPrice.text);
+    _productBatch.corpId = curCorp?.id;
+    _productBatch.createdUserId = userInfo?.userId;
 
     try {
       var retData = await DioUtils().request(HttpApi.batch_add, "POST",
@@ -285,25 +322,82 @@ class _BatchEditScreenState extends State<BatchEditScreen> {
                   height: kSpacing,
                 ),
                 TextField(
-                  controller: _textQuantity,
+                  controller: _textEndAt,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '结束日期',
+                    hintText: '结束日期',
+                    errorText: errorFlag[3] == 1 ? '结束日期不能为空' : null,
+                    suffixIcon: IconButton(
+                      onPressed: () async {
+                        final selected = await showDatePicker(
+                          context: context,
+                          initialDate: _productBatch.endAt != null ? DateFormat('yyyy-MM-dd').parse(_productBatch.endAt!): DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2055),
+                        );
+                        if (selected != null ) {
+
+                          setState(() {
+                            _productBatch.endAt =  DateFormat('yyyy-MM-dd').format(selected);
+                            _textEndAt.text = _productBatch.endAt!;
+                          });
+                        }
+                      },
+                      icon: const Icon(Icons.date_range),
+                    ),
+                  ),
+                ),
+                TextField(
+                  controller: _textUnit,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '计量单位',
+                    hintText: '计量单位',
+                    errorText: errorFlag[7] == 1  ? '计算单位不能为空' : null,
+                  ),
+                ),
+                Container(
+                  height: kSpacing,
+                ),
+                Container(
+                  height: kSpacing,
+                ),
+                TextField(
+                  controller: _textArea,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: '数量',
-                    hintText: '数量',
-                    errorText: errorFlag[6] == 1  ? '数量不能为空' : null,
+                    labelText: '面积',
+                    hintText: '面积',
+                    errorText: errorFlag[9] == 1  ? '面积不能为空' : null,
                   ),
                 ),
                 Container(
                   height: kSpacing,
                 ),
                 TextField(
-                  controller: _textUnit,
+                  controller: _textQuantity,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: '计算单位',
-                    hintText: '计算单位',
-                    errorText: errorFlag[7] == 1  ? '计算单位不能为空' : null,
+                    labelText: '单位产量',
+                    hintText: '单位产量',
+                    errorText: errorFlag[6] == 1  ? '单位产量不能为空' : null,
+                  ),
+                ),
+
+                Container(
+                  height: kSpacing,
+                ),
+                TextField(
+                  controller: _textestimatedPrice,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '预估销售价',
+                    hintText: '预估销售价',
+                    errorText: errorFlag[6] == 1  ? '预估销售价不能为空' : null,
                   ),
                 ),
                 Container(

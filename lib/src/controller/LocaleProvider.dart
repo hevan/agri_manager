@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/controller/L10n.dart';
+import 'package:agri_manager/src/controller/L10n.dart';
 
 class LocaleProvider with ChangeNotifier {
   Locale? _locale;

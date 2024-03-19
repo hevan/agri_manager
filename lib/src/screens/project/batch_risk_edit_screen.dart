@@ -1,27 +1,29 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
-import 'package:flutter/widgets.dart';
 import 'package:sp_util/sp_util.dart';
 
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/project/BatchCycle.dart';
-import 'package:znny_manager/src/model/project/BatchRisk.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:intl/intl.dart';
+import 'package:agri_manager/src/model/project/BatchCycle.dart';
+import 'package:agri_manager/src/model/project/BatchRisk.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+
+import '../../model/manage/Corp.dart';
 
 class BatchRiskEditScreen extends StatefulWidget {
   final int? id;
   final int batchId;
-  final String batchName;
+  final String? batchName;
   final int productId;
-  final String productName;
-  const BatchRiskEditScreen({Key? key, this.id, required this.batchId, required this.batchName, required this.productId, required this.productName}) : super(key: key);
+  final String? productName;
+  const BatchRiskEditScreen({Key? key, this.id, required this.batchId,  this.batchName, required this.productId,  this.productName}) : super(key: key);
 
   @override
   State<BatchRiskEditScreen> createState() => _BatchRiskEditScreenState();
@@ -33,6 +35,7 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
   final _textFeeAmount = TextEditingController();
   final _textDescription = TextEditingController();
   final _textSolution = TextEditingController();
+  final _textOccurDate = TextEditingController();
 
   List<int> errorFlag = [0,0,0,0,0,0,0];
 
@@ -42,7 +45,9 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
   BatchCycle? parentCycle;
 
   BatchRisk _batchRisk = BatchRisk();
-  int? userId;
+
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void dispose() {
@@ -51,6 +56,7 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
     _textDescription.dispose();
     _textFeeAmount.dispose();
     _textSolution.dispose();
+    _textOccurDate.dispose();
     super.dispose();
   }
 
@@ -65,9 +71,15 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
       _batchRisk.batchName = widget.batchName;
       _batchRisk.productId = widget.productId;
       _batchRisk.productName = widget.productName;
-
-      userId = SpUtil.getInt(Constant.userId);
     });
+
+
+      setState(() {
+        curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+        userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+
+      });
+
   }
 
   Future loadData() async {
@@ -90,15 +102,17 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
     if(widget.id != null){
       try {
         var retData = await DioUtils().request(
-            HttpApi.batch_risk_find + '/' + widget.id!.toString(), "GET");
+            HttpApi.batch_risk_find + widget.id!.toString(), "GET");
+
+        debugPrint(json.encode(retData));
 
         if(retData != null) {
           setState(() {
             _batchRisk = BatchRisk.fromJson(retData);
-
-            _textName.text = _batchRisk.name != null ? _batchRisk.cycleName! : '';
-            _textCycleName.text = _batchRisk.cycleName != null ? _batchRisk.name! : '';
+            _textName.text = _batchRisk.name != null ? _batchRisk.name! : '';
+            _textCycleName.text = _batchRisk.cycleName != null ? _batchRisk.cycleName! : '';
             _textSolution.text = _batchRisk.solution != null ? _batchRisk.solution! : '';
+            _textOccurDate.text = _batchRisk.occurDate != null ? _batchRisk.occurDate! : '';
             _textFeeAmount.text = _batchRisk.feeAmount != null ? _batchRisk.feeAmount.toString() : '';
             _textDescription.text = _batchRisk.description != null ? _batchRisk.description! : '';
           });
@@ -134,6 +148,11 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
       checkError=true;
     }
 
+    if(_textOccurDate.text == ''){
+      errorFlag[3] = 1;
+      checkError=true;
+    }
+
     if(_textDescription.text == ''){
       errorFlag[4] = 1;
       checkError=true;
@@ -158,7 +177,8 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
     _batchRisk.description = _textDescription.text;
     _batchRisk.solution = _textSolution.text;
     _batchRisk.feeAmount = double.parse(_textFeeAmount.text);
-
+    _batchRisk.corpId = curCorp?.id;
+    _batchRisk.createdUserId = userInfo?.userId;
     try {
       var retData = await DioUtils().request(HttpApi.batch_risk_add, "POST",
           data: json.encode(_batchRisk), isJson: true);
@@ -174,7 +194,7 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('病虫害'),
+        title: const Text('风险管理'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -271,6 +291,36 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
                 Container(
                   height: defaultPadding,
                 ),
+                TextField(
+                  controller: _textOccurDate,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: '开始日期',
+                    hintText: '开始日期',
+                    errorText: errorFlag[3] == 1 ? '日期不能为空' : null,
+                    suffixIcon: IconButton(
+                      onPressed: () async {
+                        final selected = await showDatePicker(
+                          context: context,
+                          initialDate: _batchRisk.occurDate != null ? DateFormat('yyyy-MM-dd').parse(_batchRisk.occurDate!): DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2055),
+                        );
+                        if (selected != null ) {
+
+                          setState(() {
+                            _batchRisk.occurDate =  DateFormat('yyyy-MM-dd').format(selected);
+                            _textOccurDate.text = _batchRisk.occurDate!;
+                          });
+                        }
+                      },
+                      icon: const Icon(Icons.date_range),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: defaultPadding,
+                ),
                 Container(
                   height: 120,
                   child: TextField(
@@ -344,13 +394,13 @@ class _BatchRiskEditScreenState extends State<BatchRiskEditScreen> {
         //rint('start to upload');r
        PlatformFile pFile = result.files.single;
         var formData = FormData.fromMap({
-          'userId': userId,
-          'corpId': HttpApi.corpId,
+          'userId': userInfo?.userId,
+          'corpId': curCorp?.id,
           'file':  MultipartFile( pFile.readStream as Stream<List<int>>, pFile.size, filename: pFile.name)
         });
         //print('start to upload');
         var ret = await DioUtils().requestUpload(
-          HttpApi.open_file_upload,
+          HttpApi.open_gridfs_upload,
           data: formData,
         );
       } on DioError catch (error) {

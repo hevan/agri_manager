@@ -1,22 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/shared_components/chart_percent_indicator.dart';
-import 'package:znny_manager/src/utils/constants.dart';
-
-class BlogData {
-  final int viewCount;
-  final String title;
-  final String category;
-  final String imageUrl;
-  final String publishAt;
-
-  const BlogData({
-    required this.viewCount,
-    required this.title,
-    required this.category,
-    required this.imageUrl,
-    required this.publishAt,
-  });
-}
+import 'package:agri_manager/src/model/cms/CmsBlogInfo.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class BlogCard extends StatelessWidget {
   const BlogCard({
@@ -25,38 +10,66 @@ class BlogCard extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  final BlogData data;
+  final CmsBlogInfo data;
   final Function() onPressedCheck;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kBorderRadius),
-      ),
-      child:
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.all(kSpacing),
+      child: Padding(
+          padding: const EdgeInsets.all(kSpacing / 2),
+          child: InkWell(
+            onTap: onPressedCheck,
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const SizedBox(
+                height: kSpacing,
+              ),
+              Row(children: [
+                Expanded(
+                    child: Text(
+                      '${data.title}',
+                      style: const TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      maxLines: 2,
+                    ),
+                    flex: 6),
+                Expanded(
+                  child: Container(
+                    child: Image.network(
+                      '${HttpApi.host_image}${data.imageUrl}',
+                      fit: BoxFit.cover,
+                      height: 80,
+                      width: 120,
+                    ),
+                  ),
+                  flex: 4,
+                )
+              ]),
+              const SizedBox(
+                height: kSpacing,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(kSpacing),
-                    child: Image.asset("assets/images/flutter_logo.png"),
-                  ),
-                  const SizedBox(height: kSpacing,),
                   Text(
-                    '${data.title}',
-                    style: const TextStyle( overflow: TextOverflow.ellipsis,),
-                    maxLines: 2,
+                    '${data.categoryName}',
+                    style: const TextStyle(fontSize: miniTextStyleSize),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('${data.category}', style: const TextStyle(fontSize: miniTextStyleSize),),
-                      Text('${data.viewCount}', style: const TextStyle(fontSize: miniTextStyleSize),),
-                      Text('${data.publishAt}', style: const TextStyle(fontSize: miniTextStyleSize),)
-                    ],
+                  Text(
+                    '${data.countView}',
+                    style: const TextStyle(fontSize: miniTextStyleSize),
+                  ),
+                  Text(
+                    '${data.publishAt}',
+                    style: const TextStyle(fontSize: miniTextStyleSize),
                   )
                 ],
-              ),);
+              )
+            ]),
+          )),
+    );
   }
 }

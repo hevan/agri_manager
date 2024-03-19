@@ -1,7 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/manage/CorpManagerInfo.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/model/manage/CorpManagerInfo.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 class CorpManagerInfoCard extends StatelessWidget {
   const CorpManagerInfoCard({

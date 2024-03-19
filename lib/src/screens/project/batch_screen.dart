@@ -1,38 +1,56 @@
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/ConstType.dart';
-import 'package:znny_manager/src/model/page_model.dart';
-import 'package:znny_manager/src/model/project/BatchProduct.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/screens/project/batch_edit_screen.dart';
-import 'package:znny_manager/src/screens/project/batch_view_screen.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/ConstType.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/page_model.dart';
+import 'package:agri_manager/src/model/project/BatchFinanceAnalysis.dart';
+import 'package:agri_manager/src/model/project/BatchProduct.dart';
+import 'package:agri_manager/src/model/sys/LoginInfoToken.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/screens/project/batch_edit_screen.dart';
+import 'package:agri_manager/src/screens/project/batch_view_screen.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
-class ProductBatchScreen extends StatefulWidget {
-  const ProductBatchScreen({Key? key}) : super(key: key);
+class BatchProductScreen extends StatefulWidget {
+  const BatchProductScreen({Key? key}) : super(key: key);
 
   @override
-  State<ProductBatchScreen> createState() => _ProductBatchScreenState();
+  State<BatchProductScreen> createState() => _BatchProductScreenState();
 }
 
-class _ProductBatchScreenState extends State<ProductBatchScreen> {
+class _BatchProductScreenState extends State<BatchProductScreen> {
 
   List<BatchProduct> listProductBatch = [];
 
+
   PageModel pageModel = PageModel();
+  Corp? curCorp;
+  LoginInfoToken? userInfo;
 
   @override
   void didChangeDependencies() {
     loadData();
     super.didChangeDependencies();
   }
+  @override
+  void initState() {
+    super.initState();
 
+      setState(() {
+        curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+        userInfo = LoginInfoToken.fromJson(SpUtil.getObject(Constant.accessToken));
+      });
+
+
+  }
   Future loadData() async {
-    var params = {'corpId': HttpApi.corpId, 'name': '', 'page': pageModel.page, 'size': pageModel.size};
+    var params = {'corpId': curCorp?.id, 'page': pageModel.page, 'size': pageModel.size};
 
     try {
       var retData = await DioUtils().request(
@@ -47,6 +65,7 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
       CustomAppException customAppException = CustomAppException.create(error);
       debugPrint(customAppException.getMessage());
     }
+
 
   }
   @override
@@ -88,7 +107,7 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
                                 MaterialPageRoute(builder: (context) => const BatchEditScreen()),
                               );
                             },
-                            child: const Text('增加产品'),
+                            child: const Text('增加'),
                           )
                         ],
                       ),
@@ -113,10 +132,10 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
                             ),
                             DataColumn2(
                               size: ColumnSize.S,
-                              label: Text('批次编号'),
+                              label: Text('编号'),
                             ),
                             DataColumn2(
-                              label: Text('批次名称'),
+                              label: Text('名称'),
                             ),
                             DataColumn2(
                               size: ColumnSize.S,
@@ -124,7 +143,7 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
                             ),
                             DataColumn2(
                               size: ColumnSize.S,
-                              label: Text('数量'),
+                              label: Text('种植面积'),
                             ),
                             DataColumn2(
                               size: ColumnSize.S,
@@ -133,10 +152,6 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
                             DataColumn2(
                               size: ColumnSize.S,
                               label: Text('结束日期'),
-                            ),
-                            DataColumn2(
-                              size: ColumnSize.S,
-                              label: Text('负责人'),
                             ),
                             DataColumn2(
                               size: ColumnSize.S,
@@ -158,9 +173,12 @@ class _ProductBatchScreenState extends State<ProductBatchScreen> {
                                 DataCell(
                                     Text('${listProductBatch[index].product?.name}')),
                                 DataCell(
+                                    Text('${listProductBatch[index].area}')),
+                                DataCell(
                                     Text('${listProductBatch[index].startAt}')),
                                 DataCell(
                                     Text('${listProductBatch[index].endAt}')),
+
                                 DataCell(
                                     Text(ConstType.getTaskStatus(listProductBatch[index].status))),
                                    DataCell(

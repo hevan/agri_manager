@@ -1,18 +1,19 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:znny_manager/src/model/product/Category.dart';
-import 'package:znny_manager/src/net/dio_utils.dart';
-import 'package:znny_manager/src/net/exception/custom_http_exception.dart';
-import 'package:znny_manager/src/net/http_api.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:sp_util/sp_util.dart';
+import 'package:agri_manager/src/model/manage/Corp.dart';
+import 'package:agri_manager/src/model/product/Category.dart';
+import 'package:agri_manager/src/net/dio_utils.dart';
+import 'package:agri_manager/src/net/exception/custom_http_exception.dart';
+import 'package:agri_manager/src/net/http_api.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:znny_manager/src/screens/product/category_edit_screen.dart';
 class CategoryEditScreen extends StatefulWidget {
   final Category? editCategory;
   const CategoryEditScreen({
     Key? key,
-    this.editCategory, int? id})
+    this.editCategory})
       : super(key: key);
 
   @override
@@ -25,7 +26,9 @@ class CategoryEditScreen extends StatefulWidget {
   int _validateCode = 0;
   Category? selectParent;
   List<Category> listCategory = [];
-  Category _category = Category(corpId: HttpApi.corpId);
+  Category _category = Category();
+
+  Corp? curCorp;
 
   @override
   void dispose() {
@@ -43,21 +46,18 @@ class CategoryEditScreen extends StatefulWidget {
       setState(() {
         _category = widget.editCategory!;
         _textName.text = _category.name!;
-
-        if(_category.name!.lastIndexOf(' ') > 0) {
-          _textParentName.text =
-              _category.name!.substring(0, _category.name!.lastIndexOf(' '));
-        }
       });
     }
 
-
+    setState(() {
+      curCorp = Corp.fromJson(SpUtil.getObject(Constant.currentCorp));
+    });
 
     loadCategory();
   }
 
   Future loadCategory() async {
-    var params = {'corpId': HttpApi.corpId};
+    var params = {'corpId': curCorp?.id};
 
     try {
       var retData = await DioUtils().request(
@@ -67,6 +67,15 @@ class CategoryEditScreen extends StatefulWidget {
         setState(() {
           listCategory =
               (retData as List).map((e) => Category.fromJson(e)).toList();
+
+          if(null != _category.id && null != _category.parentId){
+            for (var element in listCategory) {
+              if(element.id == _category.parentId) {
+                selectParent = element;
+                _textParentName.text = selectParent!.pathName!;
+              }
+            }
+          }
         });
       }
     } on DioError catch (error) {
@@ -81,19 +90,22 @@ class CategoryEditScreen extends StatefulWidget {
 
   Future save() async {
     try {
-      Category? category;
-      if(selectParent != null) {
-        category = Category(pathName: _textParentName.text + ' ' + _textName.text , name:  _textName.text, parentId: selectParent!.id!, corpId:HttpApi.corpId);
-      }else{
-        category = Category(pathName: _textParentName.text + ' ' + _textName.text , name:  _textName.text, corpId:HttpApi.corpId);
-      }
 
-      if(null == selectParent!.id) {
+       _category.name = _textName.text;
+       _category.parentId = selectParent?.id;
+
+       if(null != _category.parentId){
+         _category.pathName = selectParent!.pathName! + ' '  +  _category.name!;
+       }
+
+       _category.corpId = curCorp?.id;
+
+      if(null == _category!.id) {
         var retData = await DioUtils().request(
-            HttpApi.product_category_add, "POST", data: json.encode(category),isJson: true);
+            HttpApi.product_category_add, "POST", data: json.encode(_category),isJson: true);
       }else{
-        var retData = await DioUtils().request('${HttpApi.product_category_update}${selectParent!.id}', "PUT",
-            data: json.encode(category), isJson: true);
+        var retData = await DioUtils().request('${HttpApi.product_category_update}${_category!.id}', "PUT",
+            data: json.encode(_category), isJson: true);
       }
 
       Navigator.of(context).pop();

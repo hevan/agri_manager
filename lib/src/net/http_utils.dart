@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sp_util/sp_util.dart';
-import 'package:znny_manager/src/utils/constants.dart';
+import 'package:agri_manager/src/utils/constants.dart';
 
 typedef onError = void Function(int statusCode, Object error);
 typedef onSuccess = void Function(dynamic data);
